@@ -28,4 +28,9 @@ export class CreateTopicDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  rulesHtml?: string;
 }

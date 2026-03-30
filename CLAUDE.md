@@ -374,6 +374,17 @@ The default admin account is created automatically when running the seed script.
 | **Flashcards**        | `frontText` shown -> tap "I knew it" / "I didn't know" (FlashcardItem) | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false |
 | **Fill-in-the-blank** | `sentenceHr` with `{{BLANK}}` placeholder (FillInBlankItem) | Client-side comparison with `blankAnswer` |
 
+### Exercise Rules
+
+Each `ExerciseTopic` can have optional rich-text rules (`rulesHtml` field, nullable HTML string). Rules describe grammar rules relevant to the exercise and are authored via a Tiptap rich text editor in the admin panel.
+
+During an exercise session, if the topic has rules, a **"Show Rules"** button appears next to the progress indicator. Clicking it opens a non-blocking dialog displaying the formatted rules. The session continues uninterrupted.
+
+- **Admin**: Rules are edited in the topic create/edit form via the `RichTextEditor` component (Tiptap)
+- **API**: `rulesHtml` is included in the `createSession` response alongside session items
+- **Web**: `ExerciseRulesDialog` component renders the HTML in a MUI Dialog
+- **Storage**: HTML string in PostgreSQL `TEXT` column, flows through Redis cache with topic data
+
 ---
 
 ## Admin Panel — Content Management UI

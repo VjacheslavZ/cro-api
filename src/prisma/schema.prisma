@@ -127,6 +127,7 @@ model ExerciseTopic {
   nameEn    String
   sortOrder Int       @default(0)
   isActive  Boolean   @default(true)
+  rulesHtml String?   @db.Text
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

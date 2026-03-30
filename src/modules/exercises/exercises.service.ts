@@ -29,15 +29,21 @@ export class ExercisesService {
       return { cycleExhausted, session: null };
     }
 
-    const session = await this.prisma.exerciseSession.create({
-      data: {
-        userId,
-        exerciseType,
-        topicId,
-        status: SessionStatus.IN_PROGRESS,
-        totalQuestions: items.length,
-      },
-    });
+    const [session, topic] = await Promise.all([
+      this.prisma.exerciseSession.create({
+        data: {
+          userId,
+          exerciseType,
+          topicId,
+          status: SessionStatus.IN_PROGRESS,
+          totalQuestions: items.length,
+        },
+      }),
+      this.prisma.exerciseTopic.findUnique({
+        where: { id: topicId },
+        select: { rulesHtml: true },
+      }),
+    ]);
 
     return {
       cycleExhausted: false,
@@ -47,6 +53,7 @@ export class ExercisesService {
         topicId: session.topicId,
         status: session.status,
         totalQuestions: session.totalQuestions,
+        rulesHtml: topic?.rulesHtml ?? null,
         items: items.map((item: Record<string, unknown>) => ({
           type: exerciseType,
           ...item,
