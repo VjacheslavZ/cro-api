@@ -1,12 +1,15 @@
 import { randomUUID } from 'crypto';
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { addDays } from 'date-fns';
+import * as bcrypt from 'bcrypt';
 import Redis from 'ioredis';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 interface GoogleProfile {
   googleId: string;
@@ -123,6 +126,90 @@ export class AuthService {
         currentStreak: user.currentStreak,
       },
       isNewUser,
+    };
+  }
+
+  async register(dto: RegisterDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existing) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        passwordHash,
+        subscription: {
+          create: {
+            status: 'TRIALING',
+            trialStartedAt: new Date(),
+            trialEndsAt: addDays(new Date(), 7),
+          },
+        },
+      },
+      include: { subscription: true },
+    });
+
+    const tokens = await this.generateTokens(user.id);
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        nativeLanguage: user.nativeLanguage,
+        xpTotal: user.xpTotal,
+        currentStreak: user.currentStreak,
+      },
+      isNewUser: true,
+    };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+      include: { subscription: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedException(
+        'This account uses Google/Apple sign-in. Please log in with your OAuth provider.',
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const tokens = await this.generateTokens(user.id);
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        nativeLanguage: user.nativeLanguage,
+        xpTotal: user.xpTotal,
+        currentStreak: user.currentStreak,
+      },
+      isNewUser: false,
     };
   }
 

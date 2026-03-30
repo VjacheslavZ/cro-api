@@ -12,11 +12,27 @@ async function bootstrap() {
 
   app.use(helmet());
 
+  const allowedOrigins = [
+    configService.get<string>('WEB_URL', 'http://localhost:5173'),
+    configService.get<string>('ADMIN_URL', 'http://localhost:5174'),
+  ];
+
   app.enableCors({
-    origin: [
-      configService.get<string>('WEB_URL', 'http://localhost:5173'),
-      configService.get<string>('ADMIN_URL', 'http://localhost:5174'),
-    ],
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV !== 'production' &&
+          /^http:\/\/(localhost|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+):\d+$/.test(origin))
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
@@ -38,7 +54,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 
 bootstrap();
