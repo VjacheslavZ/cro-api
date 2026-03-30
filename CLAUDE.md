@@ -178,6 +178,7 @@ WebhookEvent                 <- idempotent processing
 ExerciseTopic                <- flat top-level entity (replaces Category + WordSet)
   nameHr, nameRu, nameUk, nameEn
   sortOrder, isActive
+  rulesHtml (Text, nullable) <- rich-text HTML rules for the exercise topic
   createdAt, updatedAt
 
 ExerciseTopicType            <- which exercise types are enabled for a topic
