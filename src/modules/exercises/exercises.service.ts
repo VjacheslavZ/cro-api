@@ -41,7 +41,7 @@ export class ExercisesService {
       }),
       this.prisma.exerciseTopic.findUnique({
         where: { id: topicId },
-        select: { rulesHtml: true },
+        select: { rulesHtmlHr: true, rulesHtmlRu: true, rulesHtmlUk: true, rulesHtmlEn: true },
       }),
     ]);
 
@@ -53,7 +53,10 @@ export class ExercisesService {
         topicId: session.topicId,
         status: session.status,
         totalQuestions: session.totalQuestions,
-        rulesHtml: topic?.rulesHtml ?? null,
+        rulesHtmlHr: topic?.rulesHtmlHr ?? null,
+        rulesHtmlRu: topic?.rulesHtmlRu ?? null,
+        rulesHtmlUk: topic?.rulesHtmlUk ?? null,
+        rulesHtmlEn: topic?.rulesHtmlEn ?? null,
         items: items.map((item: Record<string, unknown>) => ({
           type: exerciseType,
           ...item,

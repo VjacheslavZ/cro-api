@@ -128,7 +128,10 @@ model ExerciseTopic {
   nameEn    String
   sortOrder Int       @default(0)
   isActive  Boolean   @default(true)
-  rulesHtml String?   @db.Text
+  rulesHtmlHr String?  @db.Text
+  rulesHtmlRu String?  @db.Text
+  rulesHtmlUk String?  @db.Text
+  rulesHtmlEn String?  @db.Text
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -160,7 +163,7 @@ model SingularPluralItem {
   translationEn String
   sortOrder     Int           @default(0)
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  updatedAt     DateTime      @default(now()) @updatedAt
 
   topic         ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 

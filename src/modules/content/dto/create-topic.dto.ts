@@ -32,5 +32,20 @@ export class CreateTopicDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  rulesHtml?: string;
+  rulesHtmlHr?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  rulesHtmlRu?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  rulesHtmlUk?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  rulesHtmlEn?: string;
 }
