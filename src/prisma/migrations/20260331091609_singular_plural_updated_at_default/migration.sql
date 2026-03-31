@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "SingularPluralItem" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
