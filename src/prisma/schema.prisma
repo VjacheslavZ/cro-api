@@ -72,6 +72,10 @@ model User {
   exerciseProgress UserExerciseProgress[]
   sessions         ExerciseSession[]
   streakLogs       StreakLog[]
+  dictionaryWords       UserDictionaryWord[]
+  dictionaryProgress    DictionaryWordProgress[]
+  dictionaryCollections DictionaryCollection[]  @relation("UserDictionaryCollections")
+  dictionarySessions    DictionaryPracticeSession[]
 }
 
 model SubscriptionPlan {
@@ -262,4 +266,78 @@ model Admin {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  dictionaryCollections DictionaryCollection[]
+}
+
+model DictionaryCollection {
+  id               String   @id @default(uuid())
+  name             String
+  description      String?
+  createdByAdminId String?
+  createdByUserId  String?
+  isPublic         Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  createdByAdmin Admin? @relation(fields: [createdByAdminId], references: [id], onDelete: SetNull)
+  createdByUser  User?  @relation("UserDictionaryCollections", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  words          UserDictionaryWord[]
+}
+
+model UserDictionaryWord {
+  id                  String         @id @default(uuid())
+  userId              String
+  wordHr              String
+  translation         String
+  translationLanguage NativeLanguage
+  collectionId        String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collection DictionaryCollection?  @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  progress   DictionaryWordProgress?
+
+  @@unique([userId, wordHr])
+  @@index([wordHr, translationLanguage])
+}
+
+model DictionaryWordProgress {
+  id              String    @id @default(uuid())
+  userId          String
+  wordId          String    @unique
+  totalAttempts   Int       @default(0)
+  correctAttempts Int       @default(0)
+  lastPracticedAt DateTime?
+
+  user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word UserDictionaryWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId])
+}
+
+model DictionaryPracticeSession {
+  id             String        @id @default(uuid())
+  userId         String
+  status         SessionStatus @default(IN_PROGRESS)
+  totalQuestions Int           @default(0)
+  correctAnswers Int           @default(0)
+  xpEarned       Int           @default(0)
+  createdAt      DateTime      @default(now())
+  completedAt    DateTime?
+
+  user    User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers DictionaryPracticeAnswer[]
+}
+
+model DictionaryPracticeAnswer {
+  id          String  @id @default(uuid())
+  sessionId   String
+  wordId      String
+  givenAnswer String
+  isCorrect   Boolean
+
+  session DictionaryPracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

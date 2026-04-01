@@ -12,6 +12,7 @@ import { ContentModule } from './modules/content/content.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
+import { DictionaryModule } from './modules/dictionary/dictionary.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ExercisesModule } from './modules/exercises/exercises.module';
     ProgressModule,
     GamificationModule,
     ExercisesModule,
+    DictionaryModule,
   ],
 })
 export class AppModule {}

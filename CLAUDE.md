@@ -229,6 +229,33 @@ StreakLog
 Admin
   id, email, passwordHash
   createdAt, updatedAt
+
+DictionaryCollection
+  id, name, description (nullable)
+  createdByAdminId (nullable), createdByUserId (nullable)
+  isPublic (Boolean, default false) <- true = admin-created, visible to all
+  sortOrder, createdAt, updatedAt
+
+UserDictionaryWord
+  userId, wordHr, translation
+  translationLanguage (RU|UK|EN)   <- derived from user's nativeLanguage on write
+  collectionId (nullable FK to DictionaryCollection, onDelete: SetNull)
+  @@unique([userId, wordHr])
+  @@index([wordHr, translationLanguage]) <- for shared translation pool queries
+
+DictionaryWordProgress
+  userId, wordId (unique FK to UserDictionaryWord, onDelete: Cascade)
+  totalAttempts, correctAttempts
+  lastPracticedAt
+  @@unique([userId, wordId])
+
+DictionaryPracticeSession
+  userId, status (IN_PROGRESS|COMPLETED|ABANDONED)
+  totalQuestions, correctAnswers, xpEarned
+  createdAt, completedAt
+
+DictionaryPracticeAnswer
+  sessionId, wordId, givenAnswer, isCorrect
 ```
 
 ---
@@ -249,6 +276,7 @@ Admin
 | `NotificationsModule` | BullMQ producer/consumer for Expo push                         |
 | `AnalyticsModule`     | aggregations for admin (registrations, subscriptions)          |
 | `AdminModule`         | `AdminGuard` + admin-only endpoints, admin user management (add new admins) |
+| `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), shared translation suggestions, practice sessions (Type the Answer) |
 
 ---
 
@@ -324,7 +352,36 @@ POST/PATCH        /admin/subscription-plans
 GET  /admin/users
 PATCH /admin/users/:id/block
 GET  /admin/analytics/overview
+POST/PATCH/DELETE /admin/dictionary-collections  # manage predefined collections
+GET  /admin/dictionary-collections
 ```
+
+### Dictionary (protected by JwtAuthGuard)
+
+```
+GET    /dictionary/words                    # paginated (cursor-based), supports ?search, ?collectionId
+POST   /dictionary/words                    # add word (translation + optional collectionId)
+DELETE /dictionary/words/:id                # remove word
+PATCH  /dictionary/words/:id/collection     # assign/unassign collection
+PATCH  /dictionary/words/batch              # batch assign to collection { wordIds, collectionId }
+GET    /dictionary/suggestions?word=X       # shared translation pool (filtered by user's nativeLanguage)
+GET    /dictionary/collections              # predefined + personal collections
+POST   /dictionary/collections              # create personal collection
+PATCH  /dictionary/collections/:id          # update personal collection
+DELETE /dictionary/collections/:id          # delete personal collection
+POST   /dictionary/practice/sessions        # start practice session
+POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
+```
+
+### Dictionary — Design Notes
+
+- **Cursor-based pagination** for word list (not offset) — handles inserts/deletes during scrolling without skipping/duplicating items
+- **No Redis cache** for dictionary data — per-user, write-heavy; TanStack Query handles frontend caching
+- **`translationLanguage`** is derived server-side from `user.nativeLanguage`, not sent by client — prevents shared pool corruption
+- **Shared translation pool**: `groupBy` query on `UserDictionaryWord` where `wordHr` matches and `translationLanguage` = user's language, ordered by popularity (count desc), top 5 suggestions
+- **Practice sessions** use separate models from `ExerciseSession` (not tied to ExerciseTopic/ExerciseType)
+- **Progress %** = `correctAttempts / totalAttempts * 100`, computed on the fly (not stored)
+- **Collection deletion** sets words' `collectionId` to null — words are preserved, not deleted
 
 ---
 
@@ -374,6 +431,7 @@ The default admin account is created automatically when running the seed script.
 | **Type the Answer** | `baseForm` is shown -> user enters the plural form (SingularPluralItem) | trim + lowercase + NFC normalization, client-side comparison with `pluralForm` |
 | **Flashcards**        | `frontText` shown -> tap "I knew it" / "I didn't know" (FlashcardItem) | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false |
 | **Fill-in-the-blank** | `sentenceHr` with `{{BLANK}}` placeholder (FillInBlankItem) | Client-side comparison with `blankAnswer` |
+| **Dictionary Practice** | Croatian word (`wordHr`) shown -> user types translation (UserDictionaryWord) | trim + lowercase + NFC normalization, client-side comparison with `translation` |
 
 ### Exercise Rules
 
@@ -414,6 +472,55 @@ Admin manages content as flat **ExerciseTopic** entities. Each topic can have mu
 
 #### Fill in the Blank items
 - Fields: `sentenceHr` (with `{{BLANK}}` placeholder), `blankAnswer`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
+
+### Dictionary collection management (admin)
+
+- **Route**: `/dictionary-collections` — table with columns: name, description, word count, sortOrder, edit/delete actions
+- **Create/Edit form**: `name`, `description` (optional), `sortOrder`
+- Admin-created collections have `isPublic: true` and are visible to all users as predefined collections
+
+---
+
+## Dictionary
+
+### Overview
+
+Every user has a personal dictionary page at `/dictionary/my`, accessible via the Dictionary button in the header → "My Dictionary". Users manually add Croatian words with translations in their native language. A shared translation pool suggests translations from other users (same language) when adding a word.
+
+### My Dictionary Page (`/dictionary/my`)
+
+- **Top bar**: search `TextField` + "Add Word" `Button` + (when checkboxes selected) "Assign to Collection" dropdown + "Practice" button
+- **Word list**: infinite scroll with cursor-based pagination (loads on scroll via `IntersectionObserver`)
+- **Each row**:
+  ```
+  checkbox | word          | collection name (or empty) | progress % | delete icon
+             translation
+  ```
+- **Progress %** = `correctAttempts / totalAttempts * 100` from dictionary practice sessions
+
+### Add Word Flow
+
+1. User types a Croatian word in the search input, clicks "Add"
+2. Modal opens with the word pre-filled
+3. `GET /dictionary/suggestions?word=X` fires — returns existing translations from the shared pool (filtered by user's `nativeLanguage`)
+4. If suggestions exist, show them as clickable chips
+5. User picks a suggestion or types a custom translation
+6. Optional: select a collection from dropdown
+7. Submit creates the word via `POST /dictionary/words`
+
+### Collections Page (`/dictionary/collections`)
+
+- Two sections: "Predefined Collections" (admin-created, `isPublic: true`) and "My Collections" (user-created)
+- "Create Collection" button opens modal with name + description fields
+- Clicking a collection navigates to `/dictionary/my?collectionId=xxx` (filtered view)
+- Personal collections can be edited/deleted; predefined collections are read-only for users
+
+### Dictionary Practice
+
+- Uses "Type the Answer" mechanic: show Croatian word (`wordHr`) → user types translation
+- `POST /dictionary/practice/sessions` creates a session, prioritizing words with lowest progress or never-practiced
+- `POST /dictionary/practice/sessions/:id/finish` submits results, updates `DictionaryWordProgress`, awards XP via `GamificationModule`
+- Reuses existing `TextInputExercise` component on web
 
 ---
 
@@ -572,8 +679,13 @@ Priorities:
 - Exercise screens on web for all 3 types (discriminated union ExerciseItem type)
 - GamificationModule: XP + streak
 - Unit tests: item cycle, results processing, streak
+- DictionaryModule: personal word CRUD with cursor-based pagination, shared translation suggestions pool (per language), collections (admin-predefined + user-created)
+- Dictionary practice sessions (Type the Answer mechanic with dictionary words), progress tracking (correctAttempts/totalAttempts)
+- Admin UI: predefined dictionary collection management
+- Web UI: My Dictionary page (`/dictionary/my`) with infinite scroll, Add Word modal with translation suggestions, Collections page (`/dictionary/collections`)
+- Web UI: Dictionary practice page reusing TextInputExercise component
 
-**Result**: All 3 exercise types working. Content created via admin panel with per-type item tables.
+**Result**: All 3 exercise types working. Content created via admin panel with per-type item tables. Personal dictionary with word collection, shared translations, and practice mode.
 
 ### Phase 3 — Mobile App
 
@@ -787,6 +899,11 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 10. Admin: change subscription price -> confirm new price is displayed in the app
 11. `npm test` in each repo -> all tests pass
 12. `npm run lint` and `npm run typecheck` in each repo -> no errors
+13. Add a word to dictionary -> verify it appears in the word list with infinite scroll
+14. Search for an existing word -> verify translation suggestions from shared pool appear (filtered by nativeLanguage)
+15. Create a personal collection -> assign words to it -> verify collection filter works on My Dictionary page
+16. Start dictionary practice -> answer all items -> verify progress % updates in the word list
+17. Admin: create a predefined dictionary collection -> verify it appears for all users on Collections page
 
 ---
 
@@ -908,5 +1025,7 @@ git commit -m "chore: update shared submodule"
 - `src/modules/content/content.service.ts` (in `cro-api`) — topics + per-type item CRUD, generic getItemsForTopic/getItemsByIds
 - `src/modules/progress/progress.service.ts` (in `cro-api`) — item cycle logic; most critical business logic
 - `src/modules/payments/payments.service.ts` (in `cro-api`) — webhook + idempotency; bugs = financial losses
+- `src/modules/dictionary/dictionary.service.ts` (in `cro-api`) — dictionary word CRUD, shared translation pool, cursor pagination
+- `src/modules/dictionary/dictionary-practice.service.ts` (in `cro-api`) — dictionary practice sessions, progress tracking
 - `docker-compose.yml` (in `cro-api`) — local dev stack
 - `.husky/pre-commit` + lint-staged config (in each repo) — pre-commit gates
