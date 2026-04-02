@@ -18,8 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@cro/shared": ["shared/src"],
-      "@cro/shared/*": ["shared/src/*"]
+      "@cro/shared": ["../../packages/shared/src"],
+      "@cro/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src"]
