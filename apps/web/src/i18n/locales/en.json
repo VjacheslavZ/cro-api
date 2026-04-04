@@ -1,0 +1,166 @@
+{
+  "auth": {
+    "welcome": "Welcome to Croatian Grammar",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithApple": "Sign in with Apple",
+    "selectLanguage": "Select your native language",
+    "continue": "Continue",
+    "loginFailed": "Login failed. Please try again.",
+    "orDivider": "or",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "register": "Register",
+    "login": "Log in",
+    "switchToRegister": "Don't have an account? Register",
+    "switchToLogin": "Already have an account? Log in",
+    "registrationFailed": "Registration failed. Please try again."
+  },
+  "languages": {
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "english": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "exercises": "Exercises",
+    "dictionary": "Dictionary",
+    "myDictionary": "My dictionary",
+    "collections": "Collections",
+    "profile": "Profile"
+  },
+  "header": {
+    "settings": "Settings",
+    "logout": "Log out",
+    "role": "Role",
+    "xp": "Total XP",
+    "streak": "Current streak",
+    "nativeLanguage": "Native language"
+  },
+  "footer": {
+    "aboutUs": "About us",
+    "forPartners": "For partners",
+    "contacts": "Contacts",
+    "socials": "Follow us",
+    "mobileApps": "Mobile apps",
+    "rights": "All rights reserved."
+  },
+  "exercises": {
+    "title": "Exercises",
+    "subtitle": "Choose a topic to practice your Croatian grammar.",
+    "chooseType": "Choose an exercise type to start practicing.",
+    "noTypes": "No exercise types available for this topic.",
+    "start": "Start",
+    "types": {
+      "typeTheAnswer": "Type the Answer",
+      "flashcards": "Flashcards",
+      "fillInBlank": "Fill in the Blank"
+    },
+    "session": {
+      "progress": "Question {{current}} of {{total}}",
+      "check": "Check",
+      "next": "Next",
+      "finish": "Finish"
+    },
+    "typeTheAnswer": {
+      "title": "Type the Answer",
+      "instruction": "Enter the plural form of the word:",
+      "placeholder": "Enter plural form...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}"
+    },
+    "flashcards": {
+      "title": "Flashcards",
+      "instruction": "Do you know this word?",
+      "tapToFlip": "Tap to see the translation",
+      "knew": "I knew it",
+      "didNotKnow": "I didn't know"
+    },
+    "fillInBlank": {
+      "title": "Fill in the Blank",
+      "instruction": "Fill in the missing word:",
+      "placeholder": "Enter the missing word...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}"
+    },
+    "results": {
+      "title": "Session Complete!",
+      "score": "Score: {{correct}} / {{total}}",
+      "xpEarned": "+{{xp}} XP",
+      "streak_one": "Current streak: {{count}} day",
+      "streak_other": "Current streak: {{count}} days",
+      "continue": "Continue practicing",
+      "backToExercises": "Choose another exercise"
+    },
+    "cycle": {
+      "exhausted": "You've completed all items in this topic!",
+      "resetAndStart": "Reset & Start Again",
+      "back": "Back"
+    },
+    "rules": {
+      "show": "Show Rules",
+      "title": "Rules"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "nativeLanguage": "Native language"
+  },
+  "dictionary": {
+    "title": "My Dictionary",
+    "addWord": "Add Word",
+    "searchPlaceholder": "Search words...",
+    "noWords": "Your dictionary is empty. Add your first word!",
+    "word": "Croatian word",
+    "translation": "Translation",
+    "collection": "Collection",
+    "progress": "Progress",
+    "delete": "Delete",
+    "addWordModal": {
+      "title": "Add Word",
+      "wordLabel": "Croatian word",
+      "translationLabel": "Translation",
+      "collectionLabel": "Collection (optional)",
+      "suggestions": "Suggestions from other users",
+      "noSuggestions": "No suggestions found",
+      "add": "Add",
+      "cancel": "Cancel",
+      "duplicate": "This word is already in your dictionary"
+    },
+    "collections": {
+      "title": "Collections",
+      "predefined": "Predefined Collections",
+      "personal": "My Collections",
+      "createCollection": "Create Collection",
+      "name": "Name",
+      "description": "Description (optional)",
+      "wordCount_one": "{{count}} word",
+      "wordCount_other": "{{count}} words",
+      "noCollections": "No collections yet",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "save": "Save"
+    },
+    "practice": {
+      "start": "Practice",
+      "instruction": "Type the translation:",
+      "placeholder": "Enter translation...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}",
+      "noWords": "Add words to your dictionary first to start practicing",
+      "results": "Practice Complete!",
+      "backToDictionary": "Back to Dictionary",
+      "practiceAgain": "Practice Again"
+    },
+    "assignCollection": "Assign to Collection",
+    "unassign": "Remove from collection",
+    "selected": "{{count}} selected"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "close": "Close"
+  }
+}

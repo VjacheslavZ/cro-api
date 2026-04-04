@@ -1,5 +1,9 @@
 node_modules/
 dist/
+dist-ssr/
 .env
+*.local
 .idea/
 *.js.map
+.turbo
+.DS_Store

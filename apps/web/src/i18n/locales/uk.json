@@ -1,0 +1,168 @@
+{
+  "auth": {
+    "welcome": "Ласкаво просимо до Croatian Grammar",
+    "signInWithGoogle": "Увійти через Google",
+    "signInWithApple": "Увійти через Apple",
+    "selectLanguage": "Оберіть вашу рідну мову",
+    "continue": "Продовжити",
+    "loginFailed": "Помилка входу. Спробуйте ще раз.",
+    "orDivider": "або",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "name": "Ім'я",
+    "register": "Зареєструватися",
+    "login": "Увійти",
+    "switchToRegister": "Немає акаунту? Зареєструйтесь",
+    "switchToLogin": "Вже є акаунт? Увійдіть",
+    "registrationFailed": "Помилка реєстрації. Спробуйте ще раз."
+  },
+  "languages": {
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "english": "English"
+  },
+  "nav": {
+    "home": "Головна",
+    "exercises": "Вправи",
+    "dictionary": "Словник",
+    "myDictionary": "Мій словник",
+    "collections": "Мої колекції",
+    "profile": "Профіль"
+  },
+  "header": {
+    "settings": "Налаштування",
+    "logout": "Вийти",
+    "role": "Роль",
+    "xp": "Всього XP",
+    "streak": "Поточна серія",
+    "nativeLanguage": "Рідна мова"
+  },
+  "footer": {
+    "aboutUs": "Про нас",
+    "forPartners": "Партнерам",
+    "contacts": "Контакти",
+    "socials": "Ми в соцмережах",
+    "mobileApps": "Мобільні додатки",
+    "rights": "Усі права захищені."
+  },
+  "exercises": {
+    "title": "Вправи",
+    "subtitle": "Оберіть тему для практики хорватської граматики.",
+    "chooseType": "Оберіть тип вправи для початку практики.",
+    "noTypes": "Для цієї теми немає доступних типів вправ.",
+    "start": "Почати",
+    "types": {
+      "typeTheAnswer": "Впишіть відповідь",
+      "flashcards": "Картки",
+      "fillInBlank": "Заповни пропуск"
+    },
+    "session": {
+      "progress": "Питання {{current}} з {{total}}",
+      "check": "Перевірити",
+      "next": "Далі",
+      "finish": "Завершити"
+    },
+    "typeTheAnswer": {
+      "title": "Впишіть відповідь",
+      "instruction": "Введіть множину слова:",
+      "placeholder": "Введіть множину...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}"
+    },
+    "flashcards": {
+      "title": "Картки",
+      "instruction": "Ви знаєте це слово?",
+      "tapToFlip": "Натисніть, щоб побачити переклад",
+      "knew": "Знав/Знала",
+      "didNotKnow": "Не знав/Не знала"
+    },
+    "fillInBlank": {
+      "title": "Заповни пропуск",
+      "instruction": "Вставте пропущене слово:",
+      "placeholder": "Введіть пропущене слово...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}"
+    },
+    "results": {
+      "title": "Сесію завершено!",
+      "score": "Результат: {{correct}} / {{total}}",
+      "xpEarned": "+{{xp}} XP",
+      "streak_one": "Поточна серія: {{count}} день",
+      "streak_few": "Поточна серія: {{count}} дні",
+      "streak_many": "Поточна серія: {{count}} днів",
+      "continue": "Продовжити практику",
+      "backToExercises": "Обрати іншу вправу"
+    },
+    "cycle": {
+      "exhausted": "Ви пройшли всі завдання у цій темі!",
+      "resetAndStart": "Скинути і почати знову",
+      "back": "Назад"
+    },
+    "rules": {
+      "show": "Показати правила",
+      "title": "Правила"
+    }
+  },
+  "settings": {
+    "title": "Налаштування",
+    "nativeLanguage": "Рідна мова"
+  },
+  "dictionary": {
+    "title": "Мій словник",
+    "addWord": "Додати слово",
+    "searchPlaceholder": "Пошук слів...",
+    "noWords": "Ваш словник порожній. Додайте перше слово!",
+    "word": "Хорватське слово",
+    "translation": "Переклад",
+    "collection": "Колекція",
+    "progress": "Прогрес",
+    "delete": "Видалити",
+    "addWordModal": {
+      "title": "Додати слово",
+      "wordLabel": "Хорватське слово",
+      "translationLabel": "Переклад",
+      "collectionLabel": "Колекція (необов'язково)",
+      "suggestions": "Пропозиції від інших користувачів",
+      "noSuggestions": "Пропозицій не знайдено",
+      "add": "Додати",
+      "cancel": "Скасувати",
+      "duplicate": "Це слово вже є у вашому словнику"
+    },
+    "collections": {
+      "title": "Колекції",
+      "predefined": "Готові колекції",
+      "personal": "Мої колекції",
+      "createCollection": "Створити колекцію",
+      "name": "Назва",
+      "description": "Опис (необов'язково)",
+      "wordCount_one": "{{count}} слово",
+      "wordCount_few": "{{count}} слова",
+      "wordCount_many": "{{count}} слів",
+      "noCollections": "Колекцій поки немає",
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "create": "Створити",
+      "save": "Зберегти"
+    },
+    "practice": {
+      "start": "Практика",
+      "instruction": "Введіть переклад:",
+      "placeholder": "Введіть переклад...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}",
+      "noWords": "Спочатку додайте слова до словника, щоб почати практику",
+      "results": "Практику завершено!",
+      "backToDictionary": "Назад до словника",
+      "practiceAgain": "Практикувати знову"
+    },
+    "assignCollection": "Призначити колекцію",
+    "unassign": "Прибрати з колекції",
+    "selected": "{{count}} обрано"
+  },
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Сталася помилка",
+    "retry": "Повторити",
+    "close": "Закрити"
+  }
+}

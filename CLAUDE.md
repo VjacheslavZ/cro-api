@@ -175,43 +175,52 @@ WebhookEvent                 <- idempotent processing
   externalEventId @unique    <- idempotency key
   payload (Json)
 
-Category
+ExerciseTopic                <- flat top-level entity (replaces Category + WordSet)
   nameHr, nameRu, nameUk, nameEn
   sortOrder, isActive
-
-WordSet
-  categoryId, nameHr, nameRu, nameUk, nameEn
-  sortOrder, isActive
-
-Word
-  wordSetId
-  baseForm          <- Croatian (nominative case, singular)
-  pluralForm        <- Croatian (nominative case, plural)
-  translationRu, translationUk, translationEn
-  sentenceHr        <- sentence with {{BLANK}} for fill-in-the-blank
-  sentenceBlankAnswer
-  wrongOptions (Json)  <- 3 distractor options for multiple choice
-  sortOrder
+  rulesHtml (Text, nullable) <- rich-text HTML rules for the exercise topic
   createdAt, updatedAt
 
-WordExerciseConfig
-  wordId + exerciseType @unique   <- which exercise types are enabled for a word
+ExerciseTopicType            <- which exercise types are enabled for a topic
+  topicId + exerciseType @unique (@@unique)
+  cascade delete from ExerciseTopic
 
-UserWordProgress
-  userId + wordId + exerciseType  @unique
+SingularPluralItem           <- items for "Type the Answer" exercise
+  topicId
+  baseForm, pluralForm
+  translationRu, translationUk, translationEn
+  sortOrder
+
+FlashcardItem                <- items for flashcard exercise
+  topicId
+  frontText
+  translationRu, translationUk, translationEn
+  sortOrder
+
+FillInBlankItem              <- items for fill-in-the-blank exercise
+  topicId
+  sentenceHr                 <- sentence with {{BLANK}} placeholder
+  blankAnswer
+  translationRu, translationUk, translationEn
+  sortOrder
+
+UserExerciseProgress
+  userId + exerciseType + itemId @unique
+  topicId                    <- for filtering by topic
+  itemId (String)            <- generic ID, no FK (polymorphic across item tables)
   seenInCurrentCycle (Boolean)
   cycleNumber
   totalAttempts, correctAttempts
   lastSeenAt, lastCorrectAt
 
 ExerciseSession
-  userId, exerciseType, wordSetId
+  userId, exerciseType, topicId
   status (IN_PROGRESS|COMPLETED|ABANDONED)
   totalQuestions, correctAnswers, xpEarned
   createdAt, completedAt
 
 SessionAnswer
-  sessionId, wordId, givenAnswer, isCorrect
+  sessionId, itemId (String, no FK), givenAnswer, isCorrect
 
 StreakLog
   userId + date @unique   <- one record per day
@@ -220,6 +229,33 @@ StreakLog
 Admin
   id, email, passwordHash
   createdAt, updatedAt
+
+DictionaryCollection
+  id, name, description (nullable)
+  createdByAdminId (nullable), createdByUserId (nullable)
+  isPublic (Boolean, default false) <- true = admin-created, visible to all
+  sortOrder, createdAt, updatedAt
+
+UserDictionaryWord
+  userId, wordHr, translation
+  translationLanguage (RU|UK|EN)   <- derived from user's nativeLanguage on write
+  collectionId (nullable FK to DictionaryCollection, onDelete: SetNull)
+  @@unique([userId, wordHr])
+  @@index([wordHr, translationLanguage]) <- for shared translation pool queries
+
+DictionaryWordProgress
+  userId, wordId (unique FK to UserDictionaryWord, onDelete: Cascade)
+  totalAttempts, correctAttempts
+  lastPracticedAt
+  @@unique([userId, wordId])
+
+DictionaryPracticeSession
+  userId, status (IN_PROGRESS|COMPLETED|ABANDONED)
+  totalQuestions, correctAnswers, xpEarned
+  createdAt, completedAt
+
+DictionaryPracticeAnswer
+  sessionId, wordId, givenAnswer, isCorrect
 ```
 
 ---
@@ -230,9 +266,9 @@ Admin
 | --------------------- | -------------------------------------------------------------- |
 | `AuthModule`          | Google OAuth2 + Apple, email/password (admins), JWT (access 15m + refresh 30d in Redis) |
 | `UsersModule`         | profile, language, push token, account deletion (GDPR)         |
-| `ContentModule`       | CRUD for categories / word sets / words (write — admin only)   |
+| `ContentModule`       | CRUD for topics + per-type exercise items (write — admin only) |
 | `ExercisesModule`     | sessions, results processing                                   |
-| `ProgressModule`      | `UserWordProgress`, word cycle logic                           |
+| `ProgressModule`      | `UserExerciseProgress`, item cycle logic                       |
 | `SubscriptionsModule` | subscription status, plan list with currency                   |
 | `PaymentsModule`      | Stripe Checkout, Customer Portal, webhook                      |
 | `RevenueCatModule`    | RevenueCat webhook (HMAC verification)                         |
@@ -240,6 +276,7 @@ Admin
 | `NotificationsModule` | BullMQ producer/consumer for Expo push                         |
 | `AnalyticsModule`     | aggregations for admin (registrations, subscriptions)          |
 | `AdminModule`         | `AdminGuard` + admin-only endpoints, admin user management (add new admins) |
+| `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), shared translation suggestions, practice sessions (Type the Answer) |
 
 ---
 
@@ -274,15 +311,15 @@ DELETE /users/me
 ### Content (public read)
 
 ```
-GET /content/categories
-GET /content/categories/:id/word-sets
-GET /content/word-sets/:id/words
+GET /content/topics                          # list active topics with exercise types
+GET /content/topics/:id                      # single topic with exercise types
+GET /content/topics/:topicId/items/:exerciseType  # items for a specific exercise type
 ```
 
 ### Exercises (protected by SubscriptionGuard)
 
 ```
-POST /exercises/sessions              # create session, get words + correct answers
+POST /exercises/sessions              # create session, get items + correct answers
 POST /exercises/sessions/:id/finish  # submit results, award XP
 GET  /exercises/sessions/:id         # get session data (includes correct answers)
 ```
@@ -305,15 +342,46 @@ POST /revenuecat/webhook             # HMAC verification
 ```
 POST /admin/admins                    # add new admin
 GET  /admin/admins                    # list all admins
-POST/PATCH/DELETE /admin/categories
-POST/PATCH/DELETE /admin/word-sets
-POST/PATCH/DELETE /admin/words
-PATCH /admin/words/:id/exercise-configs
+POST/PATCH/DELETE /admin/topics
+PATCH /admin/topics/:id/exercise-types
+POST/PATCH/DELETE /admin/singular-plural-items
+POST/PATCH/DELETE /admin/flashcard-items
+POST/PATCH/DELETE /admin/fill-in-blank-items
+GET  /admin/topics/:topicId/{type}-items  # list items by topic
 POST/PATCH        /admin/subscription-plans
 GET  /admin/users
 PATCH /admin/users/:id/block
 GET  /admin/analytics/overview
+POST/PATCH/DELETE /admin/dictionary-collections  # manage predefined collections
+GET  /admin/dictionary-collections
 ```
+
+### Dictionary (protected by JwtAuthGuard)
+
+```
+GET    /dictionary/words                    # paginated (cursor-based), supports ?search, ?collectionId
+POST   /dictionary/words                    # add word (translation + optional collectionId)
+DELETE /dictionary/words/:id                # remove word
+PATCH  /dictionary/words/:id/collection     # assign/unassign collection
+PATCH  /dictionary/words/batch              # batch assign to collection { wordIds, collectionId }
+GET    /dictionary/suggestions?word=X       # shared translation pool (filtered by user's nativeLanguage)
+GET    /dictionary/collections              # predefined + personal collections
+POST   /dictionary/collections              # create personal collection
+PATCH  /dictionary/collections/:id          # update personal collection
+DELETE /dictionary/collections/:id          # delete personal collection
+POST   /dictionary/practice/sessions        # start practice session
+POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
+```
+
+### Dictionary — Design Notes
+
+- **Cursor-based pagination** for word list (not offset) — handles inserts/deletes during scrolling without skipping/duplicating items
+- **No Redis cache** for dictionary data — per-user, write-heavy; TanStack Query handles frontend caching
+- **`translationLanguage`** is derived server-side from `user.nativeLanguage`, not sent by client — prevents shared pool corruption
+- **Shared translation pool**: `groupBy` query on `UserDictionaryWord` where `wordHr` matches and `translationLanguage` = user's language, ordered by popularity (count desc), top 5 suggestions
+- **Practice sessions** use separate models from `ExerciseSession` (not tied to ExerciseTopic/ExerciseType)
+- **Progress %** = `correctAttempts / totalAttempts * 100`, computed on the fly (not stored)
+- **Collection deletion** sets words' `collectionId` to null — words are preserved, not deleted
 
 ---
 
@@ -360,101 +428,122 @@ The default admin account is created automatically when running the seed script.
 
 | Type                  | Mechanics                                               | Validation                                                                 |
 | --------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **Jednina i množina** | A word is shown -> user enters the plural form          | trim + lowercase + NFC normalization, client-side comparison with correct answer |
-| **Flashcards**        | Word -> tap "I knew it" / "I didn't know" (self-report) | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false                         |
-| **Multiple choice**   | 4 options (1 correct + 3 from `wrongOptions`)           | Client compares selected option with correct answer (sent with session data)    |
-| **Fill-in-the-blank** | Sentence with a gap (`{{BLANK}}`)                       | Client-side comparison with `sentenceBlankAnswer` (sent with session data)      |
+| **Type the Answer** | `baseForm` is shown -> user enters the plural form (SingularPluralItem) | trim + lowercase + NFC normalization, client-side comparison with `pluralForm` |
+| **Flashcards**        | `frontText` shown -> tap "I knew it" / "I didn't know" (FlashcardItem) | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false |
+| **Fill-in-the-blank** | `sentenceHr` with `{{BLANK}}` placeholder (FillInBlankItem) | Client-side comparison with `blankAnswer` |
+| **Dictionary Practice** | Croatian word (`wordHr`) shown -> user types translation (UserDictionaryWord) | trim + lowercase + NFC normalization, client-side comparison with `translation` |
+
+### Exercise Rules
+
+Each `ExerciseTopic` can have optional rich-text rules (`rulesHtml` field, nullable HTML string). Rules describe grammar rules relevant to the exercise and are authored via a Tiptap rich text editor in the admin panel.
+
+During an exercise session, if the topic has rules, a **"Show Rules"** button appears next to the progress indicator. Clicking it opens a non-blocking dialog displaying the formatted rules. The session continues uninterrupted.
+
+- **Admin**: Rules are edited in the topic create/edit form via the `RichTextEditor` component (Tiptap)
+- **API**: `rulesHtml` is included in the `createSession` response alongside session items
+- **Web**: `ExerciseRulesDialog` component renders the HTML in a MUI Dialog
+- **Storage**: HTML string in PostgreSQL `TEXT` column, flows through Redis cache with topic data
 
 ---
 
 ## Admin Panel — Content Management UI
 
-### Content hierarchy
+### Content structure
 
-Admin manages content in a three-level hierarchy: **Category → Word Set → Word**. Each level has a list view and a create/edit form.
+Admin manages content as flat **ExerciseTopic** entities. Each topic can have multiple exercise types enabled, and each exercise type has its own dedicated item table with type-specific fields.
 
-### Category management
+### Topic management
 
-- **List view**: table with columns — name (in admin's language), `sortOrder`, `isActive` toggle, edit/delete actions
+- **List view**: table with columns — name (English), enabled exercise types (chip badges), `sortOrder`, `isActive` toggle, edit/delete actions. Clicking a row navigates to the exercise items page for that topic.
 - **Create/Edit form**: `nameHr`, `nameRu`, `nameUk`, `nameEn`, `sortOrder` (number input), `isActive` (checkbox, default: true)
-- **Delete**: soft-check — block deletion if category has word sets (show error: "Remove all word sets first")
+- **Delete**: block deletion if topic has any items (show error)
 
-### Word Set management
+### Exercise items management
 
-- **List view**: filtered by selected category. Columns — name, word count, `sortOrder`, `isActive` toggle, edit/delete actions
-- **Create/Edit form**: select parent category, `nameHr`, `nameRu`, `nameUk`, `nameEn`, `sortOrder`, `isActive`
-- **Delete**: block if word set has words
+- **Route**: `/topics/:topicId/items` — tabbed interface with one tab per exercise type
+- **Exercise type toggles**: switch controls at the top of the page to enable/disable each exercise type for the topic (maps to `ExerciseTopicType` records via `PATCH /admin/topics/:id/exercise-types`)
+- **Tabs**: Type the Answer, Flashcards, Fill in the Blank — each tab shows a table of items with inline create/edit forms
 
-### Word management
+#### Type the Answer items
+- Fields: `baseForm`, `pluralForm`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
 
-- **List view**: filtered by selected word set. Columns — `baseForm`, `pluralForm`, translations (collapsible), enabled exercise types (icon badges), edit/delete actions. Sortable by `sortOrder`.
-- **Create/Edit form** — split into sections:
+#### Flashcard items
+- Fields: `frontText`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
 
-#### Section 1 — Base fields (required for all exercise types)
+#### Fill in the Blank items
+- Fields: `sentenceHr` (with `{{BLANK}}` placeholder), `blankAnswer`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
 
-| Field             | Input type | Validation                          |
-| ----------------- | ---------- | ----------------------------------- |
-| `baseForm`        | text       | required, Croatian characters       |
-| `translationRu`   | text       | required                            |
-| `translationUk`   | text       | required                            |
-| `translationEn`   | text       | required                            |
-| `sortOrder`       | number     | required, integer ≥ 0              |
+### Dictionary collection management (admin)
 
-#### Section 2 — Jednina i množina fields
-
-| Field        | Input type | Validation                                             |
-| ------------ | ---------- | ------------------------------------------------------ |
-| `pluralForm` | text       | required if exercise type enabled, Croatian characters  |
-
-- Admin enters the correct plural form. The student will see `baseForm` and must type the plural.
-- **Preview**: show a read-only card "Student sees: **[baseForm]** → enters: **___**. Correct answer: **[pluralForm]**"
-
-#### Section 3 — Flashcards fields
-
-No additional fields needed — flashcards use `baseForm` + translations (from Section 1). The student sees the Croatian word and self-reports whether they knew the translation.
-
-- **Preview**: show a read-only flashcard "Front: **[baseForm]** → Back: **[translationRu / translationUk / translationEn]** (based on user's language)"
-
-#### Section 4 — Exercise type toggles
-
-A row of toggle switches for each exercise type (maps to `WordExerciseConfig`):
-
-| Toggle                | Enabled when                                             |
-| --------------------- | -------------------------------------------------------- |
-| Jednina i množina     | `pluralForm` is filled in                                |
-| Flashcards            | always available (base fields are sufficient)            |
-| Multiple choice       | `wrongOptions` has 3 entries (Phase 3+)                  |
-| Fill-in-the-blank     | `sentenceHr` and `sentenceBlankAnswer` are filled (Phase 3+) |
-
-- Toggles for Multiple choice and Fill-in-the-blank are **disabled/hidden** until Phase 3 Step 8 adds those types
-- If admin tries to enable a toggle but required fields are missing → show inline validation error ("Fill in `pluralForm` to enable this exercise type")
-- Saving the form sends `PATCH /admin/words/:id/exercise-configs` with the updated toggle states
-
-### Bulk operations
-
-- **Word list**: checkbox column + bulk actions: "Enable exercise type for selected", "Disable exercise type for selected"
-- Useful for enabling Flashcards across an entire word set at once
+- **Route**: `/dictionary-collections` — table with columns: name, description, word count, sortOrder, edit/delete actions
+- **Create/Edit form**: `name`, `description` (optional), `sortOrder`
+- Admin-created collections have `isPublic: true` and are visible to all users as predefined collections
 
 ---
 
-## Word Cycle Logic
+## Dictionary
+
+### Overview
+
+Every user has a personal dictionary page at `/dictionary/my`, accessible via the Dictionary button in the header → "My Dictionary". Users manually add Croatian words with translations in their native language. A shared translation pool suggests translations from other users (same language) when adding a word.
+
+### My Dictionary Page (`/dictionary/my`)
+
+- **Top bar**: search `TextField` + "Add Word" `Button` + (when checkboxes selected) "Assign to Collection" dropdown + "Practice" button
+- **Word list**: infinite scroll with cursor-based pagination (loads on scroll via `IntersectionObserver`)
+- **Each row**:
+  ```
+  checkbox | word          | collection name (or empty) | progress % | delete icon
+             translation
+  ```
+- **Progress %** = `correctAttempts / totalAttempts * 100` from dictionary practice sessions
+
+### Add Word Flow
+
+1. User types a Croatian word in the search input, clicks "Add"
+2. Modal opens with the word pre-filled
+3. `GET /dictionary/suggestions?word=X` fires — returns existing translations from the shared pool (filtered by user's `nativeLanguage`)
+4. If suggestions exist, show them as clickable chips
+5. User picks a suggestion or types a custom translation
+6. Optional: select a collection from dropdown
+7. Submit creates the word via `POST /dictionary/words`
+
+### Collections Page (`/dictionary/collections`)
+
+- Two sections: "Predefined Collections" (admin-created, `isPublic: true`) and "My Collections" (user-created)
+- "Create Collection" button opens modal with name + description fields
+- Clicking a collection navigates to `/dictionary/my?collectionId=xxx` (filtered view)
+- Personal collections can be edited/deleted; predefined collections are read-only for users
+
+### Dictionary Practice
+
+- Uses "Type the Answer" mechanic: show Croatian word (`wordHr`) → user types translation
+- `POST /dictionary/practice/sessions` creates a session, prioritizing words with lowest progress or never-practiced
+- `POST /dictionary/practice/sessions/:id/finish` submits results, updates `DictionaryWordProgress`, awards XP via `GamificationModule`
+- Reuses existing `TextInputExercise` component on web
+
+---
+
+## Item Cycle Logic
 
 ```
-getNextWords(userId, exerciseType, wordSetId, count):
+getNextItems(userId, exerciseType, topicId, count):
 
-1. Find words with seenInCurrentCycle = false
-2. If enough -> return them
-3. If words are exhausted -> offer user to reset:
-     UPDATE userWordProgress
+1. Find items with seenInCurrentCycle = false in UserExerciseProgress
+2. If enough -> fetch actual items from type-specific table, return them
+3. If items are exhausted -> offer user to reset:
+     UPDATE UserExerciseProgress
      SET seenInCurrentCycle = false,
          cycleNumber = cycleNumber + 1
-     WHERE userId AND exerciseType AND wordSetId
-4. If user agrees, return first N words from the reset cycle
+     WHERE userId AND exerciseType AND topicId
+4. If user agrees, return first N items from the reset cycle
 
-On session finish -> bulk markWordsSeen() -> seenInCurrentCycle = true for all answered words
+On session finish -> bulk markItemsSeen() -> seenInCurrentCycle = true for all answered items
 ```
 
-**New users**: On first opening of a word set — create `UserWordProgress` records for all words with `seenInCurrentCycle = false`. This simplifies cycle queries.
+**New users**: On first session for a topic+exerciseType — create `UserExerciseProgress` records for all items with `seenInCurrentCycle = false`. Uses two-query pattern: progress table for unseen itemIds, then fetch items from the correct type-specific table.
+
+**Note**: `itemId` in `UserExerciseProgress` is a generic string (no FK) since items live in different tables per exercise type. Validation happens at the application layer.
 
 ---
 
@@ -581,17 +670,22 @@ Priorities:
 
 ### Phase 2 — Content + Exercise Engine
 
-- ContentModule (CRUD + Redis cache)
-- Database seed script (`prisma db seed`) — initial categories, word sets, words, and default admin account (test@gmail.com / zxcv1234)
-- Admin UI: categories, word sets, words
+- ContentModule (CRUD for ExerciseTopics + per-type exercise items + Redis cache)
+- Database seed script (`prisma db seed`) — initial topics, exercise items (all 3 types), and default admin account (test@gmail.com / zxcv1234)
+- Admin UI: topics management, tabbed exercise item management (3 tabs per topic), exercise type toggles
 - Admin UI: "Add Admin" form (manage admin accounts from the panel)
-- ProgressModule + cycle logic
-- ExercisesModule: sessions, results processing, 2 exercise types (Jednina i množina + Flashcards)
-- Exercise screens on web for these 2 types
+- ProgressModule + item cycle logic (UserExerciseProgress with generic itemId)
+- ExercisesModule: sessions, results processing, all 3 exercise types (Type the Answer, Flashcards, Fill-in-the-blank)
+- Exercise screens on web for all 3 types (discriminated union ExerciseItem type)
 - GamificationModule: XP + streak
-- Unit tests: word cycle, results processing, streak
+- Unit tests: item cycle, results processing, streak
+- DictionaryModule: personal word CRUD with cursor-based pagination, shared translation suggestions pool (per language), collections (admin-predefined + user-created)
+- Dictionary practice sessions (Type the Answer mechanic with dictionary words), progress tracking (correctAttempts/totalAttempts)
+- Admin UI: predefined dictionary collection management
+- Web UI: My Dictionary page (`/dictionary/my`) with infinite scroll, Add Word modal with translation suggestions, Collections page (`/dictionary/collections`)
+- Web UI: Dictionary practice page reusing TextInputExercise component
 
-**Result**: 2 exercise types working. Content created via admin panel.
+**Result**: All 3 exercise types working. Content created via admin panel with per-type item tables. Personal dictionary with word collection, shared translations, and practice mode.
 
 ### Phase 3 — Mobile App
 
@@ -686,18 +780,18 @@ Priorities:
 
 ---
 
-**Step 8 — Remaining exercise types on web**
+**Step 8 — Exercise screens on mobile (all 3 types already implemented in Phase 2)**
 
-- Add exercise types 3-4 (Multiple choice + Fill-in-the-blank) to backend and web
-- Unit tests for all 4 exercise types
+- Port all 3 exercise type screens from web to mobile (Type the Answer, Flashcards, Fill-in-the-blank)
+- All backend endpoints and item tables already exist from Phase 2
 
-**Result**: All 4 exercise types working on web.
+**Result**: All 3 exercise types working on mobile.
 
 ---
 
 **Step 9 — Exercise screens + gamification on mobile**
 
-- Exercise screens for all 4 exercise types (port from web)
+- Exercise screens for all 3 exercise types (port from web)
 - Gamification display: XP + streak in tab bar
 
 **Result**: Mobile app with auth, exercises, and gamification — ready for subscriptions.
@@ -795,16 +889,21 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 
 1. `docker compose up -d` (in `cro-api` repo) -> `npm run dev` in each repo -> all 4 apps start without errors
 2. Log in via Google on web -> land on language selection screen -> choose language -> redirected to home
-3. Open a word set, start a "Jednina i množina" session, enter correct and incorrect answers — verify XP and word status
-4. Complete all words in a set -> confirm the cycle resets and words are shown again when user confirms reset
+3. Browse topics, select a topic, choose exercise type -> start session -> answer items -> verify XP earned
+4. Complete all items in a topic for an exercise type -> confirm the cycle resets when user confirms reset
 5. Streak: log in on two consecutive days -> confirm streak = 2
 6. Open paywall -> create a Stripe Checkout session -> complete test payment -> confirm status changed to ACTIVE
 7. Log in to admin panel with default credentials (test@gmail.com / zxcv1234) -> land on admin dashboard
 8. Add a new admin account via "Add Admin" form -> log out -> log in with the new account -> confirm access works
-9. Admin: create a category -> word set -> word with translations -> confirm word appears in the app
+9. Admin: create a topic -> add items (all 3 types) -> enable exercise types -> confirm items appear in the student app
 10. Admin: change subscription price -> confirm new price is displayed in the app
 11. `npm test` in each repo -> all tests pass
 12. `npm run lint` and `npm run typecheck` in each repo -> no errors
+13. Add a word to dictionary -> verify it appears in the word list with infinite scroll
+14. Search for an existing word -> verify translation suggestions from shared pool appear (filtered by nativeLanguage)
+15. Create a personal collection -> assign words to it -> verify collection filter works on My Dictionary page
+16. Start dictionary practice -> answer all items -> verify progress % updates in the word list
+17. Admin: create a predefined dictionary collection -> verify it appears for all users on Collections page
 
 ---
 
@@ -921,9 +1020,12 @@ git commit -m "chore: update shared submodule"
 
 ## Critical Files for Implementation
 
-- `shared/src/types/index.ts` (in `cro-shared` submodule) — shared TS types; define in Phase 1
-- `src/prisma/schema.prisma` (in `cro-api`) — full data schema; migrate before any module development
-- `src/modules/progress/progress.service.ts` (in `cro-api`) — word cycle logic; most critical business logic
+- `shared/src/types/index.ts` (in `cro-shared` submodule) — shared TS types including ExerciseItem discriminated union
+- `src/prisma/schema.prisma` (in `cro-api`) — full data schema with per-type item tables; migrate before any module development
+- `src/modules/content/content.service.ts` (in `cro-api`) — topics + per-type item CRUD, generic getItemsForTopic/getItemsByIds
+- `src/modules/progress/progress.service.ts` (in `cro-api`) — item cycle logic; most critical business logic
 - `src/modules/payments/payments.service.ts` (in `cro-api`) — webhook + idempotency; bugs = financial losses
+- `src/modules/dictionary/dictionary.service.ts` (in `cro-api`) — dictionary word CRUD, shared translation pool, cursor pagination
+- `src/modules/dictionary/dictionary-practice.service.ts` (in `cro-api`) — dictionary practice sessions, progress tracking
 - `docker-compose.yml` (in `cro-api`) — local dev stack
 - `.husky/pre-commit` + lint-staged config (in each repo) — pre-commit gates
