@@ -27,16 +27,16 @@
     "turbo": "^2.5.0"
   },
   "lint-staged": {
-    "apps/api/**/*.ts": [
-      "eslint --fix --max-warnings=0",
+    "apps/api/src/**/*.ts": [
+      "eslint --config apps/api/eslint.config.mjs --fix --max-warnings=0",
       "prettier --write"
     ],
-    "apps/web/**/*.{ts,tsx}": [
-      "eslint --fix --max-warnings=0",
+    "apps/web/src/**/*.{ts,tsx}": [
+      "eslint --config apps/web/eslint.config.mjs --fix --max-warnings=0",
       "prettier --write"
     ],
-    "apps/admin/**/*.{ts,tsx}": [
-      "eslint --fix --max-warnings=0",
+    "apps/admin/src/**/*.{ts,tsx}": [
+      "eslint --config apps/admin/eslint.config.mjs --fix --max-warnings=0",
       "prettier --write"
     ]
   }

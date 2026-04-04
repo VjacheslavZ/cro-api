@@ -140,9 +140,42 @@ Avoid using context for:
 
 ---
 
-## 13. Checklist
+## 13. Component interfaces
+* Define TS interfaces for props
+
+## 14. SOLID Principles for React Components
+
+### Single Responsibility (SRP)
+
+* Each component should have one reason to change
+* **Page/Tab components** — layout, coordination, navigation callbacks
+* **Form components** — form state, validation, submission, field rendering
+* **Display components** — presenting data, no data fetching or mutation logic
+* Never mix orchestration (tab switching, page routing) with data mutation (API calls, form handling) in the same component
+
+### Open/Closed (OCP)
+
+* Components should be open for extension via props/composition, closed for modification
+* Use `children`, render props, or slot patterns instead of adding flags to existing components
+
+### Liskov Substitution (LSP)
+
+* Components sharing an interface (e.g., form variants) should be interchangeable without breaking the parent
+
+### Interface Segregation (ISP)
+
+* Keep prop interfaces focused — don't force consumers to pass props they don't use
+* Split large prop interfaces into smaller, composed ones when a component serves multiple contexts
+
+### Dependency Inversion (DIP)
+
+* Components should depend on abstractions (callbacks like `onCreated`, `onSubmit`) not concrete implementations
+* Parent components pass behavior down; child components don't reach up for context they don't own
+
+## 15. Checklist
 
 * [ ] Component is small
+* [ ] Single responsibility respected
 * [ ] No unnecessary state
 * [ ] No unnecessary effects
 * [ ] Hooks extracted
