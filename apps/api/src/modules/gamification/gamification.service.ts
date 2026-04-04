@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { startOfDay, subDays, isEqual } from 'date-fns';
-import { XP_PER_CORRECT_ANSWER } from '@cro/shared/constants';
+import { XP_PER_CORRECT_ANSWER } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
