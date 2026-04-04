@@ -1,7 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { SessionStatus } from '@cro/shared';
-import { ExerciseType } from '@cro/shared';
-import { ITEMS_PER_SESSION } from '@cro/shared/constants';
+import { SessionStatus, ExerciseType, ITEMS_PER_SESSION } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProgressService } from '../progress/progress.service';
