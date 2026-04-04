@@ -1,18 +1,14 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import-x';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 export default [
   {
-    files: [`${__dirname}/src/**/*.{ts,tsx}`],
+    files: ['apps/admin/src/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: `${__dirname}/tsconfig.app.json`,
+        project: './apps/admin/tsconfig.app.json',
         sourceType: 'module',
       },
     },
