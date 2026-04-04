@@ -4,7 +4,7 @@ import { useAuth } from '../features/auth/auth-context';
 import { LoginPage } from '../features/auth/LoginPage';
 import { AdminsPage } from '../features/admins/AdminsPage';
 import { TopicsPage } from '../features/topics/TopicsPage';
-import { ExerciseItemsPage } from '../features/exercise-items/ExerciseItemsPage';
+import { ExercisePage } from '../features/exercise/ExercisePage.tsx';
 import { AppLayout } from './AppLayout/AppLayout.tsx';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -45,7 +45,7 @@ export function AppRouter() {
           }
         >
           <Route path="/topics" element={<TopicsPage />} />
-          <Route path="/topics/:topicId/items" element={<ExerciseItemsPage />} />
+          <Route path="/topics/:topicId/items" element={<ExercisePage />} />
           <Route path="/admins" element={<AdminsPage />} />
           <Route path="/" element={<Navigate to="/topics" replace />} />
         </Route>
