@@ -4,11 +4,11 @@ import importPlugin from 'eslint-plugin-import-x';
 
 export default [
   {
-    files: ['src/**/*.ts'],
+    files: ['apps/api/src/**/*.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: './apps/api/tsconfig.json',
         sourceType: 'module',
       },
     },
