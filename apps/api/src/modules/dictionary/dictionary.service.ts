@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { NativeLanguage } from '@cro/shared';
-import { DICTIONARY_WORDS_PER_PAGE } from '@cro/shared/constants';
+import { DICTIONARY_WORDS_PER_PAGE } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddWordDto } from './dto/add-word.dto';

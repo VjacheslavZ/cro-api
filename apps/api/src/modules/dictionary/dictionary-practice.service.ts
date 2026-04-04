@@ -1,6 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { SessionStatus } from '@cro/shared';
-import { DICTIONARY_PRACTICE_ITEMS } from '@cro/shared/constants';
+import { SessionStatus, DICTIONARY_PRACTICE_ITEMS } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
