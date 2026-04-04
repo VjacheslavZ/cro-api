@@ -53,11 +53,7 @@ const authSlice = createSlice({
   },
 });
 
-export function setCredentials(payload: {
-  user: UserProfile;
-  accessToken: string;
-  refreshToken: string;
-}) {
+export function setCredentials(payload: { user: UserProfile }) {
   return (dispatch: Dispatch) => {
     dispatch(authSlice.actions._setUser(payload.user));
   };
