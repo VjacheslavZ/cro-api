@@ -121,7 +121,7 @@ export class ContentService {
     await this.cache.invalidate('content:topics');
     return this.getTopicById(topicId);
   }
-
+  // TODO rename Singular Plural Items
   // --- Singular Plural Items ---
   async getSingularPluralItems(topicId: string) {
     return this.prisma.singularPluralItem.findMany({

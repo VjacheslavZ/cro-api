@@ -64,7 +64,7 @@ export class AdminContentController {
   async updateTopicTypes(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTopicTypesDto) {
     return this.contentService.updateTopicTypes(id, dto.configs);
   }
-
+  // TODO rename
   // --- Singular Plural Items ---
 
   @Get('topics/:topicId/singular-plural-items')
