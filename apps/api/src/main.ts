@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
+import { logAddresses } from './common/log-addresses';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
@@ -12,10 +13,9 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  const allowedOrigins = [
-    configService.get<string>('WEB_URL', 'http://localhost:5173'),
-    configService.get<string>('ADMIN_URL', 'http://localhost:5174'),
-  ];
+  const webUrl = configService.get<string>('WEB_URL', 'http://localhost:5173');
+  const adminUrl = configService.get<string>('ADMIN_URL', 'http://localhost:5174');
+  const allowedOrigins = [webUrl, adminUrl];
 
   app.enableCors({
     origin: (
@@ -55,6 +55,8 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
+
+  logAddresses({ port, webUrl, adminUrl });
 }
 
 bootstrap();
