@@ -21,6 +21,8 @@ import { SessionResultsPage } from '../features/exercises/SessionResultsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { MyDictionaryPage } from '../features/dictionary/MyDictionaryPage';
 import { CollectionsPage } from '../features/dictionary/CollectionsPage';
+import { WordSetsPage } from '../features/dictionary/WordSetsPage';
+import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
 import { DictionaryPracticePage } from '../features/dictionary/DictionaryPracticePage';
 import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPracticeResultsPage';
 import { Header } from '../components/Header';
@@ -131,11 +133,31 @@ export function AppRouter() {
                 }
               />
               <Route
-                path="/dictionary/collections"
+                path="/dictionary/my-collections"
                 element={
                   <PrivateRoute>
                     <LanguageGuard>
                       <CollectionsPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dictionary/recommended-word-sets"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <WordSetsPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dictionary/collections/:collectionId"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <CollectionPreviewPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

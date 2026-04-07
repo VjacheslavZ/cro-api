@@ -171,7 +171,27 @@ export interface DictionaryCollection {
   isPublic: boolean;
   sortOrder: number;
   wordCount?: number;
+  predefinedWordCount?: number;
   type: 'predefined' | 'personal';
+}
+
+export interface PredefinedDictionaryWord {
+  id: string;
+  collectionId: string;
+  wordHr: string;
+  translationRu: string;
+  translationUk: string;
+  translationEn: string;
+  sortOrder: number;
+}
+
+export interface AddSetRequest {
+  wordIds?: string[];
+}
+
+export interface AddSetResponse {
+  addedCount: number;
+  skippedCount: number;
 }
 
 export interface TranslationSuggestion {

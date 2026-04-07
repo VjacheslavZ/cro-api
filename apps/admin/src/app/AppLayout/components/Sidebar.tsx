@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import {
   Logout as LogoutIcon,
+  MenuBook as MenuBookIcon,
   People as PeopleIcon,
   Quiz as TopicsIcon,
 } from '@mui/icons-material';
@@ -31,6 +32,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Topics', path: '/topics', icon: <TopicsIcon /> },
+  { label: 'Dictionary', path: '/dictionary-collections', icon: <MenuBookIcon /> },
   { label: 'Admins', path: '/admins', icon: <PeopleIcon /> },
 ];
 

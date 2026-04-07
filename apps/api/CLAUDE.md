@@ -97,6 +97,12 @@ DictionaryCollection
   isPublic (Boolean, default false) <- true = admin-created, visible to all
   sortOrder, createdAt, updatedAt
 
+PredefinedDictionaryWord          <- admin-defined template words for a collection
+  id, collectionId (FK to DictionaryCollection, onDelete: Cascade)
+  wordHr, translationRu, translationUk, translationEn
+  sortOrder
+  @@unique([collectionId, wordHr])
+
 UserDictionaryWord
   userId, wordHr, translation
   translationLanguage (RU|UK|EN)   <- derived from user's nativeLanguage on write
@@ -137,7 +143,7 @@ DictionaryPracticeAnswer
 | `NotificationsModule` | BullMQ producer/consumer for Expo push                         |
 | `AnalyticsModule`     | aggregations for admin (registrations, subscriptions)          |
 | `AdminModule`         | `AdminGuard` + admin-only endpoints, admin user management (add new admins) |
-| `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), shared translation suggestions, practice sessions (Type the Answer) |
+| `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), predefined word sets, bulk add-set, shared translation suggestions, practice sessions (Type the Answer) |
 
 ---
 
@@ -215,6 +221,10 @@ PATCH /admin/users/:id/block
 GET  /admin/analytics/overview
 POST/PATCH/DELETE /admin/dictionary-collections  # manage predefined collections
 GET  /admin/dictionary-collections
+GET  /admin/dictionary-collections/:id/words     # list predefined words in collection
+POST /admin/dictionary-collections/:id/words     # add predefined word to collection
+PATCH  /admin/dictionary-collections/words/:wordId  # update predefined word
+DELETE /admin/dictionary-collections/words/:wordId  # delete predefined word
 ```
 
 ### Dictionary (protected by JwtAuthGuard)
@@ -230,6 +240,7 @@ GET    /dictionary/collections              # predefined + personal collections
 POST   /dictionary/collections              # create personal collection
 PATCH  /dictionary/collections/:id          # update personal collection
 DELETE /dictionary/collections/:id          # delete personal collection
+POST   /dictionary/collections/:id/add-set  # bulk-add predefined words to user's dictionary
 POST   /dictionary/practice/sessions        # start practice session
 POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
 ```

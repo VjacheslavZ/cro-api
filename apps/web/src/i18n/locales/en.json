@@ -26,6 +26,7 @@
     "exercises": "Exercises",
     "dictionary": "Dictionary",
     "myDictionary": "My dictionary",
+    "wordSets": "Recommended Word Sets",
     "collections": "Collections",
     "profile": "Profile"
   },
@@ -136,7 +137,15 @@
       "description": "Description (optional)",
       "wordCount_one": "{{count}} word",
       "wordCount_other": "{{count}} words",
+      "fromWordSets": "From Word Sets",
+      "wordSet": "Word Set",
       "noCollections": "No collections yet",
+      "wordsInSet_one": "{{count}} word in set",
+      "wordsInSet_other": "{{count}} words in set",
+      "addSet": "Add Set",
+      "noWords": "No words in this collection yet",
+      "addSelected": "Add to my dictionary ({{count}})",
+      "addSetSuccess": "Added {{added}} words ({{skipped}} already in dictionary)",
       "edit": "Edit",
       "delete": "Delete",
       "create": "Create",
@@ -152,6 +161,11 @@
       "results": "Practice Complete!",
       "backToDictionary": "Back to Dictionary",
       "practiceAgain": "Practice Again"
+    },
+    "wordSets": {
+      "title": "Recommended Word Sets",
+      "subtitle": "Browse curated word sets and add them to your dictionary to start learning.",
+      "noSets": "No word sets available yet"
     },
     "assignCollection": "Assign to Collection",
     "unassign": "Remove from collection",

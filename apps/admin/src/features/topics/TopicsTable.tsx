@@ -7,9 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
-  Alert,
-  Box,
   Chip,
   IconButton,
   Stack,
@@ -19,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { apiClient } from '../../api/client';
+import { QueryState } from '../../shared/components/QueryState';
 import { ConfirmDeleteDialog } from '../../shared/components/ConfirmDeleteDialog';
 import type { TopicData } from './TopicsPage';
 
@@ -75,17 +73,8 @@ export function TopicsTable({ onEdit }: TopicsTabProps) {
     },
   });
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return <Alert severity="error">Failed to load topics</Alert>;
-  }
+  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load topics' });
+  if (queryState) return queryState;
 
   return (
     <>

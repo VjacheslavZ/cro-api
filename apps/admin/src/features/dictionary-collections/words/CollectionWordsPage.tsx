@@ -1,55 +1,51 @@
 import { useState } from 'react';
-import { Alert, Box, Button } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Alert, Box, Button, Typography } from '@mui/material';
+import { Add as AddIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { apiClient } from '../../../api/client.ts';
+import { apiClient } from '../../../api/client';
 import { QueryState } from '../../../shared/components/QueryState';
-import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
-import {
-  AddExerciseQuestion,
-  type SingularPluralFormData,
-  type SingularPluralItem,
-} from './AddExerciseQuestion.tsx';
-import { ContentTable } from './ContentTable.tsx';
+import { useTablePagination } from '../../../shared/hooks/useTablePagination';
+import { AddWordForm, type PredefinedWordFormData, type PredefinedWordItem } from './AddWordForm';
+import { WordsTable } from './WordsTable';
 
-export function TypeTheAnswer({ topicId }: { topicId: string }) {
+export function CollectionWordsPage() {
+  const { collectionId } = useParams<{ collectionId: string }>();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<SingularPluralItem | null>(null);
+  const [editing, setEditing] = useState<PredefinedWordItem | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const queryKey = ['type-the-answer-items', topicId];
+  const queryKey = ['admin-collection-words', collectionId];
 
   const {
-    data: items,
+    data: words,
     isLoading,
     error,
-  } = useQuery<SingularPluralItem[]>({
+  } = useQuery<PredefinedWordItem[]>({
     queryKey,
     queryFn: async () => {
-      // TODO rename /singular-plural-items path to type-the-answer
-      const { data } = await apiClient.get(`/admin/topics/${topicId}/singular-plural-items`);
+      const { data } = await apiClient.get(`/admin/dictionary-collections/${collectionId}/words`);
       return data;
     },
   });
 
-  const { paginatedItems, Pagination } = useTablePagination(items);
-
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { paginatedItems, Pagination } = useTablePagination(words);
 
   const saveMutation = useMutation({
-    mutationFn: async (data: SingularPluralFormData) => {
+    mutationFn: async (data: PredefinedWordFormData) => {
       if (editing) {
-        // TODO rename /singular-plural-items path to type-the-answer
-        await apiClient.patch(`/admin/singular-plural-items/${editing.id}`, data);
+        await apiClient.patch(`/admin/dictionary-collections/words/${editing.id}`, data);
       } else {
-        // TODO rename /singular-plural-items path to type-the-answer
-        await apiClient.post('/admin/singular-plural-items', { ...data, topicId });
+        await apiClient.post(`/admin/dictionary-collections/${collectionId}/words`, data);
       }
     },
     onSuccess: () => {
       setServerError(null);
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['admin-dictionary-collections'] });
       setEditing(null);
       setShowForm(false);
     },
@@ -69,19 +65,31 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      // TODO rename /singular-plural-items path to type-the-answer
-      await apiClient.delete(`/admin/singular-plural-items/${id}`);
+      await apiClient.delete(`/admin/dictionary-collections/words/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['admin-dictionary-collections'] });
     },
   });
 
-  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load items' });
+  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load words' });
   if (queryState) return queryState;
 
   return (
     <Box>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/dictionary-collections')}
+        sx={{ mb: 2 }}
+      >
+        Back to Collections
+      </Button>
+
+      <Typography variant="h5" gutterBottom>
+        Collection Words
+      </Typography>
+
       <Button
         startIcon={<AddIcon />}
         variant="outlined"
@@ -91,7 +99,7 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
           setShowForm(!showForm);
         }}
       >
-        {showForm ? 'Cancel' : 'Add Item'}
+        {showForm ? 'Cancel' : 'Add Word'}
       </Button>
 
       {serverError && (
@@ -101,15 +109,14 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
       )}
 
       {showForm && (
-        <AddExerciseQuestion
-          topicId={topicId}
+        <AddWordForm
           editing={editing}
           isPending={saveMutation.isPending}
           onSubmit={(d) => saveMutation.mutate(d)}
         />
       )}
 
-      <ContentTable
+      <WordsTable
         items={paginatedItems}
         onEdit={(item) => {
           setEditing(item);

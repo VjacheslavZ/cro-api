@@ -26,6 +26,7 @@
     "exercises": "Вправи",
     "dictionary": "Словник",
     "myDictionary": "Мій словник",
+    "wordSets": "Рекомендовані набори слів",
     "collections": "Мої колекції",
     "profile": "Профіль"
   },
@@ -138,7 +139,16 @@
       "wordCount_one": "{{count}} слово",
       "wordCount_few": "{{count}} слова",
       "wordCount_many": "{{count}} слів",
+      "fromWordSets": "З наборів слів",
+      "wordSet": "Набір слів",
       "noCollections": "Колекцій поки немає",
+      "wordsInSet_one": "{{count}} слово в наборі",
+      "wordsInSet_few": "{{count}} слова в наборі",
+      "wordsInSet_many": "{{count}} слів в наборі",
+      "addSet": "Додати набір",
+      "noWords": "У цій колекції поки немає слів",
+      "addSelected": "Додати до мого словника ({{count}})",
+      "addSetSuccess": "Додано {{added}} слів ({{skipped}} вже у словнику)",
       "edit": "Редагувати",
       "delete": "Видалити",
       "create": "Створити",
@@ -154,6 +164,11 @@
       "results": "Практику завершено!",
       "backToDictionary": "Назад до словника",
       "practiceAgain": "Практикувати знову"
+    },
+    "wordSets": {
+      "title": "Рекомендовані набори слів",
+      "subtitle": "Оберіть готові набори слів та додайте їх до свого словника для вивчення.",
+      "noSets": "Наборів слів поки немає"
     },
     "assignCollection": "Призначити колекцію",
     "unassign": "Прибрати з колекції",

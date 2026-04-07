@@ -6,6 +6,8 @@ import type {
   PaginatedResponse,
   DictionaryPracticeSessionResponse,
   FinishDictionaryPracticeResponse,
+  AddSetResponse,
+  PredefinedDictionaryWord,
 } from '@cro/shared';
 
 import { apiClient } from './client';
@@ -139,6 +141,33 @@ export function useDeleteCollection() {
       await apiClient.delete(`/dictionary/collections/${id}`);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-collections'] });
+    },
+  });
+}
+
+export function useCollectionWords(collectionId: string) {
+  return useQuery<PredefinedDictionaryWord[]>({
+    queryKey: ['collection-words', collectionId],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/dictionary/collections/${collectionId}/words`);
+      return data;
+    },
+  });
+}
+
+export function useAddSet() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { collectionId: string; wordIds?: string[] }) => {
+      const { data } = await apiClient.post<AddSetResponse>(
+        `/dictionary/collections/${params.collectionId}/add-set`,
+        { wordIds: params.wordIds },
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
       queryClient.invalidateQueries({ queryKey: ['dictionary-collections'] });
     },
   });

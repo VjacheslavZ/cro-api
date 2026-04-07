@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { CircularProgress, Alert, Box, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client.ts';
+import { QueryState } from '../../../shared/components/QueryState';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
 import {
   AddExerciseQuestion,
@@ -54,14 +55,9 @@ export function FillInBlankTab({ topicId }: { topicId: string }) {
       queryClient.invalidateQueries({ queryKey: ['fill-in-blank-items', topicId] });
     },
   });
-  // showing progress and error are duplicated in neighboring components
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  if (error) return <Alert severity="error">Failed to load items</Alert>;
+
+  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load items' });
+  if (queryState) return queryState;
 
   return (
     <Box>

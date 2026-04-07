@@ -5,6 +5,8 @@ import { LoginPage } from '../features/auth/LoginPage';
 import { AdminsPage } from '../features/admins/AdminsPage';
 import { TopicsPage } from '../features/topics/TopicsPage';
 import { ExercisePage } from '../features/exercise/ExercisePage.tsx';
+import { DictionaryCollectionsPage } from '../features/dictionary-collections/DictionaryCollectionsPage';
+import { CollectionWordsPage } from '../features/dictionary-collections/words/CollectionWordsPage';
 import { AppLayout } from './AppLayout/AppLayout.tsx';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -46,6 +48,11 @@ export function AppRouter() {
         >
           <Route path="/topics" element={<TopicsPage />} />
           <Route path="/topics/:topicId/items" element={<ExercisePage />} />
+          <Route path="/dictionary-collections" element={<DictionaryCollectionsPage />} />
+          <Route
+            path="/dictionary-collections/:collectionId/words"
+            element={<CollectionWordsPage />}
+          />
           <Route path="/admins" element={<AdminsPage />} />
           <Route path="/" element={<Navigate to="/topics" replace />} />
         </Route>

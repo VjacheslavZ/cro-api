@@ -26,6 +26,7 @@
     "exercises": "Упражнения",
     "dictionary": "Словарь",
     "myDictionary": "Мой словарь",
+    "wordSets": "Рекомендуемые наборы слов",
     "collections": "Мои коллекции",
     "profile": "Профиль"
   },
@@ -138,7 +139,16 @@
       "wordCount_one": "{{count}} слово",
       "wordCount_few": "{{count}} слова",
       "wordCount_many": "{{count}} слов",
+      "fromWordSets": "Из наборов слов",
+      "wordSet": "Набор слов",
       "noCollections": "Коллекций пока нет",
+      "wordsInSet_one": "{{count}} слово в наборе",
+      "wordsInSet_few": "{{count}} слова в наборе",
+      "wordsInSet_many": "{{count}} слов в наборе",
+      "addSet": "Добавить набор",
+      "noWords": "В этой коллекции пока нет слов",
+      "addSelected": "Добавить в мой словарь ({{count}})",
+      "addSetSuccess": "Добавлено {{added}} слов ({{skipped}} уже в словаре)",
       "edit": "Редактировать",
       "delete": "Удалить",
       "create": "Создать",
@@ -154,6 +164,11 @@
       "results": "Практика завершена!",
       "backToDictionary": "Назад к словарю",
       "practiceAgain": "Практиковать снова"
+    },
+    "wordSets": {
+      "title": "Рекомендуемые наборы слов",
+      "subtitle": "Выберите готовые наборы слов и добавьте их в свой словарь для изучения.",
+      "noSets": "Наборов слов пока нет"
     },
     "assignCollection": "Назначить коллекцию",
     "unassign": "Убрать из коллекции",
