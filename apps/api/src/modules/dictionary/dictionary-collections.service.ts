@@ -1,8 +1,16 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { CreatePredefinedWordDto } from './dto/create-predefined-word.dto';
+import { UpdatePredefinedWordDto } from './dto/update-predefined-word.dto';
 
 @Injectable()
 export class DictionaryCollectionsService {
@@ -13,7 +21,13 @@ export class DictionaryCollectionsService {
       this.prisma.dictionaryCollection.findMany({
         where: { isPublic: true },
         orderBy: { sortOrder: 'asc' },
-        include: { _count: { select: { words: true } } },
+        include: {
+          _count: { select: { predefinedWords: true } },
+          words: {
+            where: { userId },
+            select: { id: true },
+          },
+        },
       }),
       this.prisma.dictionaryCollection.findMany({
         where: { createdByUserId: userId },
@@ -28,7 +42,8 @@ export class DictionaryCollectionsService {
         name: c.name,
         description: c.description,
         isPublic: c.isPublic,
-        wordCount: c._count.words,
+        wordCount: c.words.length,
+        predefinedWordCount: c._count.predefinedWords,
         type: 'predefined' as const,
       })),
       ...userCollections.map((c) => ({
@@ -40,6 +55,19 @@ export class DictionaryCollectionsService {
         type: 'personal' as const,
       })),
     ];
+  }
+
+  async getCollectionWords(collectionId: string) {
+    const collection = await this.prisma.dictionaryCollection.findUnique({
+      where: { id: collectionId },
+    });
+    if (!collection) throw new NotFoundException('Collection not found');
+    if (!collection.isPublic) throw new ForbiddenException('Not a predefined collection');
+
+    return this.prisma.predefinedDictionaryWord.findMany({
+      where: { collectionId },
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 
   async createCollection(userId: string, dto: CreateCollectionDto) {
@@ -79,7 +107,7 @@ export class DictionaryCollectionsService {
     const collections = await this.prisma.dictionaryCollection.findMany({
       where: { isPublic: true },
       orderBy: { sortOrder: 'asc' },
-      include: { _count: { select: { words: true } } },
+      include: { _count: { select: { words: true, predefinedWords: true } } },
     });
 
     return collections.map((c) => ({
@@ -89,6 +117,7 @@ export class DictionaryCollectionsService {
       isPublic: c.isPublic,
       sortOrder: c.sortOrder,
       wordCount: c._count.words,
+      predefinedWordCount: c._count.predefinedWords,
     }));
   }
 
@@ -120,5 +149,71 @@ export class DictionaryCollectionsService {
     if (!collection.isPublic) throw new ForbiddenException('Not an admin collection');
 
     await this.prisma.dictionaryCollection.delete({ where: { id } });
+  }
+
+  // --- Admin predefined words ---
+
+  async adminGetCollectionWords(collectionId: string) {
+    const collection = await this.prisma.dictionaryCollection.findUnique({
+      where: { id: collectionId },
+    });
+    if (!collection) throw new NotFoundException('Collection not found');
+    if (!collection.isPublic) throw new ForbiddenException('Not an admin collection');
+
+    return this.prisma.predefinedDictionaryWord.findMany({
+      where: { collectionId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async adminAddCollectionWord(collectionId: string, dto: CreatePredefinedWordDto) {
+    const collection = await this.prisma.dictionaryCollection.findUnique({
+      where: { id: collectionId },
+    });
+    if (!collection) throw new NotFoundException('Collection not found');
+    if (!collection.isPublic) throw new ForbiddenException('Not an admin collection');
+
+    try {
+      return await this.prisma.predefinedDictionaryWord.create({
+        data: {
+          collectionId,
+          wordHr: dto.wordHr,
+          translationRu: dto.translationRu,
+          translationUk: dto.translationUk,
+          translationEn: dto.translationEn,
+          sortOrder: dto.sortOrder ?? 0,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new ConflictException('This word already exists in the collection');
+      }
+      throw error;
+    }
+  }
+
+  async adminUpdateCollectionWord(wordId: string, dto: UpdatePredefinedWordDto) {
+    const word = await this.prisma.predefinedDictionaryWord.findUnique({
+      where: { id: wordId },
+      include: { collection: { select: { isPublic: true } } },
+    });
+    if (!word) throw new NotFoundException('Word not found');
+    if (!word.collection.isPublic) throw new ForbiddenException('Not an admin collection');
+
+    return this.prisma.predefinedDictionaryWord.update({
+      where: { id: wordId },
+      data: dto,
+    });
+  }
+
+  async adminDeleteCollectionWord(wordId: string) {
+    const word = await this.prisma.predefinedDictionaryWord.findUnique({
+      where: { id: wordId },
+      include: { collection: { select: { isPublic: true } } },
+    });
+    if (!word) throw new NotFoundException('Word not found');
+    if (!word.collection.isPublic) throw new ForbiddenException('Not an admin collection');
+
+    await this.prisma.predefinedDictionaryWord.delete({ where: { id: wordId } });
   }
 }

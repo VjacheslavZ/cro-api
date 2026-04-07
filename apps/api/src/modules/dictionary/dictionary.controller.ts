@@ -27,6 +27,7 @@ import { AssignCollectionDto } from './dto/assign-collection.dto';
 import { BatchAssignCollectionDto } from './dto/batch-assign-collection.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { AddSetDto } from './dto/add-set.dto';
 import { StartPracticeDto } from './dto/start-practice.dto';
 import { FinishPracticeDto } from './dto/finish-practice.dto';
 
@@ -131,6 +132,34 @@ export class DictionaryController {
   @ApiOperation({ summary: 'Delete a personal collection' })
   async deleteCollection(@CurrentUser() user: UserPayload, @Param('id', ParseUUIDPipe) id: string) {
     await this.collectionsService.deleteCollection(user.id, id);
+  }
+
+  @Get('collections/:id/words')
+  @ApiOperation({ summary: 'Get predefined words in a collection' })
+  async getCollectionWords(@Param('id', ParseUUIDPipe) id: string) {
+    return this.collectionsService.getCollectionWords(id);
+  }
+
+  @Post('collections/:id/add-set')
+  @ApiOperation({ summary: 'Add words from a predefined collection to user dictionary' })
+  async addSet(
+    @CurrentUser() user: UserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AddSetDto,
+  ) {
+    const dbUser = await this.prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { nativeLanguage: true },
+    });
+    if (!dbUser.nativeLanguage) {
+      throw new Error('Native language not set');
+    }
+    return this.dictionaryService.addSet(
+      user.id,
+      id,
+      dbUser.nativeLanguage as NativeLanguage,
+      dto.wordIds,
+    );
   }
 
   // --- Practice ---

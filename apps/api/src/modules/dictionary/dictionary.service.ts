@@ -144,6 +144,70 @@ export class DictionaryService {
     }));
   }
 
+  async addSet(
+    userId: string,
+    collectionId: string,
+    nativeLanguage: NativeLanguage,
+    wordIds?: string[],
+  ) {
+    const collection = await this.prisma.dictionaryCollection.findUnique({
+      where: { id: collectionId },
+    });
+    if (!collection || !collection.isPublic) {
+      throw new NotFoundException('Collection not found');
+    }
+
+    const predefinedWords = await this.prisma.predefinedDictionaryWord.findMany({
+      where: {
+        collectionId,
+        ...(wordIds ? { id: { in: wordIds } } : {}),
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    if (predefinedWords.length === 0) {
+      return { addedCount: 0, skippedCount: 0 };
+    }
+
+    const existingWords = await this.prisma.userDictionaryWord.findMany({
+      where: { userId, wordHr: { in: predefinedWords.map((w) => w.wordHr) } },
+      select: { wordHr: true },
+    });
+    const existingSet = new Set(existingWords.map((w) => w.wordHr));
+
+    const newWords = predefinedWords.filter((w) => !existingSet.has(w.wordHr));
+
+    if (newWords.length === 0) {
+      return { addedCount: 0, skippedCount: predefinedWords.length };
+    }
+
+    const translationKey =
+      nativeLanguage === NativeLanguage.RU
+        ? 'translationRu'
+        : nativeLanguage === NativeLanguage.UK
+          ? 'translationUk'
+          : 'translationEn';
+
+    await this.prisma.$transaction(async (tx) => {
+      for (const word of newWords) {
+        const created = await tx.userDictionaryWord.create({
+          data: {
+            userId,
+            wordHr: word.wordHr,
+            translation: word[translationKey],
+            translationLanguage: nativeLanguage,
+            collectionId,
+          },
+        });
+        await tx.dictionaryWordProgress.create({
+          data: { userId, wordId: created.id },
+        });
+      }
+    });
+
+    return { addedCount: newWords.length, skippedCount: existingSet.size };
+  }
+
   private async validateCollectionAccess(userId: string, collectionId: string) {
     const collection = await this.prisma.dictionaryCollection.findUnique({
       where: { id: collectionId },
