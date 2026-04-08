@@ -15,6 +15,7 @@ import {
 import { LoginPage } from '../features/auth/LoginPage';
 import { LanguageSelectPage } from '../features/auth/LanguageSelectPage';
 import { ExercisesPage } from '../features/exercises/ExercisesPage';
+import { VocabularyPage } from '../features/exercises/VocabularyPage';
 import { TopicExercisesPage } from '../features/exercises/TopicExercisesPage';
 import { SessionPage } from '../features/exercises/SessionPage';
 import { SessionResultsPage } from '../features/exercises/SessionResultsPage';
@@ -82,12 +83,23 @@ export function AppRouter() {
               <Route path="/partners" element={<div>For Partners (placeholder)</div>} />
               <Route path="/contacts" element={<div>Contacts (placeholder)</div>} />
               {/*{ Private routes }*/}
+              <Route path="/exercises" element={<Navigate to="/exercises/grammar" replace />} />
               <Route
-                path="/exercises"
+                path="/exercises/grammar"
                 element={
                   <PrivateRoute>
                     <LanguageGuard>
                       <ExercisesPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <VocabularyPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

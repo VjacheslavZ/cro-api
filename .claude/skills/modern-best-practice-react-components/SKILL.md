@@ -172,15 +172,4 @@ Avoid using context for:
 * Components should depend on abstractions (callbacks like `onCreated`, `onSubmit`) not concrete implementations
 * Parent components pass behavior down; child components don't reach up for context they don't own
 
-## 15. Checklist
-
-* [ ] Component is small
-* [ ] Single responsibility respected
-* [ ] No unnecessary state
-* [ ] No unnecessary effects
-* [ ] Hooks extracted
-* [ ] Performance considered
-* [ ] Accessible
-* [ ] Tested
-
 ---

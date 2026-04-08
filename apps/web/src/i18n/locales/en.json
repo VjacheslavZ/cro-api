@@ -24,6 +24,8 @@
   "nav": {
     "home": "Home",
     "exercises": "Exercises",
+    "grammar": "Grammar",
+    "vocabulary": "Vocabulary",
     "dictionary": "Dictionary",
     "myDictionary": "My dictionary",
     "wordSets": "Recommended Word Sets",
@@ -47,8 +49,12 @@
     "rights": "All rights reserved."
   },
   "exercises": {
-    "title": "Exercises",
+    "title": "Grammar",
     "subtitle": "Choose a topic to practice your Croatian grammar.",
+    "vocabulary": {
+      "title": "Vocabulary",
+      "subtitle": "Vocabulary exercises are coming soon."
+    },
     "chooseType": "Choose an exercise type to start practicing.",
     "noTypes": "No exercise types available for this topic.",
     "start": "Start",
