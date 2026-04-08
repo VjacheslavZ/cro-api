@@ -17,11 +17,13 @@ import {
   Paper,
   Snackbar,
   Checkbox,
+  IconButton,
 } from '@mui/material';
-import { ArrowBack, LibraryAdd } from '@mui/icons-material';
+import { ArrowBack, LibraryAdd, VolumeUp } from '@mui/icons-material';
 import type { PredefinedDictionaryWord } from '@cro/shared';
 
 import { useAppSelector } from '../../../store';
+import { speakWord } from '../../../shared/lib/speech';
 import {
   useCollectionWords,
   useAddSet,
@@ -139,6 +141,7 @@ export function CollectionPreviewPage() {
                 </TableCell>
                 <TableCell>{t('dictionary.word')}</TableCell>
                 <TableCell>{t('dictionary.translation')}</TableCell>
+                <TableCell padding="checkbox" />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -155,6 +158,18 @@ export function CollectionPreviewPage() {
                   </TableCell>
                   <TableCell>{word.wordHr}</TableCell>
                   <TableCell>{getTranslation(word, nativeLanguage)}</TableCell>
+                  <TableCell padding="checkbox">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        speakWord(word.wordHr);
+                      }}
+                      aria-label={t('dictionary.listen')}
+                    >
+                      <VolumeUp fontSize="small" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

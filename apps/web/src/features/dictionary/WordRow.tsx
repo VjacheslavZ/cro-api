@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Box, Checkbox, Chip, IconButton, LinearProgress, Typography } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Delete, VolumeUp } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
+
+import { speakWord } from '../../shared/lib/speech';
 
 interface WordRowProps {
   word: DictionaryWord;
@@ -57,6 +59,14 @@ export function WordRow({ word, selected, onSelect, onDelete }: WordRowProps) {
           {word.progressPercent}%
         </Typography>
       </Box>
+
+      <IconButton
+        size="small"
+        onClick={() => speakWord(word.wordHr)}
+        aria-label={t('dictionary.listen')}
+      >
+        <VolumeUp fontSize="small" />
+      </IconButton>
 
       <IconButton
         size="small"

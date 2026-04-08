@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
 import type { FillInBlankItem } from '@cro/shared';
 
-import { getTranslation } from '../../shared/lib/content-utils';
-import { useAppSelector } from '../../store';
-import { TextInputExercise } from './TextInputExercise';
+import { getTranslation } from '../../../shared/lib/content-utils.ts';
+import { useAppSelector } from '../../../store';
+import { TextInputExercise } from '../TextInputExercise/TextInputExercise.tsx';
 
 interface FillInBlankExerciseProps {
   item: FillInBlankItem;
@@ -27,6 +27,7 @@ export function FillInBlankExercise({ item, onAnswer }: FillInBlankExerciseProps
       placeholder={t('exercises.fillInBlank.placeholder')}
       correctMessage={t('exercises.fillInBlank.correct')}
       incorrectMessage={t('exercises.fillInBlank.incorrect', { answer: item.blankAnswer })}
+      wordToSpeak={item.sentenceHr.replace('{{BLANK}}', item.blankAnswer)}
       onAnswer={onAnswer}
       prompt={
         <>

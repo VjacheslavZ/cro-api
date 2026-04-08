@@ -7,11 +7,15 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Alert,
+  FormControlLabel,
+  Switch,
+  Divider,
 } from '@mui/material';
 
 import i18n from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setUser } from '../../store/auth.slice';
+import { setSpeechEnabled } from '../../store/preferences.slice';
 import { apiClient } from '../../api/client';
 
 const languages = [
@@ -24,6 +28,7 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const speechEnabled = useAppSelector((state) => state.preferences.speechEnabled);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -73,6 +78,21 @@ export function SettingsPage() {
             {error}
           </Alert>
         )}
+
+        <Divider sx={{ my: 2 }} />
+
+        <Typography variant="subtitle1" gutterBottom>
+          {t('settings.speech.title')}
+        </Typography>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={speechEnabled}
+              onChange={(e) => dispatch(setSpeechEnabled(e.target.checked))}
+            />
+          }
+          label={t('settings.speech.autoPlay')}
+        />
       </Paper>
     </Container>
   );

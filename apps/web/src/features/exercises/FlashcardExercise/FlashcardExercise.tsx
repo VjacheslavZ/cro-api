@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Typography, Button, Card, CardActionArea, Box } from '@mui/material';
 import type { FlashcardItem } from '@cro/shared';
 
-import { getTranslation } from '../../shared/lib/content-utils';
-import { useAppSelector } from '../../store';
+import { getTranslation } from '../../../shared/lib/content-utils.ts';
+import { useAppSelector } from '../../../store';
+import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 
 interface FlashcardExerciseProps {
   item: FlashcardItem;
@@ -15,6 +16,7 @@ interface FlashcardExerciseProps {
 export function FlashcardExercise({ item, onAnswer, isLast: _isLast }: FlashcardExerciseProps) {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);
+  const { speak } = useSpeech();
   const [flipped, setFlipped] = useState(false);
 
   const handleAnswer = (knew: boolean) => {
@@ -45,7 +47,10 @@ export function FlashcardExercise({ item, onAnswer, isLast: _isLast }: Flashcard
         }}
       >
         <CardActionArea
-          onClick={() => setFlipped(true)}
+          onClick={() => {
+            setFlipped(true);
+            speak(item.frontText);
+          }}
           sx={{
             height: '100%',
             minHeight: 200,

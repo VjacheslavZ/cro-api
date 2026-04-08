@@ -4,11 +4,13 @@ import { Box, Button, Typography, Paper, Alert, Card, CardContent } from '@mui/m
 import { LightbulbOutlined } from '@mui/icons-material';
 
 import { type PoolLetter, buildPool } from './helpers';
+import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 
 interface LetterPickExerciseProps {
   itemId: string;
   wordHr: string;
   translation: string;
+  wordToSpeak?: string;
   onAnswer: (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => void;
 }
 
@@ -16,9 +18,11 @@ export function LetterPickExercise({
   itemId,
   wordHr,
   translation,
+  wordToSpeak,
   onAnswer,
 }: LetterPickExerciseProps) {
   const { t } = useTranslation();
+  const { speak } = useSpeech();
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [placed, setPlaced] = useState<string[]>([]);
@@ -64,6 +68,10 @@ export function LetterPickExercise({
     },
     [isComplete, wordHr, placed, hasError],
   );
+
+  useEffect(() => {
+    if (isComplete) speak(wordToSpeak ?? wordHr);
+  }, [isComplete]);
 
   useEffect(() => {
     if (isComplete) return;

@@ -8,9 +8,9 @@ import type { ExerciseItem } from '@cro/shared';
 import { useAppDispatch } from '../../store';
 import { useFinishSession } from '../../api/exercises';
 import { fetchMe } from '../../api/auth';
-import { TypeTheAnswerExercise } from './TypeTheAnswerExercise';
-import { FlashcardExercise } from './FlashcardExercise';
-import { FillInBlankExercise } from './FillInBlankExercise';
+import { TypeTheAnswerExercise } from './TypeTheAnswerExercise/TypeTheAnswerExercise.tsx';
+import { FlashcardExercise } from './FlashcardExercise/FlashcardExercise.tsx';
+import { FillInBlankExercise } from './FillInBlankExercise/FillInBlankExercise.tsx';
 import { ExerciseRulesDialog } from './ExerciseRulesDialog';
 
 interface SessionLocationState {

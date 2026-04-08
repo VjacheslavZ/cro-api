@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
 import type { SingularPluralItem } from '@cro/shared';
 
-import { getTranslation } from '../../shared/lib/content-utils';
-import { useAppSelector } from '../../store';
-import { TextInputExercise } from './TextInputExercise';
+import { getTranslation } from '../../../shared/lib/content-utils.ts';
+import { useAppSelector } from '../../../store';
+import { TextInputExercise } from '../TextInputExercise/TextInputExercise.tsx';
 
 interface TypeTheAnswerExerciseProps {
   item: SingularPluralItem;
@@ -23,6 +23,7 @@ export function TypeTheAnswerExercise({ item, onAnswer }: TypeTheAnswerExerciseP
       placeholder={t('exercises.typeTheAnswer.placeholder')}
       correctMessage={t('exercises.typeTheAnswer.correct')}
       incorrectMessage={t('exercises.typeTheAnswer.incorrect', { answer: item.pluralForm })}
+      wordToSpeak={item.pluralForm}
       onAnswer={onAnswer}
       prompt={
         <>

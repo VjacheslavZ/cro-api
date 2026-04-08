@@ -128,7 +128,11 @@
   },
   "settings": {
     "title": "Налаштування",
-    "nativeLanguage": "Рідна мова"
+    "nativeLanguage": "Рідна мова",
+    "speech": {
+      "title": "Вимова",
+      "autoPlay": "Автоматично відтворювати хорватську вимову після кожної відповіді"
+    }
   },
   "dictionary": {
     "title": "Мій словник",
@@ -140,6 +144,7 @@
     "collection": "Колекція",
     "progress": "Прогрес",
     "delete": "Видалити",
+    "listen": "Прослухати",
     "addWordModal": {
       "title": "Додати слово",
       "wordLabel": "Хорватське слово",

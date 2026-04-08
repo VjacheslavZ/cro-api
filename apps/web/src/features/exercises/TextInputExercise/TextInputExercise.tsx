@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextField, Button, Card, CardContent, Box, Alert } from '@mui/material';
 
-import { normalizeAnswer } from '../../shared/lib/content-utils';
+import { normalizeAnswer } from '../../../shared/lib/content-utils.ts';
+import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 
 const CORRECT_DELAY = Number(import.meta.env.VITE_CORRECT_DELAY_MS) || 1000;
 
@@ -13,6 +14,7 @@ interface TextInputExerciseProps {
   prompt: ReactNode;
   correctMessage: string;
   incorrectMessage: string;
+  wordToSpeak?: string;
   onAnswer: (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => void;
 }
 
@@ -23,9 +25,11 @@ export function TextInputExercise({
   prompt,
   correctMessage,
   incorrectMessage,
+  wordToSpeak,
   onAnswer,
 }: TextInputExerciseProps) {
   const { t } = useTranslation();
+  const { speak } = useSpeech();
   const [input, setInput] = useState('');
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -61,6 +65,7 @@ export function TextInputExercise({
     const correct = normalizeAnswer(input) === normalizeAnswer(correctAnswer);
     setIsCorrect(correct);
     setChecked(true);
+    if (wordToSpeak) speak(wordToSpeak);
     if (correct) {
       timerRef.current = setTimeout(() => {
         onAnswer({ itemId, givenAnswer: input, isCorrect: correct });

@@ -20,7 +20,7 @@ import type { DictionaryPracticeItem } from '@cro/shared';
 import { useAppDispatch } from '../../../store';
 import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
 import { fetchMe } from '../../../api/auth.ts';
-import { TextInputExercise } from '../../exercises/TextInputExercise.tsx';
+import { TextInputExercise } from '../../exercises/TextInputExercise/TextInputExercise.tsx';
 import { LetterPickExercise } from '../../exercises/LetterPickExercise/LetterPickExercise.tsx';
 
 interface PracticeLocationState {
@@ -146,6 +146,7 @@ export function DictionaryPracticePage() {
           itemId={currentItem.wordId}
           wordHr={currentItem.wordHr}
           translation={currentItem.translation}
+          wordToSpeak={currentItem.wordHr}
           onAnswer={handleAnswer}
         />
       )}
@@ -156,6 +157,7 @@ export function DictionaryPracticePage() {
           itemId={currentItem.wordId}
           correctAnswer={correctAnswer}
           placeholder={placeholder}
+          wordToSpeak={currentItem.wordHr}
           prompt={
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
