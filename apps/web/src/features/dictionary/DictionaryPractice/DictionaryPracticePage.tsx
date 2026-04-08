@@ -22,11 +22,12 @@ import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
 import { fetchMe } from '../../../api/auth.ts';
 import { TextInputExercise } from '../../exercises/TextInputExercise/TextInputExercise.tsx';
 import { LetterPickExercise } from '../../exercises/LetterPickExercise/LetterPickExercise.tsx';
+import { MatchingExercise } from '../../exercises/MatchingExercise/MatchingExercise.tsx';
 
 interface PracticeLocationState {
   items: DictionaryPracticeItem[];
   totalQuestions: number;
-  direction?: 'word-to-translate' | 'translate-to-word' | 'letter-pick';
+  direction?: 'word-to-translate' | 'translate-to-word' | 'letter-pick' | 'matching';
   backPath?: string;
 }
 
@@ -88,6 +89,32 @@ export function DictionaryPracticePage() {
     [answers, currentIndex, state, sessionId, finishPractice, dispatch, navigate],
   );
 
+  const handleBulkComplete = useCallback(
+    async (bulkAnswers: PracticeAnswer[]) => {
+      if (!state) return;
+      try {
+        const result = await finishPractice.mutateAsync({
+          sessionId: sessionId!,
+          answers: bulkAnswers,
+        });
+        dispatch(fetchMe());
+        navigate(`/dictionary/practice/results/${sessionId}`, {
+          state: {
+            correctAnswers: result.correctAnswers,
+            totalQuestions: result.totalQuestions,
+            xpEarned: result.xpEarned,
+            currentStreak: result.currentStreak,
+            backPath: state.backPath,
+          },
+          replace: true,
+        });
+      } catch {
+        // Error handled by mutation state
+      }
+    },
+    [state, sessionId, finishPractice, dispatch, navigate],
+  );
+
   if (!state || !state.items || state.items.length === 0) {
     return (
       <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -97,6 +124,48 @@ export function DictionaryPracticePage() {
   }
 
   const { items, direction } = state;
+
+  if (direction === 'matching') {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button
+            size="small"
+            color="inherit"
+            startIcon={<Stop />}
+            onClick={() => setStopDialogOpen(true)}
+          >
+            {t('exercises.session.stop')}
+          </Button>
+        </Box>
+
+        {finishPractice.isError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {t('common.error')}
+          </Alert>
+        )}
+
+        <MatchingExercise items={items} onComplete={handleBulkComplete} />
+
+        <Dialog open={stopDialogOpen} onClose={() => setStopDialogOpen(false)}>
+          <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>{t('exercises.session.stopMessage')}</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setStopDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button
+              color="error"
+              onClick={() => navigate(state.backPath ?? '/exercises/vocabulary')}
+            >
+              {t('exercises.session.stopConfirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    );
+  }
+
   const reverseDirection = direction === 'translate-to-word';
   const currentItem = items[currentIndex];
   const progress = ((currentIndex + 1) / items.length) * 100;

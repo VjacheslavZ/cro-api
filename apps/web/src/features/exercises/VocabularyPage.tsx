@@ -11,11 +11,11 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { Translate, TextFields, GridOn } from '@mui/icons-material';
+import { Translate, TextFields, GridOn, HearingOutlined } from '@mui/icons-material';
 
 import { useStartDictionaryPractice } from '../../api/dictionary';
 
-type ExerciseDirection = 'word-to-translate' | 'translate-to-word' | 'letter-pick';
+type ExerciseDirection = 'word-to-translate' | 'translate-to-word' | 'letter-pick' | 'matching';
 
 const SESSION_WORD_COUNT = 10;
 
@@ -67,6 +67,12 @@ export function VocabularyPage() {
       icon: <GridOn color="primary" />,
       titleKey: 'exercises.vocabulary.letterPick',
       descKey: 'exercises.vocabulary.letterPickDesc',
+    },
+    {
+      direction: 'matching',
+      icon: <HearingOutlined color="primary" />,
+      titleKey: 'exercises.vocabulary.matching',
+      descKey: 'exercises.vocabulary.matchingDesc',
     },
   ];
 

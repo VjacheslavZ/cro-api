@@ -1,20 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  CircularProgress,
-  Box,
-  Alert,
-  Button,
-  Card,
-  CardContent,
-} from '@mui/material';
+import { Container, Typography, Box, Alert, Button, Card, CardContent } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import type { ExerciseTopic } from '@cro/shared';
 
+import { QueryState } from '../../shared/components/QueryState';
 import { useAppSelector } from '../../store';
 import { apiClient } from '../../api/client';
 import { useCreateSession } from '../../api/exercises';
@@ -95,21 +87,11 @@ export function TopicExercisesPage() {
 
   const autoStartState = location.state as { autoStartExerciseType?: string } | null;
 
-  if (isLoading || autoStartState?.autoStartExerciseType) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error || !topic) {
-    return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
-    );
-  }
+  const queryState = QueryState({
+    isLoading: isLoading || !!autoStartState?.autoStartExerciseType,
+    isError: !!error || !topic,
+  });
+  if (queryState) return queryState;
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -118,19 +100,19 @@ export function TopicExercisesPage() {
       </Button>
 
       <Typography variant="h4" gutterBottom>
-        {getLocalizedName(topic, user?.nativeLanguage ?? null)}
+        {topic && getLocalizedName(topic, user?.nativeLanguage ?? null)}
       </Typography>
 
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
         {t('exercises.chooseType')}
       </Typography>
 
-      {topic.exerciseTypes.length === 0 && (
+      {topic?.exerciseTypes.length === 0 && (
         <Typography color="text.secondary">{t('exercises.noTypes')}</Typography>
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {topic.exerciseTypes.map((type) => (
+        {topic?.exerciseTypes.map((type) => (
           <Card key={type} variant="outlined">
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

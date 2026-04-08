@@ -59,7 +59,13 @@
       "translateToWord": "Translation → Word",
       "translateToWordDesc": "See the translation, type the Croatian word.",
       "letterPick": "Build the Word",
-      "letterPickDesc": "See the translation, build the Croatian word by clicking letters."
+      "letterPickDesc": "See the translation, build the Croatian word by clicking letters.",
+      "matching": "Listening Match",
+      "matchingDesc": "Listen to Croatian words and match them to their translations."
+    },
+    "matching": {
+      "progress": "{{matched}} / {{total}} matched",
+      "complete": "All words matched!"
     },
     "letterPick": {
       "instruction": "Build the Croatian word:",
