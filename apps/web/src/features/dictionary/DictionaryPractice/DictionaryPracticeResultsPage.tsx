@@ -8,6 +8,7 @@ interface ResultsLocationState {
   totalQuestions: number;
   xpEarned: number;
   currentStreak: number;
+  backPath?: string;
 }
 
 export function DictionaryPracticeResultsPage() {
@@ -48,10 +49,10 @@ export function DictionaryPracticeResultsPage() {
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-        <Button variant="contained" onClick={() => navigate('/dictionary/my')}>
-          {t('dictionary.practice.backToDictionary')}
+        <Button variant="contained" onClick={() => navigate(state.backPath ?? '/dictionary/my')}>
+          {t('dictionary.practice.back')}
         </Button>
-        <Button variant="outlined" onClick={() => navigate('/dictionary/my')}>
+        <Button variant="outlined" onClick={() => navigate(state.backPath ?? '/dictionary/my')}>
           {t('dictionary.practice.practiceAgain')}
         </Button>
       </Box>

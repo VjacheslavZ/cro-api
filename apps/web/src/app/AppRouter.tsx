@@ -24,8 +24,8 @@ import { MyDictionaryPage } from '../features/dictionary/MyDictionaryPage';
 import { CollectionsPage } from '../features/dictionary/CollectionsPage';
 import { WordSetsPage } from '../features/dictionary/WordSetsPage';
 import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
-import { DictionaryPracticePage } from '../features/dictionary/DictionaryPracticePage';
-import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPracticeResultsPage';
+import { DictionaryPracticePage } from '../features/dictionary/DictionaryPractice/DictionaryPracticePage.tsx';
+import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPractice/DictionaryPracticeResultsPage.tsx';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 

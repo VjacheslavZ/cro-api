@@ -53,7 +53,11 @@
     "subtitle": "Choose a topic to practice your Croatian grammar.",
     "vocabulary": {
       "title": "Vocabulary",
-      "subtitle": "Vocabulary exercises are coming soon."
+      "subtitle": "Choose an exercise type to practice words from your dictionary.",
+      "wordToTranslate": "Word → Translation",
+      "wordToTranslateDesc": "See the Croatian word, type its translation.",
+      "translateToWord": "Translation → Word",
+      "translateToWordDesc": "See the translation, type the Croatian word."
     },
     "chooseType": "Choose an exercise type to start practicing.",
     "noTypes": "No exercise types available for this topic.",
@@ -161,10 +165,13 @@
       "start": "Practice",
       "instruction": "Type the translation:",
       "placeholder": "Enter translation...",
+      "translateInstruction": "Type the Croatian word:",
+      "translatePlaceholder": "Enter Croatian word...",
       "correct": "Correct!",
       "incorrect": "Incorrect. The correct answer is: {{answer}}",
       "noWords": "Add words to your dictionary first to start practicing",
       "results": "Practice Complete!",
+      "back": "Go Back",
       "backToDictionary": "Back to Dictionary",
       "practiceAgain": "Practice Again"
     },

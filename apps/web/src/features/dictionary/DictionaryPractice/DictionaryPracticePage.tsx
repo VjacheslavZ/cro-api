@@ -4,14 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { Container, Typography, LinearProgress, Box, Alert } from '@mui/material';
 import type { DictionaryPracticeItem } from '@cro/shared';
 
-import { useAppDispatch } from '../../store';
-import { useFinishDictionaryPractice } from '../../api/dictionary';
-import { fetchMe } from '../../api/auth';
-import { TextInputExercise } from '../exercises/TextInputExercise';
+import { useAppDispatch } from '../../../store';
+import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
+import { fetchMe } from '../../../api/auth.ts';
+import { TextInputExercise } from '../../exercises/TextInputExercise.tsx';
 
 interface PracticeLocationState {
   items: DictionaryPracticeItem[];
   totalQuestions: number;
+  direction?: 'word-to-translate' | 'translate-to-word';
+  backPath?: string;
 }
 
 interface PracticeAnswer {
@@ -57,6 +59,7 @@ export function DictionaryPracticePage() {
               totalQuestions: result.totalQuestions,
               xpEarned: result.xpEarned,
               currentStreak: result.currentStreak,
+              backPath: state?.backPath,
             },
             replace: true,
           });
@@ -78,9 +81,19 @@ export function DictionaryPracticePage() {
     );
   }
 
-  const { items } = state;
+  const { items, direction } = state;
+  const reverseDirection = direction === 'translate-to-word';
   const currentItem = items[currentIndex];
   const progress = ((currentIndex + 1) / items.length) * 100;
+
+  const prompt = reverseDirection ? currentItem.translation : currentItem.wordHr;
+  const correctAnswer = reverseDirection ? currentItem.wordHr : currentItem.translation;
+  const instruction = reverseDirection
+    ? t('dictionary.practice.translateInstruction')
+    : t('dictionary.practice.instruction');
+  const placeholder = reverseDirection
+    ? t('dictionary.practice.translatePlaceholder')
+    : t('dictionary.practice.placeholder');
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -107,21 +120,21 @@ export function DictionaryPracticePage() {
       <TextInputExercise
         key={currentItem.wordId}
         itemId={currentItem.wordId}
-        correctAnswer={currentItem.translation}
-        placeholder={t('dictionary.practice.placeholder')}
+        correctAnswer={correctAnswer}
+        placeholder={placeholder}
         prompt={
           <Box sx={{ mb: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              {t('dictionary.practice.instruction')}
+              {instruction}
             </Typography>
             <Typography variant="h5" sx={{ mt: 1 }}>
-              {currentItem.wordHr}
+              {prompt}
             </Typography>
           </Box>
         }
         correctMessage={t('dictionary.practice.correct')}
         incorrectMessage={t('dictionary.practice.incorrect', {
-          answer: currentItem.translation,
+          answer: correctAnswer,
         })}
         onAnswer={handleAnswer}
       />
