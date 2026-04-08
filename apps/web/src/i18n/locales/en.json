@@ -57,7 +57,15 @@
       "wordToTranslate": "Word → Translation",
       "wordToTranslateDesc": "See the Croatian word, type its translation.",
       "translateToWord": "Translation → Word",
-      "translateToWordDesc": "See the translation, type the Croatian word."
+      "translateToWordDesc": "See the translation, type the Croatian word.",
+      "letterPick": "Build the Word",
+      "letterPickDesc": "See the translation, build the Croatian word by clicking letters."
+    },
+    "letterPick": {
+      "instruction": "Build the Croatian word:",
+      "hint": "Hint",
+      "perfect": "Perfect! No mistakes!",
+      "withErrors": "Completed with errors"
     },
     "chooseType": "Choose an exercise type to start practicing.",
     "noTypes": "No exercise types available for this topic.",
@@ -71,7 +79,11 @@
       "progress": "Question {{current}} of {{total}}",
       "check": "Check",
       "next": "Next",
-      "finish": "Finish"
+      "finish": "Finish",
+      "stop": "Stop",
+      "stopTitle": "Stop exercise?",
+      "stopMessage": "Your progress in this session will not be saved.",
+      "stopConfirm": "Stop"
     },
     "typeTheAnswer": {
       "title": "Type the Answer",
@@ -188,6 +200,7 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "retry": "Retry",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   }
 }

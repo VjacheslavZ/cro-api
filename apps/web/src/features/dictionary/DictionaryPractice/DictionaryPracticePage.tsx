@@ -1,18 +1,32 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, LinearProgress, Box, Alert } from '@mui/material';
+import {
+  Container,
+  Typography,
+  LinearProgress,
+  Box,
+  Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
+import { Stop } from '@mui/icons-material';
 import type { DictionaryPracticeItem } from '@cro/shared';
 
 import { useAppDispatch } from '../../../store';
 import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
 import { fetchMe } from '../../../api/auth.ts';
 import { TextInputExercise } from '../../exercises/TextInputExercise.tsx';
+import { LetterPickExercise } from '../../exercises/LetterPickExercise/LetterPickExercise.tsx';
 
 interface PracticeLocationState {
   items: DictionaryPracticeItem[];
   totalQuestions: number;
-  direction?: 'word-to-translate' | 'translate-to-word';
+  direction?: 'word-to-translate' | 'translate-to-word' | 'letter-pick';
   backPath?: string;
 }
 
@@ -32,6 +46,7 @@ export function DictionaryPracticePage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<PracticeAnswer[]>([]);
+  const [stopDialogOpen, setStopDialogOpen] = useState(false);
   const finishPractice = useFinishDictionaryPractice();
 
   const handleAnswer = useCallback(
@@ -104,6 +119,14 @@ export function DictionaryPracticePage() {
             total: items.length,
           })}
         </Typography>
+        <Button
+          size="small"
+          color="inherit"
+          startIcon={<Stop />}
+          onClick={() => setStopDialogOpen(true)}
+        >
+          {t('exercises.session.stop')}
+        </Button>
       </Box>
       <LinearProgress
         variant="determinate"
@@ -117,27 +140,55 @@ export function DictionaryPracticePage() {
         </Alert>
       )}
 
-      <TextInputExercise
-        key={currentItem.wordId}
-        itemId={currentItem.wordId}
-        correctAnswer={correctAnswer}
-        placeholder={placeholder}
-        prompt={
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {instruction}
-            </Typography>
-            <Typography variant="h5" sx={{ mt: 1 }}>
-              {prompt}
-            </Typography>
-          </Box>
-        }
-        correctMessage={t('dictionary.practice.correct')}
-        incorrectMessage={t('dictionary.practice.incorrect', {
-          answer: correctAnswer,
-        })}
-        onAnswer={handleAnswer}
-      />
+      {direction === 'letter-pick' && (
+        <LetterPickExercise
+          key={currentItem.wordId}
+          itemId={currentItem.wordId}
+          wordHr={currentItem.wordHr}
+          translation={currentItem.translation}
+          onAnswer={handleAnswer}
+        />
+      )}
+
+      {direction !== 'letter-pick' && (
+        <TextInputExercise
+          key={currentItem.wordId}
+          itemId={currentItem.wordId}
+          correctAnswer={correctAnswer}
+          placeholder={placeholder}
+          prompt={
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                {instruction}
+              </Typography>
+              <Typography variant="h5" sx={{ mt: 1 }}>
+                {prompt}
+              </Typography>
+            </Box>
+          }
+          correctMessage={t('dictionary.practice.correct')}
+          incorrectMessage={t('dictionary.practice.incorrect', {
+            answer: correctAnswer,
+          })}
+          onAnswer={handleAnswer}
+        />
+      )}
+
+      <Dialog open={stopDialogOpen} onClose={() => setStopDialogOpen(false)}>
+        <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t('exercises.session.stopMessage')}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setStopDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button
+            color="error"
+            onClick={() => navigate(state?.backPath ?? '/exercises/vocabulary')}
+          >
+            {t('exercises.session.stopConfirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
