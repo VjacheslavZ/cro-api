@@ -1,4 +1,4 @@
-import { IsUUID, IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
+import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -25,4 +25,9 @@ export class GetWordsQueryDto {
   @IsUUID()
   @IsOptional()
   collectionId?: string;
+
+  @ApiPropertyOptional({ enum: ['newest', 'oldest', 'progress'] })
+  @IsIn(['newest', 'oldest', 'progress'])
+  @IsOptional()
+  sort?: string;
 }

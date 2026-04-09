@@ -25,36 +25,80 @@ export class DictionaryService {
       ...(query.collectionId ? { collectionId: query.collectionId } : {}),
     };
 
+    // progress sort requires fetching all matching words and sorting in JS
+    // (Prisma doesn't support ordering by computed aggregate columns)
+    const useProgressSort = query.sort === 'progress';
+
+    const orderBy: Prisma.UserDictionaryWordOrderByWithRelationInput =
+      query.sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+
     const words = await this.prisma.userDictionaryWord.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
-      take: limit + 1,
-      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      orderBy: useProgressSort ? undefined : orderBy,
+      take: useProgressSort ? undefined : limit + 1,
+      ...(query.cursor && !useProgressSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
       include: {
         collection: { select: { name: true } },
-        progress: { select: { totalAttempts: true, correctAttempts: true } },
+        progress: {
+          select: {
+            totalAttempts: true,
+            correctAttempts: true,
+            wordToTranslatePercent: true,
+            translateToWordPercent: true,
+            letterPickPercent: true,
+            matchingPercent: true,
+          },
+        },
       },
     });
+
+    const mapWord = (word: (typeof words)[number]) => {
+      const p = word.progress;
+      const wTT = p?.wordToTranslatePercent ?? 0;
+      const tTW = p?.translateToWordPercent ?? 0;
+      const lP = p?.letterPickPercent ?? 0;
+      const mP = p?.matchingPercent ?? 0;
+      const progressPercent = Math.round((wTT + tTW + lP + mP) / 4);
+
+      return {
+        id: word.id,
+        wordHr: word.wordHr,
+        translation: word.translation,
+        translationLanguage: word.translationLanguage,
+        collectionId: word.collectionId,
+        collectionName: word.collection?.name ?? null,
+        progressPercent,
+        wordToTranslatePercent: wTT,
+        translateToWordPercent: tTW,
+        letterPickPercent: lP,
+        matchingPercent: mP,
+        isLearned: wTT === 100 && tTW === 100 && lP === 100 && mP === 100,
+        createdAt: word.createdAt.toISOString(),
+      };
+    };
+
+    if (useProgressSort) {
+      const sorted = words.map(mapWord).sort((a, b) => a.progressPercent - b.progressPercent);
+
+      // Apply cursor-based pagination manually
+      let startIdx = 0;
+      if (query.cursor) {
+        const idx = sorted.findIndex((w) => w.id === query.cursor);
+        if (idx !== -1) startIdx = idx + 1;
+      }
+
+      const page = sorted.slice(startIdx, startIdx + limit + 1);
+      const hasMore = page.length > limit;
+      if (hasMore) page.pop();
+
+      return { items: page, nextCursor: hasMore ? page[page.length - 1].id : null };
+    }
 
     const hasMore = words.length > limit;
     if (hasMore) words.pop();
 
-    const items = words.map((word) => ({
-      id: word.id,
-      wordHr: word.wordHr,
-      translation: word.translation,
-      translationLanguage: word.translationLanguage,
-      collectionId: word.collectionId,
-      collectionName: word.collection?.name ?? null,
-      progressPercent:
-        word.progress && word.progress.totalAttempts > 0
-          ? Math.round((word.progress.correctAttempts / word.progress.totalAttempts) * 100)
-          : 0,
-      createdAt: word.createdAt.toISOString(),
-    }));
-
     return {
-      items,
+      items: words.map(mapWord),
       nextCursor: hasMore ? words[words.length - 1].id : null,
     };
   }

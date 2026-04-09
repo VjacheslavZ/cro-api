@@ -177,6 +177,6 @@ export class DictionaryController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: FinishPracticeDto,
   ) {
-    return this.practiceService.finishSession(user.id, id, dto.answers);
+    return this.practiceService.finishSession(user.id, id, dto);
   }
 }

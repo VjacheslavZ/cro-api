@@ -153,6 +153,12 @@ export interface GamificationStats {
 
 // --- Dictionary types ---
 
+export type VocabularyExerciseType =
+  | 'word-to-translate'
+  | 'translate-to-word'
+  | 'letter-pick'
+  | 'matching';
+
 export interface DictionaryWord {
   id: string;
   wordHr: string;
@@ -161,6 +167,11 @@ export interface DictionaryWord {
   collectionId: string | null;
   collectionName: string | null;
   progressPercent: number;
+  wordToTranslatePercent: number;
+  translateToWordPercent: number;
+  letterPickPercent: number;
+  matchingPercent: number;
+  isLearned: boolean;
   createdAt: string;
 }
 
@@ -224,4 +235,17 @@ export interface FinishDictionaryPracticeResponse {
   newXpTotal: number;
   currentStreak: number;
   longestStreak: number;
+}
+
+export interface StartDictionaryPracticeRequest {
+  collectionId?: string;
+  count?: number;
+  wordIds?: string[];
+  exerciseType?: VocabularyExerciseType;
+  filter?: 'newest' | 'oldest' | 'progress';
+}
+
+export interface FinishDictionaryPracticeRequest {
+  answers: { wordId: string; givenAnswer: string; isCorrect: boolean }[];
+  exerciseType?: VocabularyExerciseType;
 }
