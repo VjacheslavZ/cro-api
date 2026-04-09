@@ -61,7 +61,30 @@
       "letterPick": "Скласти слово",
       "letterPickDesc": "Бачите переклад — складіть хорватське слово з букв.",
       "matching": "Зіставити на слух",
-      "matchingDesc": "Слухайте хорватські слова та підбирайте до них переклади."
+      "matchingDesc": "Слухайте хорватські слова та підбирайте до них переклади.",
+      "learnWords": "Вчити слова",
+      "learnWordsDesc": "Пройдіть усі 4 типи вправ для вибраних слів."
+    },
+    "learnWords": {
+      "setupTitle": "Вчити слова",
+      "wordCount": "Слів за сесію",
+      "filter": "Вибір слів",
+      "filterNewest": "Нові",
+      "filterOldest": "Старі",
+      "filterProgress": "За прогресом (0%→100%)",
+      "next": "Далі",
+      "previewTitle": "Слова для вивчення",
+      "wordOf": "{{current}} / {{total}}",
+      "startExercises": "Розпочати вправи",
+      "exerciseStep": "Вправа {{step}} з 4",
+      "stepComplete": "Вправа {{step}} з 4 завершена",
+      "score": "Результат: {{correct}} / {{total}}",
+      "continue": "Продовжити",
+      "resultsTitle": "Сесію завершено!",
+      "totalScore": "Підсумок: {{correct}} / {{total}}",
+      "backToDictionary": "Назад до словника",
+      "learnAgain": "Вчити знову",
+      "learned": "Вивчено"
     },
     "matching": {
       "progress": "{{matched}} / {{total}} зіставлено",

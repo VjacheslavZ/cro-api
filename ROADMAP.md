@@ -1,5 +1,13 @@
 # MVP Development Phases
 
+## Feature Documentation
+
+| Feature | Doc |
+|---------|-----|
+| Exercises — component contracts, Learn Words, AuthGuard gotcha | [docs/exercises.md](docs/exercises.md) |
+
+---
+
 ## Phase 1 — Foundation ✅
 
 - Initialize Turborepo monorepo with npm workspaces (`apps/api`, `apps/web`, `apps/admin`, `packages/shared`)

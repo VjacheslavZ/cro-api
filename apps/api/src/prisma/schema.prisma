@@ -329,6 +329,11 @@ model DictionaryWordProgress {
   correctAttempts Int       @default(0)
   lastPracticedAt DateTime?
 
+  wordToTranslatePercent Int @default(0)
+  translateToWordPercent Int @default(0)
+  letterPickPercent      Int @default(0)
+  matchingPercent        Int @default(0)
+
   user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   word UserDictionaryWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
 

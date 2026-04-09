@@ -37,3 +37,11 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 
 - Reuses existing `TextInputExercise` component
 - Show Croatian word (`wordHr`) → user types translation
+
+---
+
+## Exercise Component Conventions
+
+See [docs/exercises.md](../../docs/exercises.md) for component callback contracts, the Learn Words feature, and the critical `fetchMe` / `AuthGuard` unmount gotcha.
+
+**Doc maintenance rule**: When you modify any file under `src/features/exercises/` or any exercise-related API/service, after completing the change offer to update `docs/exercises.md` if the behavior, callback contracts, or gotchas have changed. Use `/update-exercise-docs` as the trigger, or offer inline.

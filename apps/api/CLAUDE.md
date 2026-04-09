@@ -308,3 +308,5 @@ npm run -w cro-api seed
 - `src/modules/payments/payments.service.ts` — webhook + idempotency; bugs = financial losses
 - `src/modules/dictionary/dictionary.service.ts` — dictionary word CRUD, shared translation pool, cursor pagination
 - `src/modules/dictionary/dictionary-practice.service.ts` — dictionary practice sessions, progress tracking
+
+**Doc maintenance rule**: When you modify any file under `src/modules/dictionary/` or `src/modules/exercises/` (DTOs, services, controllers, schema), after completing the change offer to update `docs/exercises.md` if the API shape, progress rules, or endpoint behavior has changed. Use `/update-exercise-docs` as the trigger, or offer inline.
