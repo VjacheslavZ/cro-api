@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container, Typography, Box, Button, Paper } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
+
+import { useSpeech } from '../../../shared/hooks/useSpeech';
 
 interface LocationState {
   words: DictionaryWord[];
@@ -17,6 +19,14 @@ export function LearnWordsPreviewPage() {
   const { words, collectionId } = (location.state as LocationState) ?? {};
 
   const [index, setIndex] = useState(0);
+  const { speak } = useSpeech();
+
+  useEffect(() => {
+    if (words?.[index]?.wordHr) speak(words[index].wordHr);
+    return () => {
+      window.speechSynthesis?.cancel();
+    };
+  }, [index]);
 
   if (!words || words.length === 0) {
     navigate('/exercises/vocabulary/learn', { replace: true });

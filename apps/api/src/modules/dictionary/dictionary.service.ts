@@ -23,6 +23,18 @@ export class DictionaryService {
       userId,
       ...(query.search ? { wordHr: { contains: query.search, mode: 'insensitive' as const } } : {}),
       ...(query.collectionId ? { collectionId: query.collectionId } : {}),
+      ...(query.excludeLearned
+        ? {
+            NOT: {
+              progress: {
+                wordToTranslatePercent: 100,
+                translateToWordPercent: 100,
+                letterPickPercent: 100,
+                matchingPercent: 100,
+              },
+            },
+          }
+        : {}),
     };
 
     // progress sort requires fetching all matching words and sorting in JS

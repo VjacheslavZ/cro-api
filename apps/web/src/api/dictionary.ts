@@ -214,7 +214,12 @@ export function useLearnWordsPreview(
     queryKey: ['learn-words-preview', params],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<DictionaryWord>>('/dictionary/words', {
-        params: { limit: params.count, sort: params.filter, collectionId: params.collectionId },
+        params: {
+          limit: params.count,
+          sort: params.filter,
+          collectionId: params.collectionId,
+          excludeLearned: true,
+        },
       });
       return data.items;
     },

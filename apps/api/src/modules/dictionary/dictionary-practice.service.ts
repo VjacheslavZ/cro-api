@@ -36,20 +36,45 @@ export class DictionaryPracticeService {
     if (dto.wordIds && dto.wordIds.length > 0) {
       const words = await this.prisma.userDictionaryWord.findMany({
         where: { id: { in: dto.wordIds }, userId },
+        include: {
+          progress: {
+            select: {
+              wordToTranslatePercent: true,
+              translateToWordPercent: true,
+              letterPickPercent: true,
+              matchingPercent: true,
+            },
+          },
+        },
       });
 
-      if (words.length === 0) {
+      const unlearnedWords = words.filter(
+        (w) =>
+          !w.progress ||
+          !(
+            w.progress.wordToTranslatePercent === 100 &&
+            w.progress.translateToWordPercent === 100 &&
+            w.progress.letterPickPercent === 100 &&
+            w.progress.matchingPercent === 100
+          ),
+      );
+
+      if (unlearnedWords.length === 0) {
         throw new NotFoundException('No words available for practice');
       }
 
       const session = await this.prisma.dictionaryPracticeSession.create({
-        data: { userId, totalQuestions: words.length },
+        data: { userId, totalQuestions: unlearnedWords.length },
       });
 
       return {
         sessionId: session.id,
-        items: words.map((w) => ({ wordId: w.id, wordHr: w.wordHr, translation: w.translation })),
-        totalQuestions: words.length,
+        items: unlearnedWords.map((w) => ({
+          wordId: w.id,
+          wordHr: w.wordHr,
+          translation: w.translation,
+        })),
+        totalQuestions: unlearnedWords.length,
       };
     }
 
@@ -57,6 +82,14 @@ export class DictionaryPracticeService {
       where: {
         userId,
         ...(dto.collectionId ? { collectionId: dto.collectionId } : {}),
+        NOT: {
+          progress: {
+            wordToTranslatePercent: 100,
+            translateToWordPercent: 100,
+            letterPickPercent: 100,
+            matchingPercent: 100,
+          },
+        },
       },
       include: {
         progress: {
