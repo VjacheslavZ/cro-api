@@ -6,6 +6,8 @@ import type {
   PaginatedResponse,
   DictionaryPracticeSessionResponse,
   FinishDictionaryPracticeResponse,
+  StartDictionaryPracticeRequest,
+  FinishDictionaryPracticeRequest,
   AddSetResponse,
   PredefinedDictionaryWord,
 } from '@cro/shared';
@@ -177,7 +179,7 @@ export function useAddSet() {
 
 export function useStartDictionaryPractice() {
   return useMutation({
-    mutationFn: async (params: { collectionId?: string; count?: number }) => {
+    mutationFn: async (params: StartDictionaryPracticeRequest) => {
       const { data } = await apiClient.post<DictionaryPracticeSessionResponse>(
         '/dictionary/practice/sessions',
         params,
@@ -190,18 +192,32 @@ export function useStartDictionaryPractice() {
 export function useFinishDictionaryPractice() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (params: {
-      sessionId: string;
-      answers: { wordId: string; givenAnswer: string; isCorrect: boolean }[];
-    }) => {
+    mutationFn: async (params: { sessionId: string } & FinishDictionaryPracticeRequest) => {
+      const { sessionId, ...body } = params;
       const { data } = await apiClient.post<FinishDictionaryPracticeResponse>(
-        `/dictionary/practice/sessions/${params.sessionId}/finish`,
-        { answers: params.answers },
+        `/dictionary/practice/sessions/${sessionId}/finish`,
+        body,
       );
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
     },
+  });
+}
+
+export function useLearnWordsPreview(
+  params: { count: number; filter: string; collectionId?: string },
+  enabled: boolean,
+) {
+  return useQuery<DictionaryWord[]>({
+    queryKey: ['learn-words-preview', params],
+    queryFn: async () => {
+      const { data } = await apiClient.get<PaginatedResponse<DictionaryWord>>('/dictionary/words', {
+        params: { limit: params.count, sort: params.filter, collectionId: params.collectionId },
+      });
+      return data.items;
+    },
+    enabled,
   });
 }

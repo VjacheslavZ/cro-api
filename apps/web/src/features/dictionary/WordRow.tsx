@@ -49,15 +49,26 @@ export function WordRow({ word, selected, onSelect, onDelete }: WordRowProps) {
         ) : null}
       </Box>
 
-      <Box sx={{ width: 80, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <LinearProgress
-          variant="determinate"
-          value={word.progressPercent}
-          sx={{ flex: 1, height: 6, borderRadius: 3 }}
-        />
-        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 30 }}>
-          {word.progressPercent}%
-        </Typography>
+      <Box sx={{ width: 100, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        {word.isLearned ? (
+          <Chip
+            label={t('exercises.learnWords.learned')}
+            size="small"
+            color="success"
+            sx={{ fontSize: '0.65rem' }}
+          />
+        ) : (
+          <>
+            <LinearProgress
+              variant="determinate"
+              value={word.progressPercent}
+              sx={{ flex: 1, height: 6, borderRadius: 3 }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 30 }}>
+              {word.progressPercent}%
+            </Typography>
+          </>
+        )}
       </Box>
 
       <IconButton

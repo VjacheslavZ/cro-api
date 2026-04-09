@@ -26,6 +26,10 @@ import { WordSetsPage } from '../features/dictionary/WordSetsPage';
 import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
 import { DictionaryPracticePage } from '../features/dictionary/DictionaryPractice/DictionaryPracticePage.tsx';
 import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPractice/DictionaryPracticeResultsPage.tsx';
+import { LearnWordsSetupPage } from '../features/exercises/LearnWords/LearnWordsSetupPage';
+import { LearnWordsPreviewPage } from '../features/exercises/LearnWords/LearnWordsPreviewPage';
+import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWordsSessionPage';
+import { LearnWordsResultsPage } from '../features/exercises/LearnWords/LearnWordsResultsPage';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
@@ -100,6 +104,46 @@ export function AppRouter() {
                   <PrivateRoute>
                     <LanguageGuard>
                       <VocabularyPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary/learn"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <LearnWordsSetupPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary/learn/preview"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <LearnWordsPreviewPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary/learn/session"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <LearnWordsSessionPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary/learn/results"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <LearnWordsResultsPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

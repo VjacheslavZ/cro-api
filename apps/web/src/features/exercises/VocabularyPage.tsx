@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Container,
@@ -10,8 +10,9 @@ import {
   Box,
   CircularProgress,
   Alert,
+  Divider,
 } from '@mui/material';
-import { Translate, TextFields, GridOn, HearingOutlined } from '@mui/icons-material';
+import { Translate, TextFields, GridOn, HearingOutlined, School } from '@mui/icons-material';
 
 import { useStartDictionaryPractice } from '../../api/dictionary';
 
@@ -22,6 +23,8 @@ const SESSION_WORD_COUNT = 10;
 export function VocabularyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const collectionId = searchParams.get('collectionId');
   const startPractice = useStartDictionaryPractice();
   const [pendingDirection, setPendingDirection] = useState<ExerciseDirection | null>(null);
 
@@ -92,6 +95,29 @@ export function VocabularyPage() {
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Learn Words — full guided session */}
+        <Card variant="outlined" sx={{ borderColor: 'primary.main' }}>
+          <CardActionArea
+            onClick={() =>
+              navigate(
+                `/exercises/vocabulary/learn${collectionId ? `?collectionId=${collectionId}` : ''}`,
+              )
+            }
+          >
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <School color="primary" />
+              <Box>
+                <Typography variant="h6">{t('exercises.vocabulary.learnWords')}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('exercises.vocabulary.learnWordsDesc')}
+                </Typography>
+              </Box>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+
+        <Divider />
+
         {exercises.map(({ direction, icon, titleKey, descKey }) => {
           const isLoading = pendingDirection === direction;
           return (
