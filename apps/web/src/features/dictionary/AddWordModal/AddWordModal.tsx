@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -19,21 +19,30 @@ import {
 } from '@mui/material';
 import type { DictionaryCollection } from '@cro/shared';
 
-import { useAddWord, useTranslationSuggestions } from '../../api/dictionary';
+import { useAddWord, useTranslationSuggestions } from '../../../api/dictionary.ts';
 
 interface AddWordModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   initialWord?: string;
   collections: DictionaryCollection[];
 }
 
-export function AddWordModal({ open, onClose, initialWord = '', collections }: AddWordModalProps) {
+export function AddWordModal({
+  open,
+  onClose,
+  onSuccess,
+  initialWord = '',
+  collections,
+}: AddWordModalProps) {
   const { t } = useTranslation();
   const [wordHr, setWordHr] = useState(initialWord);
   const [translation, setTranslation] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [error, setError] = useState('');
+
+  const translationRef = useRef<HTMLInputElement>(null);
 
   const addWord = useAddWord();
   const { data: suggestions, isLoading: suggestionsLoading } = useTranslationSuggestions(wordHr);
@@ -47,6 +56,12 @@ export function AddWordModal({ open, onClose, initialWord = '', collections }: A
     }
   }, [open, initialWord]);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && wordHr.trim() && translation.trim() && !addWord.isPending) {
+      void handleSubmit();
+    }
+  };
+
   const handleSubmit = async () => {
     setError('');
     try {
@@ -56,6 +71,7 @@ export function AddWordModal({ open, onClose, initialWord = '', collections }: A
         ...(collectionId ? { collectionId } : {}),
       });
       onClose();
+      onSuccess?.();
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosErr = err as { response?: { status?: number } };
@@ -69,7 +85,17 @@ export function AddWordModal({ open, onClose, initialWord = '', collections }: A
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      TransitionProps={{
+        onEntered: () => {
+          if (initialWord) translationRef.current?.focus();
+        },
+      }}
+    >
       <DialogTitle>{t('dictionary.addWordModal.title')}</DialogTitle>
       <DialogContent>
         <TextField
@@ -78,7 +104,7 @@ export function AddWordModal({ open, onClose, initialWord = '', collections }: A
           value={wordHr}
           onChange={(e) => setWordHr(e.target.value)}
           sx={{ mt: 1, mb: 2 }}
-          autoFocus
+          autoFocus={!initialWord}
         />
 
         {wordHr.length >= 2 && (
@@ -114,6 +140,8 @@ export function AddWordModal({ open, onClose, initialWord = '', collections }: A
           label={t('dictionary.addWordModal.translationLabel')}
           value={translation}
           onChange={(e) => setTranslation(e.target.value)}
+          inputRef={translationRef}
+          onKeyDown={handleKeyDown}
           sx={{ mb: 2 }}
         />
 

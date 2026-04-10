@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Container, CircularProgress, Alert } from '@mui/material';
+import { Box, CircularProgress, Alert } from '@mui/material';
 
 interface QueryStateProps {
   isLoading: boolean;
@@ -11,17 +11,17 @@ export function QueryState({ isLoading, isError }: QueryStateProps) {
 
   if (isLoading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
         <CircularProgress />
-      </Container>
+      </Box>
     );
   }
 
   if (isError) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box sx={{ py: 4 }}>
         <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
+      </Box>
     );
   }
 

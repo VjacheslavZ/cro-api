@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Box, Checkbox, Chip, IconButton, LinearProgress, Typography } from '@mui/material';
-import { Delete, VolumeUp } from '@mui/icons-material';
+import { Delete, Edit, VolumeUp } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
 
 import { speakWord } from '../../shared/lib/speech';
@@ -9,10 +9,11 @@ interface WordRowProps {
   word: DictionaryWord;
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
-  onDelete: (id: string) => void;
+  onEdit: (word: DictionaryWord) => void;
+  onDelete: (word: DictionaryWord) => void;
 }
 
-export function WordRow({ word, selected, onSelect, onDelete }: WordRowProps) {
+export function WordRow({ word, selected, onSelect, onEdit, onDelete }: WordRowProps) {
   const { t } = useTranslation();
 
   return (
@@ -73,17 +74,21 @@ export function WordRow({ word, selected, onSelect, onDelete }: WordRowProps) {
 
       <IconButton
         size="small"
+        onClick={() => onEdit(word)}
+        aria-label={t('dictionary.editWordModal.title')}
+      >
+        <Edit fontSize="small" />
+      </IconButton>
+
+      <IconButton
+        size="small"
         onClick={() => speakWord(word.wordHr)}
         aria-label={t('dictionary.listen')}
       >
         <VolumeUp fontSize="small" />
       </IconButton>
 
-      <IconButton
-        size="small"
-        onClick={() => onDelete(word.id)}
-        aria-label={t('dictionary.delete')}
-      >
+      <IconButton size="small" onClick={() => onDelete(word)} aria-label={t('dictionary.delete')}>
         <Delete fontSize="small" />
       </IconButton>
     </Box>

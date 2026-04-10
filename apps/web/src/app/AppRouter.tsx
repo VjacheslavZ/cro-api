@@ -20,7 +20,7 @@ import { TopicExercisesPage } from '../features/exercises/TopicExercisesPage';
 import { SessionPage } from '../features/exercises/SessionPage';
 import { SessionResultsPage } from '../features/exercises/SessionResultsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
-import { MyDictionaryPage } from '../features/dictionary/MyDictionaryPage';
+import { MyDictionaryPage } from '../features/dictionary/MyDictionaryPage/MyDictionaryPage.tsx';
 import { CollectionsPage } from '../features/dictionary/CollectionsPage';
 import { WordSetsPage } from '../features/dictionary/WordSetsPage';
 import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
