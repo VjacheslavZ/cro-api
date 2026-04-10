@@ -184,6 +184,14 @@
       "cancel": "Cancel",
       "duplicate": "This word is already in your dictionary"
     },
+    "editWordModal": {
+      "title": "Edit Word",
+      "wordLabel": "Croatian word",
+      "translationLabel": "Translation",
+      "save": "Save",
+      "cancel": "Cancel",
+      "duplicate": "This word is already in your dictionary"
+    },
     "collections": {
       "title": "Collections",
       "predefined": "Predefined Collections",
@@ -228,7 +236,12 @@
     },
     "assignCollection": "Assign to Collection",
     "unassign": "Remove from collection",
-    "selected": "{{count}} selected"
+    "selected": "{{count}} selected",
+    "deleteConfirm": {
+      "title": "Delete word",
+      "message": "Are you sure you want to delete \"{{word}}\"?",
+      "confirm": "Delete"
+    }
   },
   "common": {
     "loading": "Loading...",

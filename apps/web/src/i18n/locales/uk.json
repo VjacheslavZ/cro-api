@@ -185,6 +185,14 @@
       "cancel": "Скасувати",
       "duplicate": "Це слово вже є у вашому словнику"
     },
+    "editWordModal": {
+      "title": "Редагувати слово",
+      "wordLabel": "Хорватське слово",
+      "translationLabel": "Переклад",
+      "save": "Зберегти",
+      "cancel": "Скасувати",
+      "duplicate": "Це слово вже є у вашому словнику"
+    },
     "collections": {
       "title": "Колекції",
       "predefined": "Готові колекції",
@@ -231,7 +239,12 @@
     },
     "assignCollection": "Призначити колекцію",
     "unassign": "Прибрати з колекції",
-    "selected": "{{count}} обрано"
+    "selected": "{{count}} обрано",
+    "deleteConfirm": {
+      "title": "Видалити слово",
+      "message": "Ви впевнені, що хочете видалити «{{word}}»?",
+      "confirm": "Видалити"
+    }
   },
   "common": {
     "loading": "Завантаження...",
