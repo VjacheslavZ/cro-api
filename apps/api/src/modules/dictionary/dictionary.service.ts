@@ -10,6 +10,7 @@ import { DICTIONARY_WORDS_PER_PAGE } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddWordDto } from './dto/add-word.dto';
+import { UpdateWordDto } from './dto/update-word.dto';
 import { GetWordsQueryDto } from './dto/get-words-query.dto';
 
 @Injectable()
@@ -44,25 +45,28 @@ export class DictionaryService {
     const orderBy: Prisma.UserDictionaryWordOrderByWithRelationInput =
       query.sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-    const words = await this.prisma.userDictionaryWord.findMany({
-      where,
-      orderBy: useProgressSort ? undefined : orderBy,
-      take: useProgressSort ? undefined : limit + 1,
-      ...(query.cursor && !useProgressSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
-      include: {
-        collection: { select: { name: true } },
-        progress: {
-          select: {
-            totalAttempts: true,
-            correctAttempts: true,
-            wordToTranslatePercent: true,
-            translateToWordPercent: true,
-            letterPickPercent: true,
-            matchingPercent: true,
+    const [words, total] = await Promise.all([
+      this.prisma.userDictionaryWord.findMany({
+        where,
+        orderBy: useProgressSort ? undefined : orderBy,
+        take: useProgressSort ? undefined : limit + 1,
+        ...(query.cursor && !useProgressSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+        include: {
+          collection: { select: { name: true } },
+          progress: {
+            select: {
+              totalAttempts: true,
+              correctAttempts: true,
+              wordToTranslatePercent: true,
+              translateToWordPercent: true,
+              letterPickPercent: true,
+              matchingPercent: true,
+            },
           },
         },
-      },
-    });
+      }),
+      this.prisma.userDictionaryWord.count({ where }),
+    ]);
 
     const mapWord = (word: (typeof words)[number]) => {
       const p = word.progress;
@@ -103,7 +107,7 @@ export class DictionaryService {
       const hasMore = page.length > limit;
       if (hasMore) page.pop();
 
-      return { items: page, nextCursor: hasMore ? page[page.length - 1].id : null };
+      return { items: page, nextCursor: hasMore ? page[page.length - 1].id : null, total };
     }
 
     const hasMore = words.length > limit;
@@ -112,6 +116,7 @@ export class DictionaryService {
     return {
       items: words.map(mapWord),
       nextCursor: hasMore ? words[words.length - 1].id : null,
+      total,
     };
   }
 
@@ -120,31 +125,56 @@ export class DictionaryService {
       await this.validateCollectionAccess(userId, dto.collectionId);
     }
 
-    try {
-      const word = await this.prisma.userDictionaryWord.create({
-        data: {
+    const duplicate = await this.prisma.userDictionaryWord.findFirst({
+      where: { userId, wordHr: { equals: dto.wordHr, mode: 'insensitive' } },
+    });
+    if (duplicate) throw new ConflictException('This word is already in your dictionary');
+
+    const word = await this.prisma.userDictionaryWord.create({
+      data: {
+        userId,
+        wordHr: dto.wordHr,
+        translation: dto.translation,
+        translationLanguage: nativeLanguage,
+        collectionId: dto.collectionId ?? null,
+      },
+    });
+
+    await this.prisma.dictionaryWordProgress.create({
+      data: {
+        userId,
+        wordId: word.id,
+      },
+    });
+
+    return word;
+  }
+
+  async updateWord(userId: string, wordId: string, dto: UpdateWordDto) {
+    const word = await this.prisma.userDictionaryWord.findUnique({
+      where: { id: wordId },
+    });
+    if (!word) throw new NotFoundException('Word not found');
+    if (word.userId !== userId) throw new ForbiddenException();
+
+    if (dto.wordHr !== undefined) {
+      const duplicate = await this.prisma.userDictionaryWord.findFirst({
+        where: {
           userId,
-          wordHr: dto.wordHr,
-          translation: dto.translation,
-          translationLanguage: nativeLanguage,
-          collectionId: dto.collectionId ?? null,
+          wordHr: { equals: dto.wordHr, mode: 'insensitive' },
+          NOT: { id: wordId },
         },
       });
-
-      await this.prisma.dictionaryWordProgress.create({
-        data: {
-          userId,
-          wordId: word.id,
-        },
-      });
-
-      return word;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('This word is already in your dictionary');
-      }
-      throw error;
+      if (duplicate) throw new ConflictException('This word is already in your dictionary');
     }
+
+    return this.prisma.userDictionaryWord.update({
+      where: { id: wordId },
+      data: {
+        ...(dto.wordHr !== undefined ? { wordHr: dto.wordHr } : {}),
+        ...(dto.translation !== undefined ? { translation: dto.translation } : {}),
+      },
+    });
   }
 
   async deleteWord(userId: string, wordId: string) {

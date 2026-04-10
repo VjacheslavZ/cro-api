@@ -213,6 +213,7 @@ export interface TranslationSuggestion {
 export interface PaginatedResponse<T> {
   items: T[];
   nextCursor: string | null;
+  total: number;
 }
 
 export interface DictionaryPracticeItem {

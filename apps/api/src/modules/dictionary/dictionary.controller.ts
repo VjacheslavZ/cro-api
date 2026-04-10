@@ -22,6 +22,7 @@ import { DictionaryService } from './dictionary.service';
 import { DictionaryCollectionsService } from './dictionary-collections.service';
 import { DictionaryPracticeService } from './dictionary-practice.service';
 import { AddWordDto } from './dto/add-word.dto';
+import { UpdateWordDto } from './dto/update-word.dto';
 import { GetWordsQueryDto } from './dto/get-words-query.dto';
 import { AssignCollectionDto } from './dto/assign-collection.dto';
 import { BatchAssignCollectionDto } from './dto/batch-assign-collection.dto';
@@ -62,6 +63,16 @@ export class DictionaryController {
       throw new Error('Native language not set');
     }
     return this.dictionaryService.addWord(user.id, dto, dbUser.nativeLanguage as NativeLanguage);
+  }
+
+  @Patch('words/:id')
+  @ApiOperation({ summary: 'Update a word in dictionary' })
+  async updateWord(
+    @CurrentUser() user: UserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateWordDto,
+  ) {
+    return this.dictionaryService.updateWord(user.id, id, dto);
   }
 
   @Delete('words/:id')

@@ -43,6 +43,20 @@ export function useAddWord() {
   });
 }
 
+export function useUpdateWord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { wordId: string; wordHr?: string; translation?: string }) => {
+      const { wordId, ...body } = params;
+      const { data } = await apiClient.patch(`/dictionary/words/${wordId}`, body);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
+    },
+  });
+}
+
 export function useDeleteWord() {
   const queryClient = useQueryClient();
   return useMutation({
