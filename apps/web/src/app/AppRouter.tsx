@@ -68,6 +68,11 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function GuestRoute({ children }: { children: React.ReactNode }) {
+  if (checkAuth()) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 function LanguageGuard({ children }: { children: React.ReactNode }) {
   const user = useAppSelector((state) => state.auth.user);
   if (user && !user.nativeLanguage) return <Navigate to="/language-select" replace />;
@@ -82,7 +87,14 @@ export function AppRouter() {
           <Header />
           <Box component="main" sx={{ flex: 1 }}>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/login"
+                element={
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                }
+              />
               <Route path="/about" element={<div>About Us (placeholder)</div>} />
               <Route path="/partners" element={<div>For Partners (placeholder)</div>} />
               <Route path="/contacts" element={<div>Contacts (placeholder)</div>} />

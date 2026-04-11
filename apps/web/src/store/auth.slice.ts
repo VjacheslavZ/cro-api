@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Dispatch } from 'redux';
 
-// import { clearTokens } from '../shared/lib/auth-storage';
+import { clearTokens } from '../shared/lib/auth-storage';
 import { fetchMe } from '../api/auth';
 
 export interface UserProfile {
@@ -67,7 +67,7 @@ export function setUser(user: UserProfile) {
 
 export function clearAuth() {
   return (dispatch: Dispatch) => {
-    // clearTokens();
+    clearTokens();
     dispatch(authSlice.actions._clearUser());
   };
 }
