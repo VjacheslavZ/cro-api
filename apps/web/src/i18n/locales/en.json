@@ -241,7 +241,9 @@
       "title": "Delete word",
       "message": "Are you sure you want to delete \"{{word}}\"?",
       "confirm": "Delete"
-    }
+    },
+    "markLearned": "Mark as learned",
+    "resetProgress": "Reset progress"
   },
   "common": {
     "loading": "Loading...",

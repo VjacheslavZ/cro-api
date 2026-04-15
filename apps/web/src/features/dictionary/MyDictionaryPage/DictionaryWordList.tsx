@@ -29,6 +29,8 @@ interface DictionaryWordListProps {
   onSelect: (id: string, checked: boolean) => void;
   onEdit: (word: DictionaryWord) => void;
   onDelete: (word: DictionaryWord) => void;
+  onMarkLearned: (word: DictionaryWord) => void;
+  onResetProgress: (word: DictionaryWord) => void;
 }
 
 export function DictionaryWordList({
@@ -42,6 +44,8 @@ export function DictionaryWordList({
   onSelect,
   onEdit,
   onDelete,
+  onMarkLearned,
+  onResetProgress,
 }: DictionaryWordListProps) {
   const { t } = useTranslation();
 
@@ -81,6 +85,8 @@ export function DictionaryWordList({
           onSelect={onSelect}
           onEdit={onEdit}
           onDelete={onDelete}
+          onMarkLearned={onMarkLearned}
+          onResetProgress={onResetProgress}
         />
       ))}
 

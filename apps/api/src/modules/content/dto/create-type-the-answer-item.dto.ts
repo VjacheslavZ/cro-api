@@ -1,7 +1,7 @@
 import { IsString, IsUUID, IsOptional, IsInt, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateSingularPluralItemDto {
+export class CreateTypeTheAnswerItemDto {
   @ApiProperty()
   @IsUUID()
   topicId: string;

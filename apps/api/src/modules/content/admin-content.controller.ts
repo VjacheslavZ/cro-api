@@ -18,8 +18,8 @@ import { ContentService } from './content.service';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { UpdateTopicDto } from './dto/update-topic.dto';
 import { UpdateTopicTypesDto } from './dto/update-topic-types.dto';
-import { CreateSingularPluralItemDto } from './dto/create-singular-plural-item.dto';
-import { UpdateSingularPluralItemDto } from './dto/update-singular-plural-item.dto';
+import { CreateTypeTheAnswerItemDto } from './dto/create-type-the-answer-item.dto';
+import { UpdateTypeTheAnswerItemDto } from './dto/update-type-the-answer-item.dto';
 import { CreateFlashcardItemDto } from './dto/create-flashcard-item.dto';
 import { UpdateFlashcardItemDto } from './dto/update-flashcard-item.dto';
 import { CreateFillInBlankItemDto } from './dto/create-fill-in-blank-item.dto';
@@ -65,34 +65,34 @@ export class AdminContentController {
     return this.contentService.updateTopicTypes(id, dto.configs);
   }
   // TODO rename
-  // --- Singular Plural Items ---
+  // --- Type The Answer Items ---
 
-  @Get('topics/:topicId/singular-plural-items')
-  @ApiOperation({ summary: 'List singular/plural items for a topic' })
-  async getSingularPluralItems(@Param('topicId', ParseUUIDPipe) topicId: string) {
-    return this.contentService.getSingularPluralItems(topicId);
+  @Get('topics/:topicId/type-the-answer-items')
+  @ApiOperation({ summary: 'List Type the Answer items for a topic' })
+  async getTypeTheAnswerItems(@Param('topicId', ParseUUIDPipe) topicId: string) {
+    return this.contentService.getTypeTheAnswerItems(topicId);
   }
 
-  @Post('singular-plural-items')
-  @ApiOperation({ summary: 'Create a singular/plural item' })
-  async createSingularPluralItem(@Body() dto: CreateSingularPluralItemDto) {
-    return this.contentService.createSingularPluralItem(dto);
+  @Post('type-the-answer-items')
+  @ApiOperation({ summary: 'Create a Type the Answer item' })
+  async createTypeTheAnswerItem(@Body() dto: CreateTypeTheAnswerItemDto) {
+    return this.contentService.createTypeTheAnswerItem(dto);
   }
 
-  @Patch('singular-plural-items/:id')
-  @ApiOperation({ summary: 'Update a singular/plural item' })
-  async updateSingularPluralItem(
+  @Patch('type-the-answer-items/:id')
+  @ApiOperation({ summary: 'Update a Type the Answer item' })
+  async updateTypeTheAnswerItem(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateSingularPluralItemDto,
+    @Body() dto: UpdateTypeTheAnswerItemDto,
   ) {
-    return this.contentService.updateSingularPluralItem(id, dto);
+    return this.contentService.updateTypeTheAnswerItem(id, dto);
   }
 
-  @Delete('singular-plural-items/:id')
+  @Delete('type-the-answer-items/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a singular/plural item' })
-  async deleteSingularPluralItem(@Param('id', ParseUUIDPipe) id: string) {
-    await this.contentService.deleteSingularPluralItem(id);
+  @ApiOperation({ summary: 'Delete a Type the Answer item' })
+  async deleteTypeTheAnswerItem(@Param('id', ParseUUIDPipe) id: string) {
+    await this.contentService.deleteTypeTheAnswerItem(id);
   }
 
   // --- Flashcard Items ---

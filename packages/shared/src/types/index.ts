@@ -66,7 +66,7 @@ export interface ExerciseTopic {
   rulesHtmlEn: string | null;
 }
 
-export interface SingularPluralItem {
+export interface TypeTheAnswerItem {
   id: string;
   topicId: string;
   baseForm: string;
@@ -99,7 +99,7 @@ export interface FillInBlankItem {
 }
 
 export type ExerciseItem =
-  | ({ type: ExerciseType.TYPE_THE_ANSWER } & SingularPluralItem)
+  | ({ type: ExerciseType.TYPE_THE_ANSWER } & TypeTheAnswerItem)
   | ({ type: ExerciseType.FLASHCARDS } & FlashcardItem)
   | ({ type: ExerciseType.FILL_IN_BLANK } & FillInBlankItem);
 

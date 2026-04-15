@@ -46,7 +46,7 @@ ExerciseTopicType            <- which exercise types are enabled for a topic
   topicId + exerciseType @unique (@@unique)
   cascade delete from ExerciseTopic
 
-SingularPluralItem           <- items for "Type the Answer" exercise
+TypeTheAnswerItem            <- items for "Type the Answer" exercise
   topicId
   baseForm, pluralForm
   translationRu, translationUk, translationEn
@@ -211,7 +211,7 @@ POST /admin/admins                    # add new admin
 GET  /admin/admins                    # list all admins
 POST/PATCH/DELETE /admin/topics
 PATCH /admin/topics/:id/exercise-types
-POST/PATCH/DELETE /admin/singular-plural-items
+POST/PATCH/DELETE /admin/type-the-answer-items
 POST/PATCH/DELETE /admin/flashcard-items
 POST/PATCH/DELETE /admin/fill-in-blank-items
 GET  /admin/topics/:topicId/{type}-items  # list items by topic

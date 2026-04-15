@@ -140,7 +140,7 @@ model ExerciseTopic {
   updatedAt DateTime  @updatedAt
 
   topicTypes          ExerciseTopicType[]
-  singularPluralItems SingularPluralItem[]
+  typeTheAnswerItems  TypeTheAnswerItem[]
   flashcardItems      FlashcardItem[]
   fillInBlankItems    FillInBlankItem[]
   sessions            ExerciseSession[]
@@ -157,7 +157,7 @@ model ExerciseTopicType {
   @@unique([topicId, exerciseType])
 }
 
-model SingularPluralItem {
+model TypeTheAnswerItem {
   id            String        @id @default(dbgenerated("gen_random_uuid()"))
   topicId       String
   baseForm      String
@@ -304,14 +304,14 @@ model PredefinedDictionaryWord {
 }
 
 model UserDictionaryWord {
-  id                  String         @id @default(uuid())
+  id                  String         @id @default(dbgenerated("gen_random_uuid()"))
   userId              String
   wordHr              String
   translation         String
   translationLanguage NativeLanguage
   collectionId        String?
   createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  updatedAt           DateTime       @default(dbgenerated("now()")) @updatedAt
 
   user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   collection DictionaryCollection?  @relation(fields: [collectionId], references: [id], onDelete: SetNull)
@@ -322,7 +322,7 @@ model UserDictionaryWord {
 }
 
 model DictionaryWordProgress {
-  id              String    @id @default(uuid())
+  id              String    @id @default(dbgenerated("gen_random_uuid()"))
   userId          String
   wordId          String    @unique
   totalAttempts   Int       @default(0)

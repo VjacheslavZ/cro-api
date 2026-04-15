@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Box, Checkbox, Chip, IconButton, LinearProgress, Typography } from '@mui/material';
-import { Delete, Edit, VolumeUp } from '@mui/icons-material';
+import { Delete, Edit, Refresh, School, VolumeUp } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
 
 import { speakWord } from '../../shared/lib/speech';
@@ -22,9 +22,21 @@ interface WordRowProps {
   onEdit: (word: DictionaryWord) => void;
   /** Opens the DeleteWordDialog for this word. */
   onDelete: (word: DictionaryWord) => void;
+  /** Marks the word as learned (all progress at 100%). Only shown when not yet learned. */
+  onMarkLearned: (word: DictionaryWord) => void;
+  /** Resets all progress to 0%. Only shown when word has any progress. */
+  onResetProgress: (word: DictionaryWord) => void;
 }
 
-export function WordRow({ word, selected, onSelect, onEdit, onDelete }: WordRowProps) {
+export function WordRow({
+  word,
+  selected,
+  onSelect,
+  onEdit,
+  onDelete,
+  onMarkLearned,
+  onResetProgress,
+}: WordRowProps) {
   const { t } = useTranslation();
 
   return (
@@ -82,6 +94,28 @@ export function WordRow({ word, selected, onSelect, onEdit, onDelete }: WordRowP
           </>
         )}
       </Box>
+
+      {!word.isLearned && (
+        <IconButton
+          size="small"
+          onClick={() => onMarkLearned(word)}
+          aria-label={t('dictionary.markLearned')}
+          title={t('dictionary.markLearned')}
+        >
+          <School fontSize="small" />
+        </IconButton>
+      )}
+
+      {word.progressPercent > 0 && (
+        <IconButton
+          size="small"
+          onClick={() => onResetProgress(word)}
+          aria-label={t('dictionary.resetProgress')}
+          title={t('dictionary.resetProgress')}
+        >
+          <Refresh fontSize="small" />
+        </IconButton>
+      )}
 
       <IconButton
         size="small"

@@ -2,7 +2,7 @@ Add a new exercise type named $ARGUMENTS to the app. Follow these steps in order
 
 ## Context
 
-Three exercise types already exist: `TYPE_THE_ANSWER` (SingularPluralItem), `FLASHCARDS` (FlashcardItem), `FILL_IN_BLANK` (FillInBlankItem). A new type requires changes across Prisma schema, shared types, backend, frontend, admin panel, and docs.
+Three exercise types already exist: `TYPE_THE_ANSWER` (TypeTheAnswerItem), `FLASHCARDS` (FlashcardItem), `FILL_IN_BLANK` (FillInBlankItem). A new type requires changes across Prisma schema, shared types, backend, frontend, admin panel, and docs.
 
 Key files to reference for patterns:
 - `src/prisma/schema.prisma` — existing item tables

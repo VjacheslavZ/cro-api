@@ -17,11 +17,11 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
-import type { SingularPluralItem } from './AddExerciseQuestion.tsx';
+import type { TypeTheAnswerItem } from './AddExerciseQuestion.tsx';
 
 interface TypeTheAnswerTableProps {
-  items: SingularPluralItem[];
-  onEdit: (item: SingularPluralItem) => void;
+  items: TypeTheAnswerItem[];
+  onEdit: (item: TypeTheAnswerItem) => void;
   onDelete: (id: string) => void;
   isDeletePending: boolean;
   Pagination: () => React.JSX.Element;

@@ -140,13 +140,6 @@ export class DictionaryService {
       },
     });
 
-    await this.prisma.dictionaryWordProgress.create({
-      data: {
-        userId,
-        wordId: word.id,
-      },
-    });
-
     return word;
   }
 
@@ -173,6 +166,53 @@ export class DictionaryService {
       data: {
         ...(dto.wordHr !== undefined ? { wordHr: dto.wordHr } : {}),
         ...(dto.translation !== undefined ? { translation: dto.translation } : {}),
+      },
+    });
+  }
+
+  async resetWordProgress(userId: string, wordId: string) {
+    const word = await this.prisma.userDictionaryWord.findUnique({
+      where: { id: wordId },
+    });
+    if (!word) throw new NotFoundException('Word not found');
+    if (word.userId !== userId) throw new ForbiddenException();
+
+    await this.prisma.dictionaryWordProgress.upsert({
+      where: { wordId },
+      create: { userId, wordId },
+      update: {
+        wordToTranslatePercent: 0,
+        translateToWordPercent: 0,
+        letterPickPercent: 0,
+        matchingPercent: 0,
+        totalAttempts: 0,
+        correctAttempts: 0,
+      },
+    });
+  }
+
+  async markWordAsLearned(userId: string, wordId: string) {
+    const word = await this.prisma.userDictionaryWord.findUnique({
+      where: { id: wordId },
+    });
+    if (!word) throw new NotFoundException('Word not found');
+    if (word.userId !== userId) throw new ForbiddenException();
+
+    await this.prisma.dictionaryWordProgress.upsert({
+      where: { wordId },
+      create: {
+        userId,
+        wordId,
+        wordToTranslatePercent: 100,
+        translateToWordPercent: 100,
+        letterPickPercent: 100,
+        matchingPercent: 100,
+      },
+      update: {
+        wordToTranslatePercent: 100,
+        translateToWordPercent: 100,
+        letterPickPercent: 100,
+        matchingPercent: 100,
       },
     });
   }
@@ -276,7 +316,7 @@ export class DictionaryService {
 
     await this.prisma.$transaction(async (tx) => {
       for (const word of newWords) {
-        const created = await tx.userDictionaryWord.create({
+        await tx.userDictionaryWord.create({
           data: {
             userId,
             wordHr: word.wordHr,
@@ -284,9 +324,6 @@ export class DictionaryService {
             translationLanguage: nativeLanguage,
             collectionId,
           },
-        });
-        await tx.dictionaryWordProgress.create({
-          data: { userId, wordId: created.id },
         });
       }
     });

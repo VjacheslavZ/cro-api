@@ -75,6 +75,26 @@ export class DictionaryController {
     return this.dictionaryService.updateWord(user.id, id, dto);
   }
 
+  @Patch('words/:id/progress/reset')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Reset word progress to 0%' })
+  async resetWordProgress(
+    @CurrentUser() user: UserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    await this.dictionaryService.resetWordProgress(user.id, id);
+  }
+
+  @Patch('words/:id/learned')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Mark a word as learned (all progress at 100%)' })
+  async markWordAsLearned(
+    @CurrentUser() user: UserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    await this.dictionaryService.markWordAsLearned(user.id, id);
+  }
+
   @Delete('words/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a word from dictionary' })

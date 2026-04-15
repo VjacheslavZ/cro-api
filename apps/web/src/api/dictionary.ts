@@ -57,6 +57,30 @@ export function useUpdateWord() {
   });
 }
 
+export function useResetWordProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (wordId: string) => {
+      await apiClient.patch(`/dictionary/words/${wordId}/progress/reset`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
+    },
+  });
+}
+
+export function useMarkWordAsLearned() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (wordId: string) => {
+      await apiClient.patch(`/dictionary/words/${wordId}/learned`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
+    },
+  });
+}
+
 export function useDeleteWord() {
   const queryClient = useQueryClient();
   return useMutation({

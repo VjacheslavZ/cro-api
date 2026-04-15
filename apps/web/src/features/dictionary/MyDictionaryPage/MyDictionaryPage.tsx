@@ -7,6 +7,8 @@ import type { DictionaryWord } from '@cro/shared';
 import {
   useDictionaryWords,
   useDeleteWord,
+  useMarkWordAsLearned,
+  useResetWordProgress,
   useBatchAssignCollection,
   useDictionaryCollections,
 } from '../../../api/dictionary.ts';
@@ -46,6 +48,8 @@ export function MyDictionaryPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useDictionaryWords({ search: search || undefined, collectionId: collectionIdParam });
   const deleteWord = useDeleteWord();
+  const markLearned = useMarkWordAsLearned();
+  const resetProgress = useResetWordProgress();
   const batchAssign = useBatchAssignCollection();
   const { data: collections = [] } = useDictionaryCollections();
 
@@ -80,6 +84,14 @@ export function MyDictionaryPage() {
     });
     setSelectedIds(new Set());
     setAssignCollectionId('');
+  };
+
+  const handleMarkLearned = (word: DictionaryWord) => {
+    markLearned.mutate(word.id);
+  };
+
+  const handleResetProgress = (word: DictionaryWord) => {
+    resetProgress.mutate(word.id);
   };
 
   const handleStartPractice = () => {
@@ -128,6 +140,8 @@ export function MyDictionaryPage() {
         onSelect={handleSelect}
         onEdit={setEditingWord}
         onDelete={setDeletingWord}
+        onMarkLearned={handleMarkLearned}
+        onResetProgress={handleResetProgress}
       />
 
       <AddWordModal
