@@ -122,11 +122,11 @@ async function seedContent() {
 
   for (const item of singularPluralData) {
     const topicId = topicRecords[item.topic].id;
-    const existing = await prisma.singularPluralItem.findFirst({
+    const existing = await prisma.typeTheAnswerItem.findFirst({
       where: { topicId, baseForm: item.baseForm },
     });
     if (!existing) {
-      await prisma.singularPluralItem.create({
+      await prisma.typeTheAnswerItem.create({
         data: {
           topicId,
           baseForm: item.baseForm,

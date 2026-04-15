@@ -195,28 +195,39 @@ export class DictionaryPracticeService {
       const column = getProgressColumn(exerciseType);
 
       for (const answer of answers) {
-        const current = await this.prisma.dictionaryWordProgress.findUnique({
+        const existing = await this.prisma.dictionaryWordProgress.findUnique({
           where: { wordId: answer.wordId },
           select: { [column]: true },
         });
 
-        if (!current) continue;
-
-        const currentValue = current[column] as number;
+        const currentValue = (existing?.[column] as unknown as number) ?? 0;
         const delta = answer.isCorrect ? 25 : -25;
         const newValue = Math.min(100, Math.max(0, currentValue + delta));
 
-        await this.prisma.dictionaryWordProgress.update({
+        await this.prisma.dictionaryWordProgress.upsert({
           where: { wordId: answer.wordId },
-          data: { [column]: newValue, lastPracticedAt: new Date() },
+          create: {
+            userId,
+            wordId: answer.wordId,
+            [column]: newValue,
+            lastPracticedAt: new Date(),
+          },
+          update: { [column]: newValue, lastPracticedAt: new Date() },
         });
       }
     } else {
       // Legacy flow: update totalAttempts / correctAttempts
       for (const answer of answers) {
-        await this.prisma.dictionaryWordProgress.updateMany({
-          where: { userId, wordId: answer.wordId },
-          data: {
+        await this.prisma.dictionaryWordProgress.upsert({
+          where: { wordId: answer.wordId },
+          create: {
+            userId,
+            wordId: answer.wordId,
+            totalAttempts: 1,
+            correctAttempts: answer.isCorrect ? 1 : 0,
+            lastPracticedAt: new Date(),
+          },
+          update: {
             totalAttempts: { increment: 1 },
             ...(answer.isCorrect ? { correctAttempts: { increment: 1 } } : {}),
             lastPracticedAt: new Date(),
