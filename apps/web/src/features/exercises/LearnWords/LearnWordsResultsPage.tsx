@@ -1,3 +1,10 @@
+/**
+ * @module LearnWordsResultsPage
+ * @description Step 4 (final) of the Learn Words flow. Displays aggregated results from all
+ * 4 exercise steps: total score, total XP earned, and current streak from the last step.
+ * Offers "Learn Again" and "Back to Dictionary" actions.
+ * @usedBy AppRouter (/exercises/vocabulary/learn/results)
+ */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container, Typography, Box, Button, Paper, Divider } from '@mui/material';
@@ -9,6 +16,10 @@ interface LocationState {
   collectionId?: string;
 }
 
+/**
+ * Renders aggregated results across all 4 Learn Words steps.
+ * Redirects to setup if location state is missing (direct URL access).
+ */
 export function LearnWordsResultsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

@@ -1,3 +1,12 @@
+/**
+ * @module CreateCollectionForm
+ * @description Create/edit form for a predefined dictionary collection. Dual-mode: POST to
+ * /admin/dictionary-collections when creating, PATCH to /admin/dictionary-collections/:id when
+ * editing. On success invalidates ['admin-dictionary-collections'] and calls onDone() after
+ * a 1500 ms delay (long enough to show the success alert). Form resets to empty on create
+ * success; on edit the parent switches the tab away via onDone().
+ * @usedBy DictionaryCollectionsPage
+ */
 import { useState } from 'react';
 import { Box, Button, TextField, Alert, CircularProgress, Paper, Grid } from '@mui/material';
 import { useForm } from 'react-hook-form';
@@ -21,6 +30,11 @@ interface CreateCollectionFormProps {
   onDone: () => void;
 }
 
+/**
+ * Renders the create/edit form for a predefined dictionary collection.
+ * @param props.collection - Populated when editing an existing collection; null when creating.
+ * @param props.onDone - Called after the 1500 ms success delay; parent switches back to the table tab.
+ */
 export function CreateCollectionForm({ collection, onDone }: CreateCollectionFormProps) {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);

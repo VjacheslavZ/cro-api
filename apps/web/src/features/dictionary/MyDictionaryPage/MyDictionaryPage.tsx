@@ -17,6 +17,19 @@ import { DictionaryBatchActions } from './DictionaryBatchActions.tsx';
 import { DictionaryWordList } from './DictionaryWordList.tsx';
 import { DeleteWordDialog } from './DeleteWordDialog.tsx';
 
+/**
+ * Route: /dictionary/my (supports ?collectionId=<id> filter)
+ *
+ * Main personal dictionary page. Orchestrates all dictionary state and
+ * delegates rendering to focused sub-components:
+ * - DictionaryTopBar — search input, Add Word, and Practice buttons
+ * - DictionaryBatchActions — collection assignment for selected words
+ * - DictionaryWordList — paginated word list with infinite scroll
+ * - AddWordModal, EditWordModal, DeleteWordDialog — CRUD dialogs
+ *
+ * Owns: search text, selected word IDs, open modal state, and the word to
+ * delete/edit. All server state (words, collections) lives in TanStack Query.
+ */
 export function MyDictionaryPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

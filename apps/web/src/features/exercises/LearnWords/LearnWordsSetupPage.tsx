@@ -1,3 +1,11 @@
+/**
+ * @module LearnWordsSetupPage
+ * @description Step 1 of the Learn Words flow. User selects word count (5/10/15/20)
+ * and filter (newest/oldest/progress). On "Next", fetches the word preview via
+ * useLearnWordsPreview, then navigates to LearnWordsPreviewPage once words load.
+ * Supports optional collectionId from URL search params to scope the word pool.
+ * @usedBy AppRouter (/exercises/vocabulary/learn)
+ */
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +26,10 @@ const COUNT_OPTIONS = [5, 10, 15, 20];
 const FILTER_OPTIONS = ['newest', 'oldest', 'progress'] as const;
 type FilterOption = (typeof FILTER_OPTIONS)[number];
 
+/**
+ * Renders the Learn Words configuration form and initiates the word preview fetch.
+ * Navigation to the preview page happens reactively once the query returns data.
+ */
 export function LearnWordsSetupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

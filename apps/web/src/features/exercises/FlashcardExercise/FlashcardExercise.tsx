@@ -1,3 +1,10 @@
+/**
+ * @module FlashcardExercise
+ * @description Flashcard exercise: shows a Croatian word, user taps to flip and see the
+ * translation, then self-reports whether they knew it. Speaks the word on flip.
+ * isCorrect = true when user clicks "I knew it", false when "I didn't know".
+ * @usedBy SessionPage
+ */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Typography, Button, Card, CardActionArea, Box } from '@mui/material';
@@ -13,6 +20,12 @@ interface FlashcardExerciseProps {
   isLast: boolean;
 }
 
+/**
+ * Renders a tap-to-flip flashcard with "I knew it" / "I didn't know" self-report buttons.
+ * @param props.item - The FlashcardItem to display (frontText + translations)
+ * @param props.onAnswer - Called with `{ itemId, givenAnswer: 'KNOWN'|'UNKNOWN', isCorrect }` on self-report
+ * @param props.isLast - Whether this is the final item (currently unused but part of the shared contract)
+ */
 export function FlashcardExercise({ item, onAnswer, isLast: _isLast }: FlashcardExerciseProps) {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);

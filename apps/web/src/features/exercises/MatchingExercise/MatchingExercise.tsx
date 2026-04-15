@@ -1,3 +1,12 @@
+/**
+ * @module MatchingExercise
+ * @description Matching exercise: two-column layout where the user pairs Croatian words
+ * (left, hidden until matched) with shuffled translations (right). Click a word then a
+ * translation to attempt a match. Wrong selections flash red; the word gains an error flag.
+ * isCorrect per word = matched on the first try with no errors.
+ * Speaks each Croatian word when selected. Calls onComplete once all pairs are matched.
+ * @usedBy LearnWordsSessionPage
+ */
 import { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Paper, Typography, Alert } from '@mui/material';
@@ -25,6 +34,12 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+/**
+ * Renders the full matching board for a set of vocabulary items.
+ * @param props.items - Word-translation pairs to match; translations are shuffled once on mount
+ * @param props.onComplete - Called with all answers once every pair is matched;
+ *   each answer has `{ wordId, givenAnswer: translation, isCorrect: matchedWithoutErrors }`
+ */
 export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
   const { t } = useTranslation();
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

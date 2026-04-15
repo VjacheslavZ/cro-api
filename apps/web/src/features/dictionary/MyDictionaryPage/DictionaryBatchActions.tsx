@@ -2,7 +2,18 @@ import { useTranslation } from 'react-i18next';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import type { DictionaryCollection } from '@cro/shared';
 
+/**
+ * Contextual toolbar shown when one or more words are selected in the
+ * My Dictionary word list.
+ *
+ * Used in: MyDictionaryPage.
+ *
+ * Renders a collection picker and an "Assign" button that batch-assigns the
+ * selected words to the chosen collection (or removes the collection when the
+ * empty option is picked). Returns `null` when `selectedCount` is 0.
+ */
 interface DictionaryBatchActionsProps {
+  /** Number of currently selected words. Toolbar is hidden when 0. */
   selectedCount: number;
   assignCollectionId: string;
   collections: DictionaryCollection[];

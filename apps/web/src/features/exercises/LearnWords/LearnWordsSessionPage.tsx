@@ -1,3 +1,15 @@
+/**
+ * @module LearnWordsSessionPage
+ * @description Step 3 of the Learn Words flow. Runs 4 sequential exercise steps for the
+ * selected words: letter-pick → word-to-translate → translate-to-word → matching.
+ * Each step creates its own DictionaryPracticeSession and submits answers before advancing.
+ * Between steps shows a score summary (inter-step phase). On the final step, dispatches
+ * fetchMe() and navigates to LearnWordsResultsPage.
+ * IMPORTANT: fetchMe() is called only on the final step — calling it mid-session sets
+ * auth.loading = true, which causes AuthGuard to unmount this component and lose all state.
+ * Uses isStartingRef to prevent duplicate session starts in React 18 StrictMode.
+ * @usedBy AppRouter (/exercises/vocabulary/learn/session)
+ */
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +53,10 @@ type Answer = { wordId: string; givenAnswer: string; isCorrect: boolean };
 
 type Phase = 'loading' | 'exercising' | 'inter-step';
 
+/**
+ * Orchestrates the 4-step Learn Words session with loading, exercising, and inter-step phases.
+ * Redirects to setup if location state is missing or word list is empty.
+ */
 export function LearnWordsSessionPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -49,7 +65,6 @@ export function LearnWordsSessionPage() {
   const state = (location.state as LocationState) ?? null;
 
   const [step, setStep] = useState(0);
-  console.log('step', step);
   const [phase, setPhase] = useState<Phase>('loading');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [items, setItems] = useState<DictionaryPracticeItem[]>([]);

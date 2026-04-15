@@ -1,3 +1,10 @@
+/**
+ * @module Flashcards/ContentTable
+ * @description Pure display table for Flashcard items. Columns: frontText (Croatian), translations
+ * (EN/UK/RU), sortOrder, and edit/delete actions. Pagination injected as a render-prop component
+ * from Flashcards via useTablePagination.
+ * @usedBy Flashcards
+ */
 import {
   Table,
   TableBody,
@@ -20,6 +27,14 @@ interface FlashcardTableProps {
   Pagination: () => React.JSX.Element;
 }
 
+/**
+ * Renders the Flashcard items table with edit and delete actions.
+ * @param props.items - Paginated slice of flashcard items for the current page.
+ * @param props.onEdit - Called with the selected item; parent shows the form pre-populated.
+ * @param props.onDelete - Called with the item id to delete.
+ * @param props.isDeletePending - Disables all delete buttons while a delete is in flight.
+ * @param props.Pagination - Render-prop component from useTablePagination; rendered below the table.
+ */
 export function ContentTable({
   items,
   onEdit,

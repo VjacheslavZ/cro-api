@@ -1,3 +1,10 @@
+/**
+ * @module ExercisesPage
+ * @description Grammar exercises home — lists all active topics as clickable cards.
+ * Each card shows the topic's localized name and enabled exercise type chips.
+ * Navigates to TopicExercisesPage on click.
+ * @usedBy AppRouter (/exercises/grammar)
+ */
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,6 +27,10 @@ import { useTopics } from '../../api/content';
 import { getLocalizedName } from '../../shared/lib/content-utils';
 import { getExerciseTypeLabel } from '../../shared/lib/exercise-utils';
 
+/**
+ * Renders the grammar exercises topic list with loading and error states.
+ * Topic names are localized via the user's nativeLanguage from auth state.
+ */
 export function ExercisesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

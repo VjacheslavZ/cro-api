@@ -1,3 +1,12 @@
+/**
+ * @module CollectionsTable
+ * @description Table listing all predefined dictionary collections with word counts.
+ * Clicking a row navigates to CollectionWordsPage. Edit opens the form tab in the parent.
+ * Delete shows ConfirmDeleteDialog and calls DELETE /admin/dictionary-collections/:id,
+ * which cascades to remove all predefined words in that collection.
+ * Invalidates ['admin-dictionary-collections'] on delete success.
+ * @usedBy DictionaryCollectionsPage
+ */
 import { useState } from 'react';
 import {
   Table,
@@ -23,6 +32,11 @@ interface CollectionsTableProps {
   onEdit: (collection: CollectionData) => void;
 }
 
+/**
+ * Renders the collections data table with row-click navigation and edit/delete actions.
+ * @param props.onEdit - Called with the selected collection when the Edit icon is clicked;
+ *   parent switches to the form tab pre-populated with this data
+ */
 export function CollectionsTable({ onEdit }: CollectionsTableProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();

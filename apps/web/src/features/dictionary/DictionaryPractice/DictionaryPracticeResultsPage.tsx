@@ -3,6 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { Container, Typography, Button, Box, Alert } from '@mui/material';
 import { EmojiEvents } from '@mui/icons-material';
 
+/**
+ * Route: /dictionary/practice/results/:sessionId
+ *
+ * Results screen shown after completing a dictionary practice session. Displays
+ * score, XP earned, and current streak. Navigates back to `state.backPath`
+ * (defaults to /dictionary/my) via both action buttons.
+ *
+ * Reached from: DictionaryPracticePage on session completion.
+ * State is passed via React Router `location.state` — renders an error if
+ * state is missing (e.g. direct navigation).
+ */
+
 interface ResultsLocationState {
   correctAnswers: number;
   totalQuestions: number;

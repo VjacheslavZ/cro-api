@@ -1,3 +1,13 @@
+/**
+ * @module TypeTheAnswer
+ * @description Tab content for managing Type the Answer exercise items within a topic. Fetches
+ * items via ['type-the-answer-items', topicId] from GET /admin/topics/:id/singular-plural-items
+ * (legacy path — TODO rename to /type-the-answer). saveMutation handles both add
+ * (POST /admin/singular-plural-items) and edit (PATCH /admin/singular-plural-items/:id).
+ * Uses useTablePagination for client-side pagination. Inline form is toggled by the "Add Item"
+ * button; editing a row pre-populates the form via AddExerciseQuestion's useEffect reset.
+ * @usedBy ExercisePage
+ */
 import { useState } from 'react';
 import { Alert, Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
@@ -13,6 +23,10 @@ import {
 } from './AddExerciseQuestion.tsx';
 import { ContentTable } from './ContentTable.tsx';
 
+/**
+ * Renders the Type the Answer item list with inline add/edit form for a given topic.
+ * @param topicId - The topic whose Type the Answer items are being managed.
+ */
 export function TypeTheAnswer({ topicId }: { topicId: string }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<SingularPluralItem | null>(null);

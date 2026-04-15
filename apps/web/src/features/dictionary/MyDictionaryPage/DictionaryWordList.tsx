@@ -6,13 +6,25 @@ import type { DictionaryWord } from '@cro/shared';
 import { QueryState } from '../../../shared/components/QueryState.tsx';
 import { WordRow } from '../WordRow.tsx';
 
+/**
+ * Scrollable word list for the My Dictionary page with infinite scroll.
+ *
+ * Used in: MyDictionaryPage.
+ *
+ * Handles loading, error, and empty states via QueryState. Renders one
+ * WordRow per word and attaches an IntersectionObserver sentinel at the
+ * bottom to trigger `onFetchNextPage` when the user scrolls to the end.
+ */
 interface DictionaryWordListProps {
   words: DictionaryWord[];
   isLoading: boolean;
   isError: boolean;
+  /** Whether more pages are available for infinite scroll. */
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
+  /** IDs of words currently checked via the row checkbox. */
   selectedIds: Set<string>;
+  /** Called by the IntersectionObserver when the sentinel enters the viewport. */
   onFetchNextPage: () => void;
   onSelect: (id: string, checked: boolean) => void;
   onEdit: (word: DictionaryWord) => void;

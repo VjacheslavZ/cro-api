@@ -15,6 +15,15 @@ import {
 import { useDictionaryCollections } from '../../api/dictionary';
 import { QueryState } from '../../shared/components/QueryState';
 
+/**
+ * Route: /dictionary/recommended-word-sets
+ *
+ * Displays all admin-created predefined dictionary collections as browsable
+ * cards. Each card shows the collection name, description, and total word
+ * count. Clicking navigates to CollectionPreviewPage
+ * (/dictionary/collections/:collectionId) where the user can preview words
+ * and add them to their personal dictionary.
+ */
 export function WordSetsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

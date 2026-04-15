@@ -19,6 +19,18 @@ import { useDictionaryCollections, useDeleteCollection } from '../../api/diction
 import { QueryState } from '../../shared/components/QueryState';
 import { CreateCollectionModal } from './CreateCollectionModal';
 
+/**
+ * Route: /dictionary/my-collections
+ *
+ * Displays two sections:
+ * - "From Word Sets" — predefined (admin-created) collections the user has
+ *   already added words from, shown as read-only cards linking to the filtered
+ *   My Dictionary view.
+ * - "My Collections" — user-created personal collections with edit / delete
+ *   actions. Clicking a card navigates to /dictionary/my?collectionId=<id>.
+ *
+ * Collection create / edit is handled by CreateCollectionModal.
+ */
 export function CollectionsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

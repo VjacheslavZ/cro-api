@@ -1,3 +1,13 @@
+/**
+ * @module FillInBlank/AddExerciseQuestion
+ * @description Controlled add/edit form for a Fill in the Blank exercise item. Exports
+ * FillInBlankFormData (Zod-inferred, used by FillInBlankTab's saveMutation) and FillInBlankItem
+ * (shape returned by the API, used by ContentTable and FillInBlankTab). sentenceHr must contain
+ * the {{BLANK}} placeholder — rendered as underscores in the student-facing exercise.
+ * blankAnswer is the correct fill-in word. Resets to editing item values when the editing prop
+ * changes via useEffect + reset.
+ * @usedBy FillInBlankTab
+ */
 import { useEffect } from 'react';
 import { Box, Button, CircularProgress, TextField, Stack, Paper } from '@mui/material';
 import { useForm } from 'react-hook-form';
@@ -13,8 +23,10 @@ const schema = z.object({
   sortOrder: z.coerce.number().int().min(0),
 });
 
+/** Validated form payload for creating or updating a Fill in the Blank item. */
 export type FillInBlankFormData = z.infer<typeof schema>;
 
+/** Shape of a Fill in the Blank item as returned by GET /admin/topics/:id/fill-in-blank-items. */
 export interface FillInBlankItem {
   id: string;
   sentenceHr: string;

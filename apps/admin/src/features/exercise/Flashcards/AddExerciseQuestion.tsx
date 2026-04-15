@@ -1,3 +1,11 @@
+/**
+ * @module Flashcards/AddExerciseQuestion
+ * @description Controlled add/edit form for a Flashcard exercise item. Exports FlashcardFormData
+ * (Zod-inferred, used by Flashcards' saveMutation) and FlashcardItem (shape returned by the API,
+ * used by ContentTable and Flashcards). Resets to editing item values when the editing prop
+ * changes via useEffect + reset. frontText is the Croatian side shown to the student.
+ * @usedBy Flashcards
+ */
 import { useEffect } from 'react';
 import { Box, Button, CircularProgress, TextField, Stack, Paper } from '@mui/material';
 import { useForm } from 'react-hook-form';
@@ -12,8 +20,10 @@ const schema = z.object({
   sortOrder: z.coerce.number().int().min(0),
 });
 
+/** Validated form payload for creating or updating a Flashcard item. */
 export type FlashcardFormData = z.infer<typeof schema>;
 
+/** Shape of a Flashcard item as returned by GET /admin/topics/:id/flashcard-items. */
 export interface FlashcardItem {
   id: string;
   frontText: string;
@@ -37,6 +47,12 @@ interface FlashcardFormProps {
   onSubmit: (data: FlashcardFormData) => void;
 }
 
+/**
+ * Renders the add/edit form for a Flashcard item. Resets field values when the editing prop changes.
+ * @param props.editing - Item being edited; null when creating.
+ * @param props.isPending - Disables submit while the parent saveMutation is in flight.
+ * @param props.onSubmit - Called with validated form data; parent calls saveMutation.mutate().
+ */
 export function AddExerciseQuestion({ editing, isPending, onSubmit }: FlashcardFormProps) {
   const {
     register,

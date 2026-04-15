@@ -13,8 +13,21 @@ import type { DictionaryWord } from '@cro/shared';
 
 import { useUpdateWord } from '../../api/dictionary';
 
+/**
+ * Modal dialog for editing an existing word in the user's personal dictionary.
+ *
+ * Used in: MyDictionaryPage — opened via the edit icon on a WordRow.
+ *
+ * Behaviour:
+ * - Pre-fills both fields from the selected word; Croatian word field receives
+ *   focus after the dialog animation completes.
+ * - Save is disabled when both fields match the original values (no changes).
+ * - Enter key in the Translation field submits when the form is valid.
+ * - Returns a 409 duplicate error (case-insensitive match) as an inline Alert.
+ */
 interface EditWordModalProps {
   open: boolean;
+  /** The word to edit. Passing `null` closes the dialog. */
   word: DictionaryWord | null;
   onClose: () => void;
 }

@@ -24,6 +24,25 @@ import { TextInputExercise } from '../../exercises/TextInputExercise/TextInputEx
 import { LetterPickExercise } from '../../exercises/LetterPickExercise/LetterPickExercise.tsx';
 import { MatchingExercise } from '../../exercises/MatchingExercise/MatchingExercise.tsx';
 
+/**
+ * Route: /dictionary/practice/:sessionId
+ *
+ * Active dictionary practice session page. Renders one exercise item at a
+ * time, advancing through the item list received via `location.state`. On the
+ * last item it calls `finishPractice`, awards XP/streak, and navigates to
+ * DictionaryPracticeResultsPage.
+ *
+ * Supports four exercise directions via `state.direction`:
+ * - `word-to-translate` — show Croatian word, type translation
+ * - `translate-to-word` — show translation, type Croatian word
+ * - `letter-pick` — assemble the Croatian word from shuffled letters
+ * - `matching` — match all pairs at once (MatchingExercise, bulk completion)
+ *
+ * A "Stop" button opens a confirmation dialog before abandoning the session.
+ *
+ * Reached from: MyDictionaryPage practice start flow.
+ */
+
 interface PracticeLocationState {
   items: DictionaryPracticeItem[];
   totalQuestions: number;

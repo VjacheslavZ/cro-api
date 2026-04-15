@@ -2,12 +2,23 @@ import { useTranslation } from 'react-i18next';
 import { TextField, Button, Box } from '@mui/material';
 import { Add, FitnessCenter } from '@mui/icons-material';
 
+/**
+ * Top action bar for the My Dictionary page.
+ *
+ * Used in: MyDictionaryPage.
+ *
+ * Contains the word search field, "Add Word" button, and "Practice" button.
+ * Pressing Enter in a non-empty search field triggers `onSearchEnter` (opens
+ * the Add Word modal pre-filled with the search text).
+ */
 interface DictionaryTopBarProps {
   search: string;
   onSearchChange: (value: string) => void;
+  /** Called when Enter is pressed in a non-empty search field. */
   onSearchEnter: () => void;
   onAddWord: () => void;
   onStartPractice: () => void;
+  /** Disables the Practice button when the word list is empty. */
   practiceDisabled: boolean;
 }
 

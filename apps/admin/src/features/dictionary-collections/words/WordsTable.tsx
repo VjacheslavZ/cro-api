@@ -1,3 +1,11 @@
+/**
+ * @module WordsTable
+ * @description Pure display table for predefined words in a collection. Renders columns for
+ * wordHr and all three translations (EN/UK/RU), plus sortOrder and edit/delete actions.
+ * Pagination is injected as a render-prop component from the parent (CollectionWordsPage via
+ * useTablePagination), keeping slice logic out of this component.
+ * @usedBy CollectionWordsPage
+ */
 import {
   Table,
   TableBody,
@@ -20,6 +28,14 @@ interface WordsTableProps {
   Pagination: () => React.JSX.Element;
 }
 
+/**
+ * Renders the predefined words table with edit and delete actions.
+ * @param props.items - Paginated slice of predefined words for the current page.
+ * @param props.onEdit - Called with the selected word item; parent shows AddWordForm pre-populated.
+ * @param props.onDelete - Called with the word id to delete.
+ * @param props.isDeletePending - Disables all delete buttons while a delete request is in flight.
+ * @param props.Pagination - Render-prop component from useTablePagination; rendered below the table.
+ */
 export function WordsTable({
   items,
   onEdit,

@@ -1,3 +1,12 @@
+/**
+ * @module ExercisePage
+ * @description Admin page for managing exercise items within a single topic. Tabbed layout with
+ * one tab per exercise type (Type the Answer, Flashcards, Fill in Blank). Toggle switches at the
+ * top enable/disable each exercise type for the topic via PATCH /admin/topics/:id/exercise-types,
+ * invalidating both ['topic', topicId] and ['topics']. Topic data is fetched from the full topic
+ * list (GET /admin/topics) and filtered client-side by topicId.
+ * @usedBy AdminRouter (/topics/:topicId/items)
+ */
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Tab, Tabs, Typography, Button, Switch, FormControlLabel, Stack } from '@mui/material';
@@ -24,6 +33,9 @@ const EXERCISE_TABS = [
   { type: ExerciseType.FILL_IN_BLANK, label: 'Fill in Blank' },
 ];
 
+/**
+ * Renders the topic exercise management page with type-enable toggles and per-type item tabs.
+ */
 export function ExercisePage() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();

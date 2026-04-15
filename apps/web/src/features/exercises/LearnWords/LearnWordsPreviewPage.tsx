@@ -1,3 +1,10 @@
+/**
+ * @module LearnWordsPreviewPage
+ * @description Step 2 of the Learn Words flow. Shows words one at a time (Croatian + translation)
+ * and speaks each word via useSpeech on display. User pages through all words before starting
+ * the exercise session. On the last word, "Next" navigates to LearnWordsSessionPage.
+ * @usedBy AppRouter (/exercises/vocabulary/learn/preview)
+ */
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +19,10 @@ interface LocationState {
   collectionId?: string;
 }
 
+/**
+ * Renders the word preview carousel with speech and progress dots.
+ * Redirects to setup page if location state is missing (direct URL access or empty word list).
+ */
 export function LearnWordsPreviewPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

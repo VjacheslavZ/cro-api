@@ -31,6 +31,18 @@ import {
 } from '../../../api/dictionary.ts';
 import { QueryState } from '../../../shared/components/QueryState.tsx';
 
+/**
+ * Route: /dictionary/collections/:collectionId
+ *
+ * Previews all words in an admin-created predefined collection. The user can
+ * select individual words (or all) and add them to their personal dictionary
+ * in bulk via the "Add Selected" button. Already-owned words are skipped
+ * server-side and reported in the success snackbar (added / skipped counts).
+ *
+ * Reached from: WordSetsPage (/dictionary/recommended-word-sets).
+ */
+
+/** Returns the translation for a predefined word in the user's native language. */
 function getTranslation(word: PredefinedDictionaryWord, lang: string | null): string {
   if (lang === 'RU') return word.translationRu;
   if (lang === 'UK') return word.translationUk;

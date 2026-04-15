@@ -1,3 +1,12 @@
+/**
+ * @module CollectionWordsPage
+ * @description Admin page for managing predefined words within a single dictionary collection.
+ * Fetches words via ['admin-collection-words', collectionId] and supports add/edit/delete.
+ * Both saveMutation and deleteMutation also invalidate ['admin-dictionary-collections'] so the
+ * word count chip in CollectionsTable stays accurate. Uses useTablePagination for client-side
+ * pagination; Pagination component is passed as a render prop to WordsTable.
+ * @usedBy AdminRouter (/dictionary-collections/:collectionId/words)
+ */
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Typography } from '@mui/material';
@@ -10,6 +19,10 @@ import { useTablePagination } from '../../../shared/hooks/useTablePagination';
 import { AddWordForm, type PredefinedWordFormData, type PredefinedWordItem } from './AddWordForm';
 import { WordsTable } from './WordsTable';
 
+/**
+ * Renders the word list for a collection with inline add/edit form toggled by the "Add Word" button.
+ * Editing a row sets the editing state and shows the form pre-populated via AddWordForm's useEffect.
+ */
 export function CollectionWordsPage() {
   const { collectionId } = useParams<{ collectionId: string }>();
   const navigate = useNavigate();

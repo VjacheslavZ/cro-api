@@ -5,11 +5,22 @@ import type { DictionaryWord } from '@cro/shared';
 
 import { speakWord } from '../../shared/lib/speech';
 
+/**
+ * Single row in the My Dictionary word list.
+ *
+ * Used in: DictionaryWordList (inside MyDictionaryPage).
+ *
+ * Displays the Croatian word, its translation, optional collection badge,
+ * per-exercise-type progress bar (or "Learned" chip when all types hit 100%),
+ * and action icons: edit, speak, delete.
+ */
 interface WordRowProps {
   word: DictionaryWord;
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
+  /** Opens the EditWordModal for this word. */
   onEdit: (word: DictionaryWord) => void;
+  /** Opens the DeleteWordDialog for this word. */
   onDelete: (word: DictionaryWord) => void;
 }
 

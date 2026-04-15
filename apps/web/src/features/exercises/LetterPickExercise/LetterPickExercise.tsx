@@ -1,3 +1,11 @@
+/**
+ * @module LetterPickExercise
+ * @description Letter-pick exercise: shows a translation and a shuffled pool of letter tiles.
+ * User taps or types letters to reconstruct the Croatian word in order.
+ * Using a hint counts as an error. Keyboard support: typing a character picks the matching tile.
+ * Speaks the word on completion. isCorrect = true only if completed with no errors and no hint.
+ * @usedBy LearnWordsSessionPage
+ */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Typography, Paper, Alert, Card, CardContent } from '@mui/material';
@@ -14,6 +22,14 @@ interface LetterPickExerciseProps {
   onAnswer: (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => void;
 }
 
+/**
+ * Renders the interactive letter-pick exercise for a single vocabulary word.
+ * @param props.itemId - Passed through to onAnswer; resets internal state when it changes
+ * @param props.wordHr - The correct Croatian word to reconstruct
+ * @param props.translation - The user's native-language translation shown as prompt
+ * @param props.wordToSpeak - Word spoken on completion; defaults to wordHr if omitted
+ * @param props.onAnswer - Called with `{ itemId, givenAnswer: wordHr, isCorrect }` when user clicks Next
+ */
 export function LetterPickExercise({
   itemId,
   wordHr,

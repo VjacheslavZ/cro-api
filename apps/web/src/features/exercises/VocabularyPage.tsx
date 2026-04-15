@@ -1,3 +1,10 @@
+/**
+ * @module VocabularyPage
+ * @description Vocabulary exercises hub. Offers the "Learn Words" guided flow and four
+ * individual practice modes (word-to-translate, translate-to-word, letter-pick, matching).
+ * Each mode starts a DictionaryPracticeSession and navigates to DictionaryPracticePage.
+ * @usedBy AppRouter (/exercises/vocabulary)
+ */
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +27,10 @@ type ExerciseDirection = 'word-to-translate' | 'translate-to-word' | 'letter-pic
 
 const SESSION_WORD_COUNT = 10;
 
+/**
+ * Renders the vocabulary exercise mode selection screen.
+ * Passes `collectionId` from URL search params to filter practice words by collection.
+ */
 export function VocabularyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

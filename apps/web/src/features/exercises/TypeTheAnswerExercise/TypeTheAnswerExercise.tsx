@@ -1,3 +1,10 @@
+/**
+ * @module TypeTheAnswerExercise
+ * @description Type-the-Answer exercise: shows a Croatian noun in its base form and asks
+ * the user to type its plural. Wraps TextInputExercise with TYPE_THE_ANSWER-specific prompt.
+ * Correct answer = SingularPluralItem.pluralForm (compared via normalizeAnswer).
+ * @usedBy SessionPage
+ */
 import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
 import type { SingularPluralItem } from '@cro/shared';
@@ -12,6 +19,12 @@ interface TypeTheAnswerExerciseProps {
   isLast: boolean;
 }
 
+/**
+ * Renders the Type-the-Answer prompt for a SingularPluralItem.
+ * @param props.item - The exercise item; displays baseForm, prompts for pluralForm
+ * @param props.onAnswer - Forwarded to TextInputExercise; called with isCorrect based on pluralForm match
+ * @param props.isLast - Passed through to TextInputExercise (part of shared onAnswer contract)
+ */
 export function TypeTheAnswerExercise({ item, onAnswer }: TypeTheAnswerExerciseProps) {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);

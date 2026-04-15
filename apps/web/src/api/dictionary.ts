@@ -216,6 +216,7 @@ export function useFinishDictionaryPractice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
+      queryClient.removeQueries({ queryKey: ['learn-words-preview'] });
     },
   });
 }

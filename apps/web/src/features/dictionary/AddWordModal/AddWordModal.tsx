@@ -21,10 +21,26 @@ import type { DictionaryCollection } from '@cro/shared';
 
 import { useAddWord, useTranslationSuggestions } from '../../../api/dictionary.ts';
 
+/**
+ * Modal dialog for adding a new word to the user's personal dictionary.
+ *
+ * Used in: MyDictionaryPage — opened via the "Add Word" button or by pressing
+ * Enter in the search field (pre-fills `initialWord` with the search text).
+ *
+ * Behaviour:
+ * - When `initialWord` is provided the Translation field receives focus after
+ *   the dialog animation completes.
+ * - Fetches shared translation suggestions as the user types (≥ 2 chars).
+ * - Calls `onSuccess` after a successful save so the parent can reset the
+ *   search input.
+ * - Returns a 409 duplicate error (case-insensitive match) as an inline Alert.
+ */
 interface AddWordModalProps {
   open: boolean;
   onClose: () => void;
+  /** Called after the word is successfully added. */
   onSuccess?: () => void;
+  /** Pre-fills the Croatian word field and shifts focus to Translation. */
   initialWord?: string;
   collections: DictionaryCollection[];
 }

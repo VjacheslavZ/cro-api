@@ -1,3 +1,11 @@
+/**
+ * @module TopicExercisesPage
+ * @description Exercise type selector for a single topic. Fetches the topic, lists enabled
+ * exercise types, creates a session on click, and handles cycle exhaustion via CycleResetDialog.
+ * Supports auto-starting an exercise type when navigated back from SessionResultsPage
+ * (via location.state.autoStartExerciseType).
+ * @usedBy AppRouter (/exercises/:topicId)
+ */
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +23,11 @@ import { getLocalizedName, getRulesHtml } from '../../shared/lib/content-utils';
 import { getExerciseTypeLabel } from '../../shared/lib/exercise-utils';
 import { CycleResetDialog } from './CycleResetDialog';
 
+/**
+ * Renders exercise type cards for a topic and handles session creation.
+ * On `cycleExhausted` response, shows CycleResetDialog instead of navigating.
+ * Uses `autoStarted` ref to prevent double-firing in React 18 StrictMode.
+ */
 export function TopicExercisesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

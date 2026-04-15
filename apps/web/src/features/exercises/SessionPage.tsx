@@ -1,3 +1,13 @@
+/**
+ * @module SessionPage
+ * @description Grammar exercise session orchestrator. Receives items and session metadata
+ * from router location state (set by TopicExercisesPage), steps through one item at a time,
+ * collects answers, and submits them all at once on the final item via useFinishSession.
+ * Dispatches fetchMe() after finish to refresh XP/streak — must happen AFTER navigation
+ * to avoid AuthGuard unmounting this component mid-session.
+ * Supports optional grammar rules dialog (ExerciseRulesDialog) when topic has rulesHtml.
+ * @usedBy AppRouter (/exercises/session/:sessionId)
+ */
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +36,11 @@ interface SessionAnswer {
   isCorrect: boolean;
 }
 
+/**
+ * Renders the active exercise session, dispatching the correct exercise component
+ * based on exerciseType from location state (TYPE_THE_ANSWER, FLASHCARDS, FILL_IN_BLANK).
+ * Redirects to an error state if location state is missing (direct URL access).
+ */
 export function SessionPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();

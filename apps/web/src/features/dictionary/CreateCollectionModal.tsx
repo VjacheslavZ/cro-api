@@ -12,9 +12,20 @@ import {
 
 import { useCreateCollection, useUpdateCollection } from '../../api/dictionary';
 
+/**
+ * Modal dialog for creating or editing a personal dictionary collection.
+ *
+ * Used in: CollectionsPage — opened via "Create Collection" button (create
+ * mode) or the edit icon on an existing collection card (edit mode).
+ *
+ * The mode is determined by the presence of `editData`: when provided the
+ * dialog pre-fills the form and calls the update mutation on submit; otherwise
+ * it creates a new collection.
+ */
 interface CreateCollectionModalProps {
   open: boolean;
   onClose: () => void;
+  /** When provided the dialog operates in edit mode. */
   editData?: { id: string; name: string; description: string | null } | null;
 }
 

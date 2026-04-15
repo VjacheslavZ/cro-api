@@ -1,3 +1,12 @@
+/**
+ * @module AddWordForm
+ * @description Controlled add/edit form for a single predefined word. Exports PredefinedWordFormData
+ * (Zod-inferred type used by CollectionWordsPage's saveMutation) and PredefinedWordItem (shape
+ * returned by GET .../words, used by WordsTable and CollectionWordsPage). The form resets to the
+ * editing item's values whenever the editing prop changes (via useEffect + reset), enabling the
+ * parent to switch between create and edit mode without unmounting this component.
+ * @usedBy CollectionWordsPage
+ */
 import { useEffect } from 'react';
 import { Box, Button, CircularProgress, TextField, Stack, Paper } from '@mui/material';
 import { useForm } from 'react-hook-form';
@@ -12,8 +21,10 @@ const schema = z.object({
   sortOrder: z.coerce.number().int().min(0),
 });
 
+/** Validated form payload for creating or updating a predefined word. Used as the mutationFn argument in CollectionWordsPage. */
 export type PredefinedWordFormData = z.infer<typeof schema>;
 
+/** Shape of a predefined word as returned by GET /admin/dictionary-collections/:id/words. */
 export interface PredefinedWordItem {
   id: string;
   wordHr: string;
@@ -37,6 +48,12 @@ interface AddWordFormProps {
   onSubmit: (data: PredefinedWordFormData) => void;
 }
 
+/**
+ * Renders the add/edit word form. Resets field values whenever the editing prop changes.
+ * @param props.editing - Word being edited; null when creating a new word.
+ * @param props.isPending - Disables the submit button while the parent's saveMutation is in flight.
+ * @param props.onSubmit - Called with validated form data; parent calls saveMutation.mutate().
+ */
 export function AddWordForm({ editing, isPending, onSubmit }: AddWordFormProps) {
   const {
     register,
