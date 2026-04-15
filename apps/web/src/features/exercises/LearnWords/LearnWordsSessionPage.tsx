@@ -3,7 +3,7 @@
  * @description Step 3 of the Learn Words flow. Runs 4 sequential exercise steps for the
  * selected words: letter-pick → word-to-translate → translate-to-word → matching.
  * Each step creates its own DictionaryPracticeSession and submits answers before advancing.
- * Between steps shows a score summary (inter-step phase). On the final step, dispatches
+ * Steps advance automatically with no inter-step screen. On the final step, dispatches
  * fetchMe() and navigates to LearnWordsResultsPage.
  * IMPORTANT: fetchMe() is called only on the final step — calling it mid-session sets
  * auth.loading = true, which causes AuthGuard to unmount this component and lose all state.
@@ -19,7 +19,6 @@ import {
   LinearProgress,
   Box,
   Alert,
-  Button,
   CircularProgress,
   Chip,
 } from '@mui/material';
@@ -51,10 +50,11 @@ interface LocationState {
 
 type Answer = { wordId: string; givenAnswer: string; isCorrect: boolean };
 
-type Phase = 'loading' | 'exercising' | 'inter-step';
+type Phase = 'loading' | 'exercising';
 
 /**
- * Orchestrates the 4-step Learn Words session with loading, exercising, and inter-step phases.
+ * Orchestrates the 4-step Learn Words session with loading and exercising phases.
+ * Steps advance automatically — no inter-step screen.
  * Redirects to setup if location state is missing or word list is empty.
  */
 export function LearnWordsSessionPage() {
@@ -70,9 +70,6 @@ export function LearnWordsSessionPage() {
   const [items, setItems] = useState<DictionaryPracticeItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stepAnswers, setStepAnswers] = useState<Answer[]>([]);
-  const [lastStepResult, setLastStepResult] = useState<{ correct: number; total: number } | null>(
-    null,
-  );
   const [allResults, setAllResults] = useState<FinishDictionaryPracticeResponse[]>([]);
 
   const startSession = useStartDictionaryPractice();
@@ -128,7 +125,6 @@ export function LearnWordsSessionPage() {
 
         const updated = [...allResults, result];
         setAllResults(updated);
-        setLastStepResult({ correct: result.correctAnswers, total: result.totalQuestions });
 
         if (step === EXERCISE_ORDER.length - 1) {
           // Refresh user XP/streak only on the final step, just before navigating away.
@@ -140,7 +136,9 @@ export function LearnWordsSessionPage() {
             replace: true,
           });
         } else {
-          setPhase('inter-step');
+          const nextStep = step + 1;
+          setStep(nextStep);
+          void startStepSession(nextStep);
         }
       } catch {
         // Error handled by mutation state
@@ -168,13 +166,6 @@ export function LearnWordsSessionPage() {
     [stepAnswers, currentIndex, items.length, handleStepComplete],
   );
 
-  const handleContinue = () => {
-    if (phase !== 'inter-step') return;
-    const nextStep = step + 1;
-    setStep(nextStep);
-    void startStepSession(nextStep);
-  };
-
   if (!state || wordIds.length === 0) {
     navigate('/exercises/vocabulary/learn', { replace: true });
     return null;
@@ -199,28 +190,6 @@ export function LearnWordsSessionPage() {
     return (
       <Container maxWidth="sm" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (phase === 'inter-step') {
-    return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        {stepIndicator}
-        <Typography variant="h5" gutterBottom>
-          {t('exercises.learnWords.stepComplete', { step: step + 1 })}
-        </Typography>
-        {lastStepResult && (
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            {t('exercises.learnWords.score', {
-              correct: lastStepResult.correct,
-              total: lastStepResult.total,
-            })}
-          </Typography>
-        )}
-        <Button variant="contained" size="large" onClick={handleContinue} fullWidth>
-          {t('exercises.learnWords.continue')}
-        </Button>
       </Container>
     );
   }
