@@ -77,3 +77,23 @@ Admin manages content as flat **ExerciseTopic** entities. Each topic can have mu
 - **Route**: `/dictionary-collections` — table with columns: name, description, word count, sortOrder, edit/delete actions
 - **Create/Edit form**: `name`, `description` (optional), `sortOrder`
 - Admin-created collections have `isPublic: true` and are visible to all users as predefined collections
+
+---
+
+## Feature Modules
+
+All features live in `src/features/`:
+
+| Folder | Manages |
+|--------|---------|
+| `auth/` | Login page, token storage, JWT refresh logic |
+| `topics/` | Topic list (`TopicsPage`), create/edit form (`CreateTopicForm`), table (`TopicsTable`) |
+| `exercise/` | Exercise item tabs per topic (Type the Answer, Flashcards, Fill in the Blank) |
+| `admins/` | Admin user list, add-admin form |
+| `dictionary-collections/` | Predefined dictionary collection CRUD + word management |
+
+Shared components (RichTextEditor, etc.) live in `src/shared/components/`.
+
+---
+
+**Coding patterns** (forms, mutations, queries, query key conventions): see `.claude/skills/admin-form-query-patterns/SKILL.md` — auto-loads when editing `src/features/**` files.
