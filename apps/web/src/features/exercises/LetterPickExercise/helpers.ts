@@ -11,7 +11,7 @@ export interface PoolLetter {
   used: boolean;
 }
 
-const EXTRA_CHARS = 'abcdefghijklmnoprstuvzščćđ';
+const EXTRA_CHARS = 'abcdefghijklmnoprstuvz';
 
 /**
  * Returns a new array with elements in random order (Fisher-Yates).
@@ -35,7 +35,7 @@ export function shuffle<T>(arr: T[]): T[] {
  */
 export function buildPool(wordHr: string): PoolLetter[] {
   const wordLetters = wordHr.toLowerCase().split('');
-  const extraCount = Math.ceil(wordLetters.length * 0.25);
+  const extraCount = Math.ceil(wordLetters.length * 1);
   const extras = Array.from(
     { length: extraCount },
     () => EXTRA_CHARS[Math.floor(Math.random() * EXTRA_CHARS.length)],

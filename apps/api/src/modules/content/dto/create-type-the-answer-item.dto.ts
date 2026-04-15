@@ -12,7 +12,7 @@ export class CreateTypeTheAnswerItemDto {
 
   @ApiProperty()
   @IsString()
-  pluralForm: string;
+  answer: string;
 
   @ApiProperty()
   @IsString()

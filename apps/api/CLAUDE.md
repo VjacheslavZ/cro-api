@@ -48,7 +48,7 @@ ExerciseTopicType            <- which exercise types are enabled for a topic
 
 TypeTheAnswerItem            <- items for "Type the Answer" exercise
   topicId
-  baseForm, pluralForm
+  baseForm, answer
   translationRu, translationUk, translationEn
   sortOrder
 

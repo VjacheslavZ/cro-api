@@ -102,7 +102,7 @@ async function seedContent() {
     {
       topic: 'Food',
       baseForm: 'kruh',
-      pluralForm: 'kruhovi',
+      answer: 'kruhovi',
       translationRu: 'хлеб',
       translationUk: 'хліб',
       translationEn: 'bread',
@@ -112,7 +112,7 @@ async function seedContent() {
     {
       topic: 'Animals',
       baseForm: 'pas',
-      pluralForm: 'psi',
+      answer: 'psi',
       translationRu: 'собака',
       translationUk: 'собака',
       translationEn: 'dog',
@@ -130,7 +130,7 @@ async function seedContent() {
         data: {
           topicId,
           baseForm: item.baseForm,
-          pluralForm: item.pluralForm,
+          answer: item.answer,
           translationRu: item.translationRu,
           translationUk: item.translationUk,
           translationEn: item.translationEn,

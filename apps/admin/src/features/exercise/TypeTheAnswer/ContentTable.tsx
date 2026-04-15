@@ -1,6 +1,6 @@
 /**
  * @module TypeTheAnswer/ContentTable
- * @description Pure display table for Type the Answer items. Columns: baseForm, pluralForm,
+ * @description Pure display table for Type the Answer items. Columns: baseForm, answer,
  * translations (EN/UK/RU), sortOrder, and edit/delete actions. Pagination injected as a
  * render-prop component from TypeTheAnswer via useTablePagination.
  * @usedBy TypeTheAnswer
@@ -48,7 +48,7 @@ export function ContentTable({
         <TableHead>
           <TableRow>
             <TableCell>Base Form</TableCell>
-            <TableCell>Plural Form</TableCell>
+            <TableCell>Answer</TableCell>
             <TableCell>EN</TableCell>
             <TableCell>UA</TableCell>
             <TableCell>RU</TableCell>
@@ -60,7 +60,7 @@ export function ContentTable({
           {items.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.baseForm}</TableCell>
-              <TableCell>{item.pluralForm}</TableCell>
+              <TableCell>{item.answer}</TableCell>
               <TableCell>{item.translationEn}</TableCell>
               <TableCell>{item.translationUk}</TableCell>
               <TableCell>{item.translationRu}</TableCell>

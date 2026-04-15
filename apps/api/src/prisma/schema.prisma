@@ -161,7 +161,7 @@ model TypeTheAnswerItem {
   id            String        @id @default(dbgenerated("gen_random_uuid()"))
   topicId       String
   baseForm      String
-  pluralForm    String
+  answer        String
   translationRu String
   translationUk String
   translationEn String

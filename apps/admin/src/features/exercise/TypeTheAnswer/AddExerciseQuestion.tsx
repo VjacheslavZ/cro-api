@@ -18,7 +18,7 @@ import { apiClient } from '../../../api/client.ts';
 
 const schema = z.object({
   baseForm: z.string().min(1, 'Required'),
-  pluralForm: z.string().min(1, 'Required'),
+  answer: z.string().min(1, 'Required'),
   translationRu: z.string().min(1, 'Required'),
   translationUk: z.string().min(1, 'Required'),
   translationEn: z.string().min(1, 'Required'),
@@ -30,7 +30,7 @@ export type TypeTheAnswerFormData = z.infer<typeof schema>;
 export interface TypeTheAnswerItem {
   id: string;
   baseForm: string;
-  pluralForm: string;
+  answer: string;
   translationRu: string;
   translationUk: string;
   translationEn: string;
@@ -38,7 +38,7 @@ export interface TypeTheAnswerItem {
 }
 const defaultValues: TypeTheAnswerFormData = {
   baseForm: '',
-  pluralForm: '',
+  answer: '',
   translationRu: '',
   translationUk: '',
   translationEn: '',
@@ -114,11 +114,11 @@ export function AddExerciseQuestion({
             helperText={errors.baseForm?.message}
           />
           <TextField
-            {...register('pluralForm')}
-            label="Plural Form"
+            {...register('answer')}
+            label="Answer"
             size="small"
-            error={!!errors.pluralForm}
-            helperText={errors.pluralForm?.message}
+            error={!!errors.answer}
+            helperText={errors.answer?.message}
           />
           <TextField
             {...register('sortOrder')}

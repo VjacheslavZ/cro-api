@@ -64,7 +64,7 @@ Admin manages content as flat **ExerciseTopic** entities. Each topic can have mu
 - **Tabs**: Type the Answer, Flashcards, Fill in the Blank — each tab shows a table of items with inline create/edit forms
 
 #### Type the Answer items
-- Fields: `baseForm`, `pluralForm`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
+- Fields: `baseForm`, `answer`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`
 
 #### Flashcard items
 - Fields: `frontText`, `translationRu`, `translationUk`, `translationEn`, `sortOrder`

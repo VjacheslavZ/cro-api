@@ -10,7 +10,7 @@ Key file: `src/types/index.ts`
 
 | Type                  | Mechanics                                                                     | Validation                                                                 |
 | --------------------- |-------------------------------------------------------------------------------| -------------------------------------------------------------------------- |
-| **Type the Answer** | `baseForm` is shown -> user enters the ansver (TypeTheAnswerItem)             | trim + lowercase + NFC normalization, client-side comparison with `pluralForm` |
+| **Type the Answer** | `baseForm` is shown -> user enters the ansver (TypeTheAnswerItem)             | trim + lowercase + NFC normalization, client-side comparison with `answer` |
 | **Flashcards**        | `frontText` shown -> tap "I knew it" / "I didn't know" (FlashcardItem)        | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false |
 | **Fill-in-the-blank** | `sentenceHr` with `{{BLANK}}` placeholder (FillInBlankItem)                   | Client-side comparison with `blankAnswer` |
 | **Dictionary Practice** | Croatian word (`wordHr`) shown -> user types translation (UserDictionaryWord) | trim + lowercase + NFC normalization, client-side comparison with `translation` |

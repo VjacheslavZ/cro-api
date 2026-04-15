@@ -2,7 +2,7 @@
  * @module TypeTheAnswerExercise
  * @description Type-the-Answer exercise: shows a Croatian noun in its base form and asks
  * the user to type its plural. Wraps TextInputExercise with TYPE_THE_ANSWER-specific prompt.
- * Correct answer = TypeTheAnswerItem.pluralForm (compared via normalizeAnswer).
+ * Correct answer = TypeTheAnswerItem.answer (compared via normalizeAnswer).
  * @usedBy SessionPage
  */
 import { useTranslation } from 'react-i18next';
@@ -21,8 +21,8 @@ interface TypeTheAnswerExerciseProps {
 
 /**
  * Renders the Type-the-Answer prompt for a TypeTheAnswerItem.
- * @param props.item - The exercise item; displays baseForm, prompts for pluralForm
- * @param props.onAnswer - Forwarded to TextInputExercise; called with isCorrect based on pluralForm match
+ * @param props.item - The exercise item; displays baseForm, prompts for answer
+ * @param props.onAnswer - Forwarded to TextInputExercise; called with isCorrect based on answer match
  * @param props.isLast - Passed through to TextInputExercise (part of shared onAnswer contract)
  */
 export function TypeTheAnswerExercise({ item, onAnswer }: TypeTheAnswerExerciseProps) {
@@ -32,11 +32,11 @@ export function TypeTheAnswerExercise({ item, onAnswer }: TypeTheAnswerExerciseP
   return (
     <TextInputExercise
       itemId={item.id}
-      correctAnswer={item.pluralForm}
+      correctAnswer={item.answer}
       placeholder={t('exercises.typeTheAnswer.placeholder')}
       correctMessage={t('exercises.typeTheAnswer.correct')}
-      incorrectMessage={t('exercises.typeTheAnswer.incorrect', { answer: item.pluralForm })}
-      wordToSpeak={item.pluralForm}
+      incorrectMessage={t('exercises.typeTheAnswer.incorrect', { answer: item.answer })}
+      wordToSpeak={item.answer}
       onAnswer={onAnswer}
       prompt={
         <>

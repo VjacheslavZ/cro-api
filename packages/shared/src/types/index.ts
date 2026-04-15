@@ -70,7 +70,7 @@ export interface TypeTheAnswerItem {
   id: string;
   topicId: string;
   baseForm: string;
-  pluralForm: string;
+  answer: string;
   translationRu: string;
   translationUk: string;
   translationEn: string;
