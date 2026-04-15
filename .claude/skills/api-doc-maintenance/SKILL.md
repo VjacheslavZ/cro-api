@@ -1,6 +1,6 @@
 ---
-name: api-doc-maintenance
-description: Reminds Claude to offer updating docs/exercises.md after modifying dictionary/exercise API modules or web exercise components. Auto-loads when editing those files.
+name: exercise-doc-maintenance
+description: Reminds Claude to offer updating docs/exercises.md after modifying exercise or dictionary files — both API modules (NestJS) and web exercise components (React). Auto-loads when editing those files.
 paths:
   - "apps/api/src/modules/dictionary/**/*.ts"
   - "apps/api/src/modules/exercises/**/*.ts"
@@ -8,7 +8,7 @@ paths:
   - "apps/web/src/features/exercises/**/*.tsx"
 ---
 
-# Exercise & Dictionary Doc Maintenance Rule
+# Exercise & Doc Maintenance Rule
 
 After completing any change to a file matched by this skill's paths, check whether `docs/exercises.md` needs updating.
 

@@ -171,12 +171,24 @@ Update existing JSDoc immediately (in the same edit) when:
 
 ## What NOT to Document
 
-Skip JSDoc for these — they are in scope of paths but add noise:
+Skip JSDoc for these — they add noise without value:
 
 - **Private/internal methods** (prefixed with `_` or not exported) — document only if logic is non-obvious
 - **Simple one-liner reducers** that are just `state.x = action.payload` with no side effects
 - **Re-exported types** — `export type { Foo } from './foo'` — document at the source
 - **Test files** (`*.spec.ts`) — no JSDoc in tests
+- **Per-prop function-level JSDoc on React components** — TypeScript prop interfaces already describe props; don't duplicate them as `@param` tags
+
+## JSDoc in `.tsx` Component Files
+
+File-level `@module` / `@description` / `@usedBy` blocks ARE appropriate in `.tsx` files when the component has non-obvious responsibilities, coordinates significant logic, or is consumed by multiple parts of the app. Many components in this codebase already have them.
+
+Apply the file-level block to a component when any of these are true:
+- It manages API calls or session state (not just renders props)
+- It has a non-obvious gotcha or design constraint worth preserving (e.g. `fetchMe` timing, StrictMode guard)
+- It is used by 2+ unrelated consumers and `@usedBy` adds clarity
+
+Skip the file-level block for purely presentational components where the props interface is self-documenting.
 
 ---
 

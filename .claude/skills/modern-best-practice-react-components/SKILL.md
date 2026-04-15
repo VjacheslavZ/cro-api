@@ -1,6 +1,9 @@
 ---
 name: modern-best-practice-react-components
-description: Build clean, modern React components that apply common best practices and avoid common pitfalls like unnecessary pitfalls like unnecessary re-renders, prop drilling, and state management issues.
+description: Build clean, modern React components that apply common best practices and avoid common pitfalls like unnecessary re-renders, prop drilling, and state management issues. Auto-loads when editing React component files in web and admin apps.
+paths:
+  - "apps/web/src/features/**/*.tsx"
+  - "apps/admin/src/features/**/*.tsx"
 ---
 
 # Writing react components
