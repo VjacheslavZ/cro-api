@@ -15,7 +15,7 @@ import {
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NativeLanguage } from '@cro/shared';
 
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../auth/guards/better-auth.guard';
 import { CurrentUser, UserPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DictionaryService } from './dictionary.service';
@@ -34,7 +34,7 @@ import { FinishPracticeDto } from './dto/finish-practice.dto';
 
 @ApiTags('Dictionary')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(BetterAuthGuard)
 @Controller('dictionary')
 export class DictionaryController {
   constructor(

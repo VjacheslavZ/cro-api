@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../auth/guards/better-auth.guard';
 import { CurrentUser, UserPayload } from '../../common/decorators/current-user.decorator';
 import { ExercisesService } from './exercises.service';
 import { CreateSessionDto } from './dto/create-session.dto';
@@ -10,7 +10,7 @@ import { ResetCycleDto } from './dto/reset-cycle.dto';
 
 @ApiTags('Exercises')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(BetterAuthGuard)
 @Controller('exercises')
 export class ExercisesController {
   constructor(private exercisesService: ExercisesService) {}
