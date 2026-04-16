@@ -45,14 +45,14 @@ export class DictionaryService {
     const orderBy: Prisma.UserDictionaryWordOrderByWithRelationInput =
       query.sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-    const [words, total] = await Promise.all([
+    const [words, total, user] = await Promise.all([
       this.prisma.userDictionaryWord.findMany({
         where,
         orderBy: useProgressSort ? undefined : orderBy,
         take: useProgressSort ? undefined : limit + 1,
         ...(query.cursor && !useProgressSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
         include: {
-          collection: { select: { name: true } },
+          collection: { select: { personalName: true, nameRu: true, nameUk: true, nameEn: true } },
           progress: {
             select: {
               totalAttempts: true,
@@ -66,7 +66,25 @@ export class DictionaryService {
         },
       }),
       this.prisma.userDictionaryWord.count({ where }),
+      this.prisma.user.findUnique({ where: { id: userId }, select: { nativeLanguage: true } }),
     ]);
+
+    const lang = user?.nativeLanguage ?? 'EN';
+
+    const resolveCollectionName = (
+      c: {
+        personalName: string;
+        nameRu: string;
+        nameUk: string;
+        nameEn: string;
+      } | null,
+    ): string | null => {
+      if (!c) return null;
+      // Predefined (admin) collections have nameRu/nameUk/nameEn; personal collections use personalName
+      if (lang === 'RU') return c.nameRu || c.nameEn || c.personalName;
+      if (lang === 'UK') return c.nameUk || c.nameEn || c.personalName;
+      return c.nameEn || c.personalName;
+    };
 
     const mapWord = (word: (typeof words)[number]) => {
       const p = word.progress;
@@ -82,7 +100,7 @@ export class DictionaryService {
         translation: word.translation,
         translationLanguage: word.translationLanguage,
         collectionId: word.collectionId,
-        collectionName: word.collection?.name ?? null,
+        collectionName: resolveCollectionName(word.collection),
         progressPercent,
         wordToTranslatePercent: wTT,
         translateToWordPercent: tTW,

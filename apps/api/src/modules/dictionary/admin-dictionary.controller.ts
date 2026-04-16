@@ -16,8 +16,8 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AdminGuard } from '../admin-auth/guards/admin.guard';
 import { CurrentAdmin, AdminPayload } from '../../common/decorators/current-admin.decorator';
 import { DictionaryCollectionsService } from './dictionary-collections.service';
-import { CreateCollectionDto } from './dto/create-collection.dto';
-import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { AdminCreateCollectionDto } from './dto/admin-create-collection.dto';
+import { AdminUpdateCollectionDto } from './dto/admin-update-collection.dto';
 import { CreatePredefinedWordDto } from './dto/create-predefined-word.dto';
 import { UpdatePredefinedWordDto } from './dto/update-predefined-word.dto';
 
@@ -36,13 +36,19 @@ export class AdminDictionaryController {
 
   @Post()
   @ApiOperation({ summary: 'Create a predefined collection' })
-  async createCollection(@CurrentAdmin() admin: AdminPayload, @Body() dto: CreateCollectionDto) {
+  async createCollection(
+    @CurrentAdmin() admin: AdminPayload,
+    @Body() dto: AdminCreateCollectionDto,
+  ) {
     return this.collectionsService.adminCreateCollection(admin.id, dto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a predefined collection' })
-  async updateCollection(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateCollectionDto) {
+  async updateCollection(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AdminUpdateCollectionDto,
+  ) {
     return this.collectionsService.adminUpdateCollection(id, dto);
   }
 

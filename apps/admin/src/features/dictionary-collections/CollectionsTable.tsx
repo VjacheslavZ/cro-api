@@ -77,7 +77,9 @@ export function CollectionsTable({ onEdit }: CollectionsTableProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
+              <TableCell>Name (EN)</TableCell>
+              <TableCell>Name (RU)</TableCell>
+              <TableCell>Name (UK)</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Words</TableCell>
               <TableCell>Sort Order</TableCell>
@@ -92,7 +94,9 @@ export function CollectionsTable({ onEdit }: CollectionsTableProps) {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => navigate(`/dictionary-collections/${collection.id}/words`)}
               >
-                <TableCell>{collection.name}</TableCell>
+                <TableCell>{collection.nameEn}</TableCell>
+                <TableCell>{collection.nameRu}</TableCell>
+                <TableCell>{collection.nameUk}</TableCell>
                 <TableCell>{collection.description ?? '-'}</TableCell>
                 <TableCell>
                   <Chip label={collection.predefinedWordCount} size="small" color="primary" />

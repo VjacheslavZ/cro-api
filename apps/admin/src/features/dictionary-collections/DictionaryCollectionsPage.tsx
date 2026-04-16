@@ -15,7 +15,9 @@ import { CreateCollectionForm } from './CreateCollectionForm';
 /** Shape of a dictionary collection as returned by GET /admin/dictionary-collections. */
 export interface CollectionData {
   id: string;
-  name: string;
+  nameRu: string;
+  nameUk: string;
+  nameEn: string;
   description: string | null;
   sortOrder: number;
   predefinedWordCount: number;

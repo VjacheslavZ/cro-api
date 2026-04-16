@@ -272,7 +272,10 @@ model Admin {
 
 model DictionaryCollection {
   id               String   @id @default(uuid())
-  name             String
+  personalName     String   @default("")
+  nameRu           String   @default("")
+  nameUk           String   @default("")
+  nameEn           String   @default("")
   description      String?
   createdByAdminId String?
   createdByUserId  String?

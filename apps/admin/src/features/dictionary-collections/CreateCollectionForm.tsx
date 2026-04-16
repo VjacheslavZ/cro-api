@@ -18,7 +18,9 @@ import { apiClient } from '../../api/client';
 import type { CollectionData } from './DictionaryCollectionsPage';
 
 const collectionSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  nameRu: z.string().min(1, 'Russian name is required').max(100),
+  nameUk: z.string().min(1, 'Ukrainian name is required').max(100),
+  nameEn: z.string().min(1, 'English name is required').max(100),
   description: z.string().max(500).optional(),
   sortOrder: z.coerce.number().int().min(0, 'Sort order must be >= 0'),
 });
@@ -50,12 +52,16 @@ export function CreateCollectionForm({ collection, onDone }: CreateCollectionFor
     resolver: zodResolver(collectionSchema) as never,
     defaultValues: collection
       ? {
-          name: collection.name,
+          nameRu: collection.nameRu,
+          nameUk: collection.nameUk,
+          nameEn: collection.nameEn,
           description: collection.description ?? '',
           sortOrder: collection.sortOrder,
         }
       : {
-          name: '',
+          nameRu: '',
+          nameUk: '',
+          nameEn: '',
           description: '',
           sortOrder: 0,
         },
@@ -116,28 +122,37 @@ export function CreateCollectionForm({ collection, onDone }: CreateCollectionFor
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2}>
-          <Grid size={6}>
+          <Grid size={4}>
             <TextField
-              {...register('name')}
-              label="Name"
+              {...register('nameEn')}
+              label="Name (English)"
               fullWidth
               margin="normal"
-              error={!!errors.name}
-              helperText={errors.name?.message}
+              error={!!errors.nameEn}
+              helperText={errors.nameEn?.message}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={4}>
             <TextField
-              {...register('sortOrder')}
-              label="Sort Order"
-              type="number"
+              {...register('nameRu')}
+              label="Name (Russian)"
               fullWidth
               margin="normal"
-              error={!!errors.sortOrder}
-              helperText={errors.sortOrder?.message}
+              error={!!errors.nameRu}
+              helperText={errors.nameRu?.message}
             />
           </Grid>
-          <Grid size={12}>
+          <Grid size={4}>
+            <TextField
+              {...register('nameUk')}
+              label="Name (Ukrainian)"
+              fullWidth
+              margin="normal"
+              error={!!errors.nameUk}
+              helperText={errors.nameUk?.message}
+            />
+          </Grid>
+          <Grid size={8}>
             <TextField
               {...register('description')}
               label="Description"
@@ -147,6 +162,17 @@ export function CreateCollectionForm({ collection, onDone }: CreateCollectionFor
               rows={3}
               error={!!errors.description}
               helperText={errors.description?.message}
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              {...register('sortOrder')}
+              label="Sort Order"
+              type="number"
+              fullWidth
+              margin="normal"
+              error={!!errors.sortOrder}
+              helperText={errors.sortOrder?.message}
             />
           </Grid>
         </Grid>
