@@ -16,6 +16,7 @@ import { Settings, Logout } from '@mui/icons-material';
 
 import { useAppSelector, useAppDispatch } from '../../store';
 import { clearAuth } from '../../store/auth.slice';
+import { authClient } from '../../lib/auth-client';
 
 export function UserMenu() {
   const { t } = useTranslation();
@@ -26,8 +27,9 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setAnchor(null);
+    await authClient.signOut();
     dispatch(clearAuth());
     navigate('/login', { replace: true });
   };

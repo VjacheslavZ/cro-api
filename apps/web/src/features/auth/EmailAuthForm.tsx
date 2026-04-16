@@ -3,20 +3,14 @@ import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import { Box, TextField, Link } from '@mui/material';
 
-import { apiClient } from '../../api/client';
-import type { UserProfile } from '../../store/auth.slice';
+import { authClient } from '../../lib/auth-client';
 
 type AuthMode = 'login' | 'register';
 
 interface EmailAuthFormProps {
   loading: boolean;
   setLoading: (loading: boolean) => void;
-  onSuccess: (data: {
-    accessToken: string;
-    refreshToken: string;
-    user: UserProfile;
-    isNewUser: boolean;
-  }) => void;
+  onSuccess: () => void;
   onError: (message: string) => void;
 }
 
@@ -32,16 +26,22 @@ export function EmailAuthForm({ loading, setLoading, onSuccess, onError }: Email
     setLoading(true);
     onError('');
     try {
-      const endpoint = mode === 'register' ? '/auth/register' : '/auth/login';
-      const body = mode === 'register' ? { email, password, name } : { email, password };
-      const { data } = await apiClient.post(endpoint, body);
-      onSuccess(data);
-    } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError.response?.data?.message ||
-        (mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed'));
-      onError(message);
+      if (mode === 'register') {
+        const result = await authClient.signUp.email({ email, password, name });
+        if (result.error) {
+          onError(result.error.message || t('auth.registrationFailed'));
+          return;
+        }
+      } else {
+        const result = await authClient.signIn.email({ email, password });
+        if (result.error) {
+          onError(result.error.message || t('auth.loginFailed'));
+          return;
+        }
+      }
+      onSuccess();
+    } catch {
+      onError(mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }

@@ -1,17 +1,11 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Box } from '@mui/material';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 
+import { authClient } from '../lib/auth-client';
 import { useAppSelector, useAppDispatch } from '../store';
 import { clearAuth } from '../store/auth.slice';
 import { fetchMe } from '../api/auth';
-import {
-  isAuthenticated as checkAuth,
-  getRefreshToken,
-  isTokenExpired,
-  clearTokens,
-} from '../shared/lib/auth-storage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { LanguageSelectPage } from '../features/auth/LanguageSelectPage';
 import { ExercisesPage } from '../features/exercises/ExercisesPage';
@@ -37,20 +31,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { user, loading } = useAppSelector((state) => state.auth);
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    const refreshToken = getRefreshToken();
-    if (refreshToken && isTokenExpired(refreshToken)) {
-      clearTokens();
-      dispatch(clearAuth());
-      return;
-    }
-    if (!user && checkAuth()) {
+    if (isPending) return;
+    if (session && !user && !loading) {
       dispatch(fetchMe());
+    } else if (!session && user) {
+      dispatch(clearAuth());
     }
-  }, [location.pathname, user, dispatch]);
+  }, [session, isPending, user, loading, dispatch, location.pathname]);
 
-  if (loading) {
+  if (isPending || (session && loading)) {
     return (
       <Box
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
@@ -64,12 +56,14 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 }
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  if (!checkAuth()) return <Navigate to="/login" replace />;
+  const user = useAppSelector((state) => state.auth.user);
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function GuestRoute({ children }: { children: React.ReactNode }) {
-  if (checkAuth()) return <Navigate to="/" replace />;
+  const user = useAppSelector((state) => state.auth.user);
+  if (user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
