@@ -14,6 +14,8 @@ import { LightbulbOutlined } from '@mui/icons-material';
 import { type PoolLetter, buildPool } from './helpers';
 import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 
+const CORRECT_DELAY = Number(import.meta.env.VITE_CORRECT_DELAY_MS) || 1000;
+
 interface LetterPickExerciseProps {
   itemId: string;
   wordHr: string;
@@ -40,6 +42,7 @@ export function LetterPickExercise({
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [placed, setPlaced] = useState<string[]>([]);
   const [pool, setPool] = useState<PoolLetter[]>(() => buildPool(wordHr));
@@ -60,6 +63,7 @@ export function LetterPickExercise({
   useEffect(() => {
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
     };
   }, []);
 
@@ -86,7 +90,13 @@ export function LetterPickExercise({
   );
 
   useEffect(() => {
-    if (isComplete) speak(wordToSpeak ?? wordHr);
+    if (!isComplete) return;
+    speak(wordToSpeak ?? wordHr);
+    if (!hasError) {
+      advanceTimerRef.current = setTimeout(() => {
+        onAnswer({ itemId, givenAnswer: wordHr, isCorrect: true });
+      }, CORRECT_DELAY);
+    }
   }, [isComplete]);
 
   useEffect(() => {

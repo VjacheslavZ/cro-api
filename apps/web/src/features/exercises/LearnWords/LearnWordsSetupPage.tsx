@@ -66,12 +66,8 @@ export function LearnWordsSetupPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate('/exercises/vocabulary')}
-        sx={{ mb: 2 }}
-      >
-        {t('exercises.vocabulary.title')}
+      <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
+        {collectionId ? t('nav.dictionary') : t('exercises.vocabulary.title')}
       </Button>
 
       <Typography variant="h4" gutterBottom>

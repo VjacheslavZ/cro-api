@@ -52,7 +52,7 @@
     "title": "Grammar",
     "subtitle": "Choose a topic to practice your Croatian grammar.",
     "vocabulary": {
-      "title": "Vocabulary",
+      "title": "Back",
       "subtitle": "Choose an exercise type to practice words from your dictionary.",
       "wordToTranslate": "Word → Translation",
       "wordToTranslateDesc": "See the Croatian word, type its translation.",
@@ -112,7 +112,8 @@
       "stop": "Stop",
       "stopTitle": "Stop exercise?",
       "stopMessage": "Your progress in this session will not be saved.",
-      "stopConfirm": "Stop"
+      "stopConfirm": "Stop",
+      "hint": "Hint"
     },
     "typeTheAnswer": {
       "title": "Type the Answer",

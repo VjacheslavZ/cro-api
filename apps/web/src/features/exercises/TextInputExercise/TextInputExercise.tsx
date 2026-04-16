@@ -10,7 +10,17 @@
  */
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TextField, Button, Card, CardContent, Box, Alert } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Box,
+  Alert,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
+import { HelpOutline } from '@mui/icons-material';
 
 import { normalizeAnswer } from '../../../shared/lib/content-utils.ts';
 import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
@@ -55,6 +65,8 @@ export function TextInputExercise({
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  // Use a ref so handleCheck always reads the latest value synchronously
+  const hintUsedRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -82,14 +94,27 @@ export function TextInputExercise({
     };
   }, [checked, isCorrect]);
 
-  const handleCheck = () => {
-    const correct = normalizeAnswer(input) === normalizeAnswer(correctAnswer);
+  const handleHint = () => {
+    if (checked) return;
+    const nextChar = correctAnswer[input.length];
+    if (nextChar === undefined) return;
+    hintUsedRef.current = true;
+    const newInput = input + nextChar;
+    setInput(newInput);
+    if (normalizeAnswer(newInput) === normalizeAnswer(correctAnswer)) {
+      handleCheck(newInput);
+    }
+  };
+
+  const handleCheck = (currentInput = input) => {
+    const correct =
+      !hintUsedRef.current && normalizeAnswer(currentInput) === normalizeAnswer(correctAnswer);
     setIsCorrect(correct);
     setChecked(true);
     if (wordToSpeak) speak(wordToSpeak);
     if (correct) {
       timerRef.current = setTimeout(() => {
-        onAnswer({ itemId, givenAnswer: input, isCorrect: correct });
+        onAnswer({ itemId, givenAnswer: currentInput, isCorrect: correct });
       }, CORRECT_DELAY);
     }
   };
@@ -117,12 +142,35 @@ export function TextInputExercise({
         <TextField
           fullWidth
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setInput(value);
+            if (!checked && normalizeAnswer(value) === normalizeAnswer(correctAnswer)) {
+              handleCheck(value);
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={checked}
           autoFocus
           sx={{ mb: 2 }}
+          slotProps={{
+            input: {
+              endAdornment: !checked && (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={handleHint}
+                    disabled={input.length >= correctAnswer.length}
+                    title={t('exercises.session.hint')}
+                    edge="end"
+                  >
+                    <HelpOutline fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -134,7 +182,7 @@ export function TextInputExercise({
             )}
           </Box>
           {!checked && (
-            <Button variant="contained" onClick={handleCheck} disabled={!input.trim()}>
+            <Button variant="contained" onClick={() => handleCheck()} disabled={!input.trim()}>
               {t('exercises.session.check')}
             </Button>
           )}

@@ -95,27 +95,25 @@ export function WordRow({
         )}
       </Box>
 
-      {!word.isLearned && (
-        <IconButton
-          size="small"
-          onClick={() => onMarkLearned(word)}
-          aria-label={t('dictionary.markLearned')}
-          title={t('dictionary.markLearned')}
-        >
-          <School fontSize="small" />
-        </IconButton>
-      )}
+      <IconButton
+        size="small"
+        onClick={() => onMarkLearned(word)}
+        aria-label={t('dictionary.markLearned')}
+        title={t('dictionary.markLearned')}
+        sx={{ visibility: word.isLearned ? 'hidden' : 'visible' }}
+      >
+        <School fontSize="small" />
+      </IconButton>
 
-      {word.progressPercent > 0 && (
-        <IconButton
-          size="small"
-          onClick={() => onResetProgress(word)}
-          aria-label={t('dictionary.resetProgress')}
-          title={t('dictionary.resetProgress')}
-        >
-          <Refresh fontSize="small" />
-        </IconButton>
-      )}
+      <IconButton
+        size="small"
+        onClick={() => onResetProgress(word)}
+        aria-label={t('dictionary.resetProgress')}
+        title={t('dictionary.resetProgress')}
+        sx={{ visibility: word.progressPercent > 0 ? 'visible' : 'hidden' }}
+      >
+        <Refresh fontSize="small" />
+      </IconButton>
 
       <IconButton
         size="small"

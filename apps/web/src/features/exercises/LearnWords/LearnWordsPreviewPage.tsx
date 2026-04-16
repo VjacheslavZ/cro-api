@@ -9,10 +9,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container, Typography, Box, Button, Paper } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { Close } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
 
 import { useSpeech } from '../../../shared/hooks/useSpeech';
+import { StopExerciseDialog } from '../StopExerciseDialog';
 
 interface LocationState {
   words: DictionaryWord[];
@@ -30,6 +31,7 @@ export function LearnWordsPreviewPage() {
   const { words, collectionId } = (location.state as LocationState) ?? {};
 
   const [index, setIndex] = useState(0);
+  const [stopOpen, setStopOpen] = useState(false);
   const { speak } = useSpeech();
 
   useEffect(() => {
@@ -59,13 +61,15 @@ export function LearnWordsPreviewPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate('/exercises/vocabulary/learn')}
-        sx={{ mb: 2 }}
-      >
-        {t('exercises.learnWords.setupTitle')}
+      <Button startIcon={<Close />} color="error" onClick={() => setStopOpen(true)} sx={{ mb: 2 }}>
+        {t('exercises.session.stop')}
       </Button>
+
+      <StopExerciseDialog
+        open={stopOpen}
+        onClose={() => setStopOpen(false)}
+        onConfirm={() => navigate(-1)}
+      />
 
       <Typography variant="h5" gutterBottom>
         {t('exercises.learnWords.previewTitle')}
