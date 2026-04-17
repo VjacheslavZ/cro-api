@@ -11,7 +11,7 @@ export interface PoolLetter {
   used: boolean;
 }
 
-const EXTRA_CHARS = 'abcdefghijklmnoprstuvz';
+const EXTRA_CHARS = 'abdefghijklmnoprtuvz';
 
 /**
  * Returns a new array with elements in random order (Fisher-Yates).

@@ -36,8 +36,15 @@ export function LearnWordsSetupPage() {
   const [searchParams] = useSearchParams();
   const collectionId = searchParams.get('collectionId') ?? undefined;
 
-  const [count, setCount] = useState(10);
-  const [filter, setFilter] = useState<FilterOption>('newest');
+  const [count, setCount] = useState<number>(() => {
+    const saved = localStorage.getItem('cro_learn_words_count');
+    const parsed = saved ? Number(saved) : NaN;
+    return COUNT_OPTIONS.includes(parsed) ? parsed : 10;
+  });
+  const [filter, setFilter] = useState<FilterOption>(() => {
+    const saved = localStorage.getItem('cro_learn_words_filter');
+    return FILTER_OPTIONS.includes(saved as FilterOption) ? (saved as FilterOption) : 'newest';
+  });
   const [fetchEnabled, setFetchEnabled] = useState(false);
 
   const {
@@ -81,7 +88,10 @@ export function LearnWordsSetupPage() {
         value={count}
         exclusive
         onChange={(_, val) => {
-          if (val !== null) setCount(val);
+          if (val !== null) {
+            setCount(val);
+            localStorage.setItem('cro_learn_words_count', String(val));
+          }
         }}
         sx={{ flexWrap: 'wrap', gap: 1 }}
       >
@@ -99,7 +109,10 @@ export function LearnWordsSetupPage() {
         value={filter}
         exclusive
         onChange={(_, val) => {
-          if (val !== null) setFilter(val);
+          if (val !== null) {
+            setFilter(val);
+            localStorage.setItem('cro_learn_words_filter', val);
+          }
         }}
         sx={{ flexWrap: 'wrap', gap: 1 }}
       >

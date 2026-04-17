@@ -42,7 +42,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [session, isPending, user, loading, dispatch, location.pathname]);
 
-  if (isPending || (session && loading)) {
+  if (isPending || (session != null && user == null)) {
     return (
       <Box
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}

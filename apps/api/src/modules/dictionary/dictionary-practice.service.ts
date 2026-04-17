@@ -32,49 +32,29 @@ export class DictionaryPracticeService {
   async startSession(userId: string, dto: StartPracticeDto) {
     const count = dto.count ?? DICTIONARY_PRACTICE_ITEMS;
 
-    // When wordIds are provided, use them directly (Learn Words flow)
+    // When wordIds are provided, use them all directly (Learn Words flow).
+    // No progress filter — the user explicitly chose these words, so all must appear in every step.
     if (dto.wordIds && dto.wordIds.length > 0) {
       const words = await this.prisma.userDictionaryWord.findMany({
         where: { id: { in: dto.wordIds }, userId },
-        include: {
-          progress: {
-            select: {
-              wordToTranslatePercent: true,
-              translateToWordPercent: true,
-              letterPickPercent: true,
-              matchingPercent: true,
-            },
-          },
-        },
       });
 
-      const unlearnedWords = words.filter(
-        (w) =>
-          !w.progress ||
-          !(
-            w.progress.wordToTranslatePercent === 100 &&
-            w.progress.translateToWordPercent === 100 &&
-            w.progress.letterPickPercent === 100 &&
-            w.progress.matchingPercent === 100
-          ),
-      );
-
-      if (unlearnedWords.length === 0) {
+      if (words.length === 0) {
         throw new NotFoundException('No words available for practice');
       }
 
       const session = await this.prisma.dictionaryPracticeSession.create({
-        data: { userId, totalQuestions: unlearnedWords.length },
+        data: { userId, totalQuestions: words.length },
       });
 
       return {
         sessionId: session.id,
-        items: unlearnedWords.map((w) => ({
+        items: words.map((w) => ({
           wordId: w.id,
           wordHr: w.wordHr,
           translation: w.translation,
         })),
-        totalQuestions: unlearnedWords.length,
+        totalQuestions: words.length,
       };
     }
 

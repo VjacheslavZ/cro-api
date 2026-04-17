@@ -96,10 +96,23 @@ export function TextInputExercise({
 
   const handleHint = () => {
     if (checked) return;
-    const nextChar = correctAnswer[input.length];
-    if (nextChar === undefined) return;
     hintUsedRef.current = true;
-    const newInput = input + nextChar;
+
+    let correctPrefixLen = 0;
+    for (let i = 0; i < input.length && i < correctAnswer.length; i++) {
+      if (
+        input[i].normalize('NFC').toLowerCase() === correctAnswer[i].normalize('NFC').toLowerCase()
+      ) {
+        correctPrefixLen = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    const nextChar = correctAnswer[correctPrefixLen];
+    if (nextChar === undefined) return;
+
+    const newInput = correctAnswer.slice(0, correctPrefixLen) + nextChar;
     setInput(newInput);
     if (normalizeAnswer(newInput) === normalizeAnswer(correctAnswer)) {
       handleCheck(newInput);
@@ -160,8 +173,8 @@ export function TextInputExercise({
                 <InputAdornment position="end">
                   <IconButton
                     size="small"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={handleHint}
-                    disabled={input.length >= correctAnswer.length}
                     title={t('exercises.session.hint')}
                     edge="end"
                   >
