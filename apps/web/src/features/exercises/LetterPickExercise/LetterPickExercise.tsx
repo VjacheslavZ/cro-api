@@ -220,7 +220,7 @@ export function LetterPickExercise({
                 {t('exercises.letterPick.hint')}
               </Button>
             )}
-            {isComplete && (
+            {isComplete && hasError && (
               <Button variant="contained" onClick={handleNext}>
                 {t('exercises.session.next')}
               </Button>

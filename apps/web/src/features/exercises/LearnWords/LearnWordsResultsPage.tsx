@@ -71,7 +71,13 @@ export function LearnWordsResultsPage() {
         <Button
           variant="contained"
           size="large"
-          onClick={() => navigate('/exercises/vocabulary/learn')}
+          onClick={() =>
+            navigate(
+              collectionId
+                ? `/exercises/vocabulary/learn?collectionId=${collectionId}`
+                : '/exercises/vocabulary/learn',
+            )
+          }
           fullWidth
         >
           {t('exercises.learnWords.learnAgain')}

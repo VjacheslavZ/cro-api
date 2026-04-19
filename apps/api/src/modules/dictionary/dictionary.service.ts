@@ -38,19 +38,21 @@ export class DictionaryService {
         : {}),
     };
 
-    // progress sort requires fetching all matching words and sorting in JS
-    // (Prisma doesn't support ordering by computed aggregate columns)
-    const useProgressSort = query.sort === 'progress';
+    // progress and collection sorts require JS-side sorting
+    const useJsSort = query.sort === 'progress' || query.sort === 'collection';
 
-    const orderBy: Prisma.UserDictionaryWordOrderByWithRelationInput =
-      query.sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+    const orderByMap: Record<string, Prisma.UserDictionaryWordOrderByWithRelationInput> = {
+      oldest: { createdAt: 'asc' },
+      word: { wordHr: 'asc' },
+    };
+    const orderBy = orderByMap[query.sort ?? ''] ?? { createdAt: 'desc' };
 
     const [words, total, user] = await Promise.all([
       this.prisma.userDictionaryWord.findMany({
         where,
-        orderBy: useProgressSort ? undefined : orderBy,
-        take: useProgressSort ? undefined : limit + 1,
-        ...(query.cursor && !useProgressSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+        orderBy: useJsSort ? undefined : orderBy,
+        take: useJsSort ? undefined : limit + 1,
+        ...(query.cursor && !useJsSort ? { cursor: { id: query.cursor }, skip: 1 } : {}),
         include: {
           collection: { select: { personalName: true, nameRu: true, nameUk: true, nameEn: true } },
           progress: {
@@ -111,8 +113,16 @@ export class DictionaryService {
       };
     };
 
-    if (useProgressSort) {
-      const sorted = words.map(mapWord).sort((a, b) => a.progressPercent - b.progressPercent);
+    if (useJsSort) {
+      const mapped = words.map(mapWord);
+      const sorted =
+        query.sort === 'collection'
+          ? mapped.sort((a, b) => {
+              const nameA = a.collectionName ?? '\uffff';
+              const nameB = b.collectionName ?? '\uffff';
+              return nameA.localeCompare(nameB);
+            })
+          : mapped.sort((a, b) => a.progressPercent - b.progressPercent);
 
       // Apply cursor-based pagination manually
       let startIdx = 0;

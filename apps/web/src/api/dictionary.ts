@@ -16,7 +16,14 @@ import { apiClient } from './client';
 
 // --- Words ---
 
-export function useDictionaryWords(params: { search?: string; collectionId?: string }) {
+export type DictionaryWordSort = 'newest' | 'oldest' | 'word' | 'collection' | 'progress';
+
+export function useDictionaryWords(params: {
+  search?: string;
+  collectionId?: string;
+  excludeLearned?: boolean;
+  sort?: DictionaryWordSort;
+}) {
   return useInfiniteQuery<PaginatedResponse<DictionaryWord>>({
     queryKey: ['dictionary-words', params],
     queryFn: async ({ pageParam }) => {

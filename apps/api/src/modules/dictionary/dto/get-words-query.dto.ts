@@ -26,8 +26,8 @@ export class GetWordsQueryDto {
   @IsOptional()
   collectionId?: string;
 
-  @ApiPropertyOptional({ enum: ['newest', 'oldest', 'progress'] })
-  @IsIn(['newest', 'oldest', 'progress'])
+  @ApiPropertyOptional({ enum: ['newest', 'oldest', 'progress', 'word', 'collection'] })
+  @IsIn(['newest', 'oldest', 'progress', 'word', 'collection'])
   @IsOptional()
   sort?: string;
 

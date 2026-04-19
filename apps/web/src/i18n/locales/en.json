@@ -244,7 +244,16 @@
       "confirm": "Delete"
     },
     "markLearned": "Mark as learned",
-    "resetProgress": "Reset progress"
+    "resetProgress": "Reset progress",
+    "hideLearned": "Hide learned words",
+    "sortBy": "Sort by",
+    "sort": {
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "word": "Word (A–Z)",
+      "collection": "Collection (A–Z)",
+      "progress": "Progress (low → high)"
+    }
   },
   "common": {
     "loading": "Loading...",

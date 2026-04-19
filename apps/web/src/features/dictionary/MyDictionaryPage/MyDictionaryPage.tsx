@@ -11,6 +11,7 @@ import {
   useResetWordProgress,
   useBatchAssignCollection,
   useDictionaryCollections,
+  type DictionaryWordSort,
 } from '../../../api/dictionary.ts';
 import { AddWordModal } from '../AddWordModal/AddWordModal.tsx';
 import { EditWordModal } from '../EditWordModal.tsx';
@@ -39,6 +40,8 @@ export function MyDictionaryPage() {
   const collectionIdParam = searchParams.get('collectionId') ?? undefined;
 
   const [search, setSearch] = useState('');
+  const [hideLearned, setHideLearned] = useState(false);
+  const [sort, setSort] = useState<DictionaryWordSort>('newest');
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<DictionaryWord | null>(null);
   const [deletingWord, setDeletingWord] = useState<DictionaryWord | null>(null);
@@ -46,7 +49,12 @@ export function MyDictionaryPage() {
   const [assignCollectionId, setAssignCollectionId] = useState('');
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
-    useDictionaryWords({ search: search || undefined, collectionId: collectionIdParam });
+    useDictionaryWords({
+      search: search || undefined,
+      collectionId: collectionIdParam,
+      excludeLearned: hideLearned || undefined,
+      sort,
+    });
   const deleteWord = useDeleteWord();
   const markLearned = useMarkWordAsLearned();
   const resetProgress = useResetWordProgress();
@@ -119,6 +127,10 @@ export function MyDictionaryPage() {
         onAddWord={() => setAddModalOpen(true)}
         onStartPractice={handleStartPractice}
         practiceDisabled={words.length === 0}
+        hideLearned={hideLearned}
+        onHideLearnedChange={setHideLearned}
+        sort={sort}
+        onSortChange={setSort}
       />
 
       <DictionaryBatchActions
