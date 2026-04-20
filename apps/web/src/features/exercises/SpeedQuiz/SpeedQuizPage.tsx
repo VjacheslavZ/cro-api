@@ -23,13 +23,14 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-import { Timer } from '@mui/icons-material';
+import { Timer, Close } from '@mui/icons-material';
 import type { DictionaryPracticeItem, SpeedQuizOutcome } from '@cro/shared';
 
 import { useAppDispatch } from '../../../store';
 import { fetchMe } from '../../../api/auth';
 import { useFinishDictionaryPractice } from '../../../api/dictionary';
 import { useSpeech } from '../../../shared/hooks/useSpeech';
+import { StopExerciseDialog } from '../StopExerciseDialog';
 
 const QUESTION_SECONDS = 5;
 const CORRECT_ADVANCE_MS = 1000;
@@ -82,8 +83,8 @@ export function SpeedQuizPage() {
   const [phase, setPhase] = useState<Phase>('answering');
   const [timeLeft, setTimeLeft] = useState(QUESTION_SECONDS);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [wasCorrect, setWasCorrect] = useState(false);
   const [doneCount, setDoneCount] = useState(0);
+  const [stopOpen, setStopOpen] = useState(false);
 
   // errorMap: wordId → number of errors (0, 1, or 2)
   const errorMapRef = useRef<Map<string, number>>(new Map());
@@ -168,7 +169,6 @@ export function SpeedQuizPage() {
       const isCorrect = answer === currentItem.translation;
       const picked = answer ?? '';
       setSelectedAnswer(picked);
-      setWasCorrect(isCorrect);
       setPhase('result');
       setDoneCount((n) => n + 1);
 
@@ -200,10 +200,17 @@ export function SpeedQuizPage() {
     [phase, currentItem, advanceToNext],
   );
 
-  // Countdown timer
+  // Reset timer on each new question
   useEffect(() => {
-    if (phase !== 'answering') return;
-    setTimeLeft(QUESTION_SECONDS);
+    if (phase === 'answering') setTimeLeft(QUESTION_SECONDS);
+  }, [phase, currentItem?.wordId]);
+
+  // Countdown interval — paused while stop dialog is open
+  useEffect(() => {
+    if (phase !== 'answering' || stopOpen) {
+      if (tickRef.current) clearInterval(tickRef.current);
+      return;
+    }
     tickRef.current = setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
@@ -217,7 +224,7 @@ export function SpeedQuizPage() {
     return () => {
       if (tickRef.current) clearInterval(tickRef.current);
     };
-  }, [phase, currentItem?.wordId]);
+  }, [phase, currentItem?.wordId, stopOpen]);
 
   if (!state || allItems.length === 0) {
     navigate('/exercises/vocabulary', { replace: true });
@@ -243,9 +250,19 @@ export function SpeedQuizPage() {
           <Timer color="warning" />
           <Typography variant="h6">{t('exercises.vocabulary.speedQuiz')}</Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary">
-          {t('exercises.speedQuiz.progress', { done: doneCount, total: totalWords })}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('exercises.speedQuiz.progress', { done: doneCount, total: totalWords })}
+          </Typography>
+          <Button
+            size="small"
+            color="error"
+            startIcon={<Close />}
+            onClick={() => setStopOpen(true)}
+          >
+            {t('exercises.session.stop')}
+          </Button>
+        </Box>
       </Box>
 
       <LinearProgress
@@ -270,7 +287,7 @@ export function SpeedQuizPage() {
             {/* Timer */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
               <Typography variant="h4" fontWeight={700} sx={{ color: timerColor }}>
-                {phase === 'answering' ? timeLeft : ''}
+                {timeLeft}
               </Typography>
             </Box>
 
@@ -284,36 +301,46 @@ export function SpeedQuizPage() {
               </Typography>
             </Box>
 
-            {/* Result alert */}
-            {phase === 'result' && (
-              <Alert severity={wasCorrect ? 'success' : 'error'} sx={{ mb: 2 }}>
-                {wasCorrect
-                  ? t('exercises.speedQuiz.correct')
-                  : selectedAnswer === null
-                    ? `${t('exercises.speedQuiz.timeUp')} ${t('exercises.speedQuiz.wrongAnswer', { answer: currentItem.translation })}`
-                    : t('exercises.speedQuiz.wrongAnswer', { answer: currentItem.translation })}
-              </Alert>
-            )}
-
             {/* Answer options */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {options.map((opt) => {
                 const isCorrectOpt = opt === currentItem.translation;
-                let color: 'success' | 'error' | 'primary' | 'inherit' = 'primary';
-                if (phase === 'result') {
-                  if (isCorrectOpt) color = 'success';
-                  else if (opt === selectedAnswer) color = 'error';
-                  else color = 'inherit';
-                }
+                const isWrongSelected =
+                  phase === 'result' && opt === selectedAnswer && !isCorrectOpt;
+                const isHighlightCorrect = phase === 'result' && isCorrectOpt;
+
                 return (
                   <Button
                     key={opt}
                     fullWidth
-                    variant={phase === 'result' && isCorrectOpt ? 'contained' : 'outlined'}
-                    color={color}
+                    variant="outlined"
                     disabled={phase === 'result'}
                     onClick={() => handleAnswer(opt)}
-                    sx={{ py: 1.5, justifyContent: 'flex-start', textAlign: 'left' }}
+                    sx={{
+                      py: 1.5,
+                      justifyContent: 'flex-start',
+                      textAlign: 'left',
+                      ...(isHighlightCorrect && {
+                        bgcolor: '#e8f5e9',
+                        borderColor: '#66bb6a',
+                        color: '#2e7d32',
+                        '&.Mui-disabled': {
+                          bgcolor: '#e8f5e9',
+                          borderColor: '#66bb6a',
+                          color: '#2e7d32',
+                        },
+                      }),
+                      ...(isWrongSelected && {
+                        bgcolor: '#ffebee',
+                        borderColor: '#ef9a9a',
+                        color: '#c62828',
+                        '&.Mui-disabled': {
+                          bgcolor: '#ffebee',
+                          borderColor: '#ef9a9a',
+                          color: '#c62828',
+                        },
+                      }),
+                    }}
                   >
                     {opt}
                   </Button>
@@ -323,6 +350,12 @@ export function SpeedQuizPage() {
           </CardContent>
         </Card>
       ) : null}
+
+      <StopExerciseDialog
+        open={stopOpen}
+        onClose={() => setStopOpen(false)}
+        onConfirm={() => navigate('/exercises/vocabulary', { replace: true })}
+      />
     </Container>
   );
 }
