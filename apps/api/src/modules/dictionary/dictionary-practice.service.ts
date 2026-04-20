@@ -32,6 +32,40 @@ export class DictionaryPracticeService {
   async startSession(userId: string, dto: StartPracticeDto) {
     const count = dto.count ?? DICTIONARY_PRACTICE_ITEMS;
 
+    // Speed Quiz: only fully-learned words (all 4 columns = 100%), requires ≥ 12, capped at 30
+    if (dto.learnedOnly) {
+      const words = await this.prisma.userDictionaryWord.findMany({
+        where: {
+          userId,
+          progress: {
+            wordToTranslatePercent: 100,
+            translateToWordPercent: 100,
+            letterPickPercent: 100,
+            matchingPercent: 100,
+          },
+        },
+        take: 30,
+      });
+
+      if (words.length < 12) {
+        throw new NotFoundException('Not enough learned words');
+      }
+
+      const session = await this.prisma.dictionaryPracticeSession.create({
+        data: { userId, totalQuestions: words.length },
+      });
+
+      return {
+        sessionId: session.id,
+        items: words.map((w) => ({
+          wordId: w.id,
+          wordHr: w.wordHr,
+          translation: w.translation,
+        })),
+        totalQuestions: words.length,
+      };
+    }
+
     // When wordIds are provided, use them all directly (Learn Words flow).
     // No progress filter — the user explicitly chose these words, so all must appear in every step.
     if (dto.wordIds && dto.wordIds.length > 0) {
@@ -211,6 +245,31 @@ export class DictionaryPracticeService {
           update: {
             totalAttempts: { increment: 1 },
             ...(answer.isCorrect ? { correctAttempts: { increment: 1 } } : {}),
+            lastPracticedAt: new Date(),
+          },
+        });
+      }
+    }
+
+    // Speed Quiz: apply final progress targets (only words that failed twice send progressTarget: 0)
+    if (dto.speedQuizOutcomes?.length) {
+      for (const { wordId, progressTarget } of dto.speedQuizOutcomes) {
+        await this.prisma.dictionaryWordProgress.upsert({
+          where: { wordId },
+          create: {
+            userId,
+            wordId,
+            wordToTranslatePercent: progressTarget,
+            translateToWordPercent: progressTarget,
+            letterPickPercent: progressTarget,
+            matchingPercent: progressTarget,
+            lastPracticedAt: new Date(),
+          },
+          update: {
+            wordToTranslatePercent: progressTarget,
+            translateToWordPercent: progressTarget,
+            letterPickPercent: progressTarget,
+            matchingPercent: progressTarget,
             lastPracticedAt: new Date(),
           },
         });

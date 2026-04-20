@@ -238,15 +238,22 @@ export interface FinishDictionaryPracticeResponse {
   longestStreak: number;
 }
 
+export interface SpeedQuizOutcome {
+  wordId: string;
+  progressTarget: 0 | 100;
+}
+
 export interface StartDictionaryPracticeRequest {
   collectionId?: string;
   count?: number;
   wordIds?: string[];
   exerciseType?: VocabularyExerciseType;
   filter?: 'newest' | 'oldest' | 'progress';
+  learnedOnly?: boolean;
 }
 
 export interface FinishDictionaryPracticeRequest {
   answers: { wordId: string; givenAnswer: string; isCorrect: boolean }[];
   exerciseType?: VocabularyExerciseType;
+  speedQuizOutcomes?: SpeedQuizOutcome[];
 }

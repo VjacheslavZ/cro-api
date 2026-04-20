@@ -24,6 +24,7 @@ import { LearnWordsSetupPage } from '../features/exercises/LearnWords/LearnWords
 import { LearnWordsPreviewPage } from '../features/exercises/LearnWords/LearnWordsPreviewPage';
 import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWordsSessionPage';
 import { LearnWordsResultsPage } from '../features/exercises/LearnWords/LearnWordsResultsPage';
+import { SpeedQuizPage } from '../features/exercises/SpeedQuiz/SpeedQuizPage';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
@@ -150,6 +151,16 @@ export function AppRouter() {
                   <PrivateRoute>
                     <LanguageGuard>
                       <LearnWordsResultsPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/exercises/vocabulary/speed-quiz"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <SpeedQuizPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

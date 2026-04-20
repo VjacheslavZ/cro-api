@@ -19,7 +19,7 @@ import {
   Alert,
   Divider,
 } from '@mui/material';
-import { Translate, TextFields, GridOn, HearingOutlined, School } from '@mui/icons-material';
+import { Translate, TextFields, GridOn, HearingOutlined, School, Timer } from '@mui/icons-material';
 
 import { useStartDictionaryPractice } from '../../api/dictionary';
 
@@ -38,6 +38,27 @@ export function VocabularyPage() {
   const collectionId = searchParams.get('collectionId');
   const startPractice = useStartDictionaryPractice();
   const [pendingDirection, setPendingDirection] = useState<ExerciseDirection | null>(null);
+  const [speedQuizLoading, setSpeedQuizLoading] = useState(false);
+  const [speedQuizError, setSpeedQuizError] = useState(false);
+
+  const handleStartSpeedQuiz = async () => {
+    setSpeedQuizLoading(true);
+    setSpeedQuizError(false);
+    try {
+      const result = await startPractice.mutateAsync({ learnedOnly: true });
+      navigate('/exercises/vocabulary/speed-quiz', {
+        state: {
+          items: result.items,
+          totalQuestions: result.totalQuestions,
+          sessionId: result.sessionId,
+        },
+      });
+    } catch {
+      setSpeedQuizError(true);
+    } finally {
+      setSpeedQuizLoading(false);
+    }
+  };
 
   const handleStart = async (direction: ExerciseDirection) => {
     setPendingDirection(direction);
@@ -99,9 +120,14 @@ export function VocabularyPage() {
         {t('exercises.vocabulary.subtitle')}
       </Typography>
 
-      {startPractice.isError && (
+      {startPractice.isError && !speedQuizError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {t('dictionary.practice.noWords')}
+        </Alert>
+      )}
+      {speedQuizError && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {t('exercises.speedQuiz.notEnoughWords')}
         </Alert>
       )}
 
@@ -121,6 +147,24 @@ export function VocabularyPage() {
                 <Typography variant="h6">{t('exercises.vocabulary.learnWords')}</Typography>
                 <Typography variant="body2" color="text.secondary">
                   {t('exercises.vocabulary.learnWordsDesc')}
+                </Typography>
+              </Box>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+
+        {/* Speed Quiz — retention test for fully-learned words */}
+        <Card variant="outlined" sx={{ borderColor: 'warning.main' }}>
+          <CardActionArea
+            onClick={handleStartSpeedQuiz}
+            disabled={speedQuizLoading || pendingDirection !== null}
+          >
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {speedQuizLoading ? <CircularProgress size={24} /> : <Timer color="warning" />}
+              <Box>
+                <Typography variant="h6">{t('exercises.vocabulary.speedQuiz')}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('exercises.vocabulary.speedQuizDesc')}
                 </Typography>
               </Box>
             </CardContent>

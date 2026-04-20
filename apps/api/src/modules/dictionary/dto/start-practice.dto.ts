@@ -1,4 +1,4 @@
-import { IsUUID, IsOptional, IsInt, Min, Max, IsArray, IsIn } from 'class-validator';
+import { IsUUID, IsOptional, IsInt, Min, Max, IsArray, IsIn, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -33,4 +33,9 @@ export class StartPracticeDto {
   @IsIn(['newest', 'oldest', 'progress'])
   @IsOptional()
   filter?: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  learnedOnly?: boolean;
 }
