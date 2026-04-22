@@ -22,7 +22,14 @@ export class DictionaryService {
 
     const where: Prisma.UserDictionaryWordWhereInput = {
       userId,
-      ...(query.search ? { wordHr: { contains: query.search, mode: 'insensitive' as const } } : {}),
+      ...(query.search
+        ? {
+            OR: [
+              { wordHr: { contains: query.search, mode: 'insensitive' as const } },
+              { translation: { contains: query.search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
       ...(query.collectionId ? { collectionId: query.collectionId } : {}),
       ...(query.excludeLearned
         ? {
