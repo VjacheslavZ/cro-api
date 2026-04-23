@@ -1,4 +1,21 @@
 {
+  "home": {
+    "title": "Welcome to CroGrammar",
+    "subtitle": "Master Croatian grammar and vocabulary through interactive exercises and personalized learning",
+    "statsGrammarTopics": "Grammar Topics",
+    "statsWordsLearned": "Words Learned",
+    "statsDayStreak": "Day Streak",
+    "statsTotalXp": "Total XP",
+    "practiceGrammarTitle": "Practice Grammar",
+    "practiceGrammarDesc": "Master Croatian grammar through structured lessons and exercises",
+    "practiceGrammarBtn": "Start Learning",
+    "buildVocabTitle": "Build Vocabulary",
+    "buildVocabDesc": "Create your personal dictionary and practice with custom word sets",
+    "buildVocabBtn": "My Dictionary",
+    "wordSetsTitle": "Word Sets",
+    "wordSetsDesc": "Explore curated word collections for common topics and situations",
+    "wordSetsBtn": "Browse Sets"
+  },
   "auth": {
     "welcome": "Welcome to Croatian Grammar",
     "signInWithGoogle": "Sign in with Google",
@@ -14,7 +31,15 @@
     "login": "Log in",
     "switchToRegister": "Don't have an account? Register",
     "switchToLogin": "Already have an account? Log in",
-    "registrationFailed": "Registration failed. Please try again."
+    "registrationFailed": "Registration failed. Please try again.",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create an account",
+    "signInSubtitle": "Sign in to continue your learning journey",
+    "createAccountSubtitle": "Start learning Croatian today",
+    "continueWithEmail": "Continue with email",
+    "tagline": "Learn Croatian the smart way",
+    "languageSubtitle": "This will determine how translations and explanations are shown throughout the app",
+    "changeLanguageLater": "You can change this later in your settings"
   },
   "languages": {
     "russian": "Русский",
@@ -46,11 +71,15 @@
     "contacts": "Contacts",
     "socials": "Follow us",
     "mobileApps": "Mobile apps",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "company": "Company",
+    "tagline": "Learn Croatian grammar and vocabulary through interactive exercises"
   },
   "exercises": {
-    "title": "Grammar",
-    "subtitle": "Choose a topic to practice your Croatian grammar.",
+    "title": "Grammar Topics",
+    "subtitle": "Choose a topic to practice and improve your Croatian grammar skills",
+    "noTopics": "No topics available",
+    "noTopicsDesc": "Check back later for new grammar topics to practice.",
     "vocabulary": {
       "title": "Back",
       "subtitle": "Choose an exercise type to practice words from your dictionary.",

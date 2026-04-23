@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import type { DictionaryWord } from '@cro/shared';
 
 import {
@@ -29,9 +29,6 @@ import { DeleteWordDialog } from './DeleteWordDialog.tsx';
  * - DictionaryBatchActions — collection assignment for selected words
  * - DictionaryWordList — paginated word list with infinite scroll
  * - AddWordModal, EditWordModal, DeleteWordDialog — CRUD dialogs
- *
- * Owns: search text, selected word IDs, open modal state, and the word to
- * delete/edit. All server state (words, collections) lives in TanStack Query.
  */
 export function MyDictionaryPage() {
   const { t } = useTranslation();
@@ -64,6 +61,16 @@ export function MyDictionaryPage() {
   const words = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
 
+  const allSelected = words.length > 0 && selectedIds.size === words.length;
+
+  const handleSelectAll = useCallback(() => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(words.map((w) => w.id)));
+    }
+  }, [allSelected, words]);
+
   const handleSelect = (id: string, checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -94,13 +101,8 @@ export function MyDictionaryPage() {
     setAssignCollectionId('');
   };
 
-  const handleMarkLearned = (word: DictionaryWord) => {
-    markLearned.mutate(word.id);
-  };
-
-  const handleResetProgress = (word: DictionaryWord) => {
-    resetProgress.mutate(word.id);
-  };
+  const handleMarkLearned = (word: DictionaryWord) => markLearned.mutate(word.id);
+  const handleResetProgress = (word: DictionaryWord) => resetProgress.mutate(word.id);
 
   const handleStartPractice = () => {
     const url = collectionIdParam
@@ -110,15 +112,29 @@ export function MyDictionaryPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        {t('dictionary.title')}
+    <Container maxWidth="lg" sx={{ py: 1 }}>
+      {/* Page header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: '#111827' }}>
+          {t('dictionary.title')}
+        </Typography>
         {!isLoading && (
-          <Typography component="span" variant="body1" color="text.secondary" sx={{ ml: 1 }}>
-            ({total})
-          </Typography>
+          <Box
+            sx={{
+              px: 1.5,
+              py: 0.25,
+              bgcolor: '#eff6ff',
+              color: '#1d4ed8',
+              border: '1px solid #bfdbfe',
+              borderRadius: '999px',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+            }}
+          >
+            {total}
+          </Box>
         )}
-      </Typography>
+      </Box>
 
       <DictionaryTopBar
         search={search}
@@ -139,6 +155,7 @@ export function MyDictionaryPage() {
         collections={collections}
         onAssignCollectionChange={setAssignCollectionId}
         onAssign={handleBatchAssign}
+        onCancel={() => setSelectedIds(new Set())}
       />
 
       <DictionaryWordList
@@ -148,7 +165,9 @@ export function MyDictionaryPage() {
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         selectedIds={selectedIds}
+        allSelected={allSelected}
         onFetchNextPage={fetchNextPage}
+        onSelectAll={handleSelectAll}
         onSelect={handleSelect}
         onEdit={setEditingWord}
         onDelete={setDeletingWord}

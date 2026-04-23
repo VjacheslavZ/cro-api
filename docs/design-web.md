@@ -4,7 +4,7 @@
 > **Scope**: Student web app only (`apps/web`) — the interface used by learners  
 > **Admin panel** is out of scope for this document  
 > **Status**: Current implementation as of Phase 2 (Content + Exercise Engine)  
-> **Last updated**: 2026-04-16 (added Section 10: Mobile Design — Future)
+> **Last updated**: 2026-04-22 (updated Section 3.15 My Dictionary — top bar, sorting, dual-field search, per-type progress model; updated Section 7 progress description)
 
 ---
 
@@ -587,29 +587,50 @@ See [Section 4](#4-exercise-ui-components) for individual component specs.
 **URL parameter**: `?collectionId=xxx` — filters the list to show only words from a specific collection.
 
 **Layout**:
-- Top bar (search + actions)
+- Top bar (sort + search + actions + filter)
 - Word list (infinite scroll)
 - Batch action bar (appears when words are selected)
 
 #### Top Bar
 
 ```
-[🔍 Search words...]    [Add Word]  [Practice]
+[Sort ▼]  [🔍 Search words...]   [+ Add Word]  [Practice]  [☐ Hide learned]
 ```
+
+All controls sit on a single row (wraps on narrow viewports).
 
 | Element | Details |
 |---------|---------|
-| Search field | Type and press Enter to filter the list; if search term matches no word, can open Add Word modal with the term pre-filled |
+| Sort dropdown | Selects sort order — see options below; defaults to "Newest first" |
+| Search field | Single field; searches both Croatian word (`wordHr`) and translation simultaneously. Typing in your native language filters by translation; typing Croatian filters by word. Press Enter in non-empty field to open Add Word modal pre-filled with the search term. |
 | Add Word button | Opens Add Word Modal |
-| Practice button | Navigates to `/exercises/vocabulary/learn?collectionId=xxx` (if collection filtered) or `/exercises/vocabulary` |
+| Practice button | Navigates to `/exercises/vocabulary/learn?collectionId=xxx` (if collection filtered) or `/exercises/vocabulary/learn` |
+| Hide learned checkbox | When checked, words with 100% progress across all 4 exercise types are excluded from the list |
+
+**Sort options**:
+
+| Value | Behaviour |
+|-------|-----------|
+| Newest first (default) | Most recently added words appear first |
+| Oldest first | Earliest added words appear first |
+| Word (A–Z) | Alphabetical by Croatian word |
+| Collection (A–Z) | Grouped alphabetically by collection name (localized); words with no collection appear last |
+| Progress (low → high) | Words with lowest average progress appear first |
 
 #### Word List
 
 Each row:
 
 ```
-[☐]  kuća (house)           My Homes          72%    [🗑]
-     dom, zgrada
+[☐]  kuća                   Odjeća (localized)   [Learned ✓]   [↺] [✏] [🔊] [🗑]
+     house
+```
+
+or, for in-progress words:
+
+```
+[☐]  kuća                   Odjeća (localized)   ████░░ 55%    [🎓] [↺] [✏] [🔊] [🗑]
+     house
 ```
 
 | Column | Details |
@@ -617,15 +638,15 @@ Each row:
 | Checkbox | Select for batch actions |
 | Croatian word | Bold, primary text |
 | Translation | Below the word, secondary text |
-| Collection name | Which collection the word belongs to (empty if none) |
-| Progress % | `correctAttempts / totalAttempts × 100` from practice sessions |
-| Delete icon | Inline delete button → Delete Word confirmation dialog |
+| Collection name | Which collection the word belongs to (empty if none); displayed in user's native language for predefined collections |
+| Progress | Either a green "Learned" chip (when all 4 exercise types are at 100%) or a percentage / progress bar (average of 4 per-type values) |
+| Mark as Learned icon | Shown when word is not yet fully learned; sets all 4 progress values to 100% |
+| Reset Progress icon | Shown when word has any progress > 0%; resets all 4 progress values to 0 |
+| Edit icon | Opens Edit Word Modal |
+| Speaker icon | Plays Croatian word pronunciation via text-to-speech |
+| Delete icon | Opens Delete Word confirmation dialog |
 
-**Context Menu** (right-click or long-press on row):
-- Edit word → opens Edit Word Modal
-- Delete → Delete confirmation dialog
-- Mark as Learned → flags word as learned (excluded from practice)
-- Reset Progress → resets `correctAttempts` and `totalAttempts` to 0
+**Progress model**: Each word tracks 4 independent progress values (0–100%), one per exercise type (`wordToTranslate`, `translateToWord`, `letterPick`, `matching`). The displayed percentage is the average of all four. A word is **Learned** when all four reach 100%.
 
 #### Batch Selection Mode
 
@@ -1188,9 +1209,10 @@ Appears when user tries to start a grammar exercise but has completed all items 
 
 ### Progress Percentage (Dictionary words only)
 
-- Per-word metric: `correctAttempts / totalAttempts × 100`
-- Shown in the word list as a percentage
-- Resets when user chooses "Reset Progress" from context menu
+- Per-word metric: average of 4 independent per-exercise-type values (`wordToTranslate`, `translateToWord`, `letterPick`, `matching`), each ranging 0–100%
+- Correct answer in Learn Words: `+25%` (clamped to 100); word is **Learned** when all 4 reach 100%
+- Shown in the word list as a percentage or a green "Learned" chip
+- Can be manually set to 100% ("Mark as Learned" button) or reset to 0% ("Reset Progress" button) per word
 
 ---
 

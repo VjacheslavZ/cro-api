@@ -14,6 +14,7 @@ export function ExercisesMenu() {
         color="inherit"
         onMouseEnter={(e) => setAnchor(e.currentTarget)}
         onClick={() => navigate('/exercises/grammar')}
+        sx={{ color: 'text.primary' }}
       >
         {t('nav.exercises')}
       </Button>

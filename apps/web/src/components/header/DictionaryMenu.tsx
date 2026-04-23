@@ -14,6 +14,7 @@ export function DictionaryMenu() {
         color="inherit"
         onMouseEnter={(e) => setAnchor(e.currentTarget)}
         onClick={() => navigate('/dictionary')}
+        sx={{ color: 'text.primary' }}
       >
         {t('nav.dictionary')}
       </Button>

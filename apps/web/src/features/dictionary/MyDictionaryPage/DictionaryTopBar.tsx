@@ -9,8 +9,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  InputAdornment,
+  Typography,
 } from '@mui/material';
-import { Add, FitnessCenter } from '@mui/icons-material';
+import { Add, FitnessCenter, Search } from '@mui/icons-material';
 
 import type { DictionaryWordSort } from '../../../api/dictionary.ts';
 
@@ -44,8 +46,8 @@ export function DictionaryTopBar({
   const { t } = useTranslation();
 
   return (
-    <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-      <FormControl size="small" sx={{ minWidth: 170 }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center', mb: 3 }}>
+      <FormControl size="small" sx={{ minWidth: 180 }}>
         <InputLabel>{t('dictionary.sortBy')}</InputLabel>
         <Select
           value={sort}
@@ -59,6 +61,7 @@ export function DictionaryTopBar({
           <MenuItem value="progress">{t('dictionary.sort.progress')}</MenuItem>
         </Select>
       </FormControl>
+
       <TextField
         size="small"
         placeholder={t('dictionary.searchPlaceholder')}
@@ -67,21 +70,38 @@ export function DictionaryTopBar({
         onKeyDown={(e) => {
           if (e.key === 'Enter' && search.trim()) onSearchEnter();
         }}
-        sx={{ flex: 1, minWidth: 180 }}
+        sx={{ flex: 1, minWidth: 200 }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search sx={{ fontSize: 18, color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-      <Button variant="contained" startIcon={<Add />} onClick={onAddWord}>
+
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={onAddWord}
+        sx={{ whiteSpace: 'nowrap' }}
+      >
         {t('dictionary.addWord')}
       </Button>
+
       <Button
         variant="outlined"
         startIcon={<FitnessCenter />}
         onClick={onStartPractice}
         disabled={practiceDisabled}
+        sx={{ whiteSpace: 'nowrap' }}
       >
         {t('dictionary.practice.start')}
       </Button>
+
       <FormControlLabel
-        sx={{ ml: 0.5, whiteSpace: 'nowrap' }}
         control={
           <Checkbox
             size="small"
@@ -89,7 +109,8 @@ export function DictionaryTopBar({
             onChange={(e) => onHideLearnedChange(e.target.checked)}
           />
         }
-        label={t('dictionary.hideLearned')}
+        label={<Typography variant="body2">{t('dictionary.hideLearned')}</Typography>}
+        sx={{ m: 0 }}
       />
     </Box>
   );

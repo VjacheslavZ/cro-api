@@ -25,6 +25,7 @@ import { LearnWordsPreviewPage } from '../features/exercises/LearnWords/LearnWor
 import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWordsSessionPage';
 import { LearnWordsResultsPage } from '../features/exercises/LearnWords/LearnWordsResultsPage';
 import { SpeedQuizPage } from '../features/exercises/SpeedQuiz/SpeedQuizPage';
+import { HomePage } from '../features/home/HomePage';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
@@ -278,7 +279,7 @@ export function AppRouter() {
                 element={
                   <PrivateRoute>
                     <LanguageGuard>
-                      <div>Home (placeholder)</div>
+                      <HomePage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

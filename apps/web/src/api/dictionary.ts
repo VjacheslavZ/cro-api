@@ -127,6 +127,18 @@ export function useBatchAssignCollection() {
   });
 }
 
+export function useDictionaryWordCount() {
+  return useQuery<number>({
+    queryKey: ['dictionary-word-count'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<PaginatedResponse<DictionaryWord>>('/dictionary/words', {
+        params: { limit: 1 },
+      });
+      return data.total;
+    },
+  });
+}
+
 // --- Suggestions ---
 
 export function useTranslationSuggestions(word: string) {
