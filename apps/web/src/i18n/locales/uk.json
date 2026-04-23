@@ -139,8 +139,11 @@
     "start": "Почати",
     "types": {
       "typeTheAnswer": "Впишіть відповідь",
+      "typeTheAnswerDesc": "Введіть правильну форму слова",
       "flashcards": "Картки",
-      "fillInBlank": "Заповни пропуск"
+      "flashcardsDesc": "Повторюйте правила з картками",
+      "fillInBlank": "Заповни пропуск",
+      "fillInBlankDesc": "Вставте пропущене слово в речення"
     },
     "session": {
       "progress": "Питання {{current}} з {{total}}",

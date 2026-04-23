@@ -4,7 +4,7 @@
 > **Scope**: Student web app only (`apps/web`) — the interface used by learners  
 > **Admin panel** is out of scope for this document  
 > **Status**: Current implementation as of Phase 2 (Content + Exercise Engine)  
-> **Last updated**: 2026-04-22 (updated Section 3.15 My Dictionary — top bar, sorting, dual-field search, per-type progress model; updated Section 7 progress description)
+> **Last updated**: 2026-04-23 (updated 3.3 Home — implemented; updated 3.8 Vocabulary Hub — added Speed Quiz card; added 3.12a Speed Quiz Session; updated Section 6 Navigation Map)
 
 ---
 
@@ -25,6 +25,7 @@
    - [3.10 Learn Words Preview](#310-learn-words-preview-exercisesvocabularylearnpreview)
    - [3.11 Learn Words Session](#311-learn-words-session-exercisesvocabularylearnsession)
    - [3.12 Learn Words Results](#312-learn-words-results-exercisesvocabularyLearnresults)
+   - [3.12a Speed Quiz Session](#312a-speed-quiz-session-exercisesvocabularyspeed-quiz)
    - [3.13 Dictionary Practice Session](#313-dictionary-practice-session-dictionarypracticesessionid)
    - [3.14 Dictionary Practice Results](#314-dictionary-practice-results-dictionarypracticeresultssessionid)
    - [3.15 My Dictionary](#315-my-dictionary-dictionarymy)
@@ -236,19 +237,51 @@ Short-lived toast notifications appear at the bottom of the screen for non-criti
 
 ### 3.3 Home (`/`)
 
-**Purpose**: Main dashboard / landing page after login. Currently a placeholder — this screen needs to be designed from scratch.
+**Purpose**: Main dashboard shown after login. Greets the user, displays key stats, and provides quick-access entry points to the two core practice flows.
 
-**Recommended Content** (designer's scope):
-- Welcome message with user's name
-- Today's streak + XP summary
-- Quick-access cards: "Continue Grammar" and "Practice Vocabulary"
-- Recent activity or progress summary
-- Entry points to dictionary and word sets
+**Layout**:
+- Centered hero section at top
+- Row of 4 stat cards
+- Row of 3 action cards below
 
-**Notes for Designer**:
-- This is the most important screen to design well — it's the first thing users see daily
-- It should motivate the user to practice (streak prominence)
-- Both grammar and vocabulary paths should be equally accessible
+**Hero Section**:
+
+```
+┌────────────────────────────────────────────────┐
+│          Welcome back to CroGrammar            │
+│   Practice every day and reach your goals      │
+└────────────────────────────────────────────────┘
+```
+
+Title and subtitle are i18n strings (`home.title`, `home.subtitle`).
+
+**Stat Cards** (4 cards, responsive grid: 2×2 on mobile, 1×4 on desktop):
+
+| Card | Icon | Value source |
+|------|------|--------------|
+| Grammar Topics | book icon | Total topics count from API |
+| Words Learned | library icon | User's dictionary word count |
+| Day Streak | flame icon | `user.currentStreak` |
+| Total XP | star icon | `user.xpTotal` |
+
+Each card: coloured circular icon background + large number + label below.
+
+**Action Cards** (3 cards, responsive grid):
+
+| Card | Button style | Destination |
+|------|-------------|-------------|
+| Practice Grammar | Primary (filled) | `/exercises/grammar` |
+| Build Vocabulary | Secondary (outlined) | `/dictionary/my` |
+| Browse Word Sets | Secondary (outlined) | `/dictionary/recommended-word-sets` |
+
+Each card: title + one-line description + full-width button at bottom. Cards lift on hover.
+
+**States**:
+
+| State | Behavior |
+|-------|---------|
+| Loading | Stat values show `—` or `0` until API responds; no skeleton (data loads fast) |
+| No topics yet | Grammar Topics stat shows `0`; action cards still usable |
 
 ---
 
@@ -395,18 +428,32 @@ The main area renders one of three exercise components depending on the session'
 
 ```
 ┌───────────────────────────────────────┐
-│  Learn Words                          │
-│  Guided 4-step vocabulary session     │
-│                                       │
-│  Preview words → Practice 4 ways      │
-│                           [Start] →   │
+│  🎓  Learn Words                      │
+│      Guided 4-step vocabulary session │
 └───────────────────────────────────────┘
 ```
 
-- Visually distinct from other cards (larger, different color/border)
-- Starts the guided Learn Words flow → `/exercises/vocabulary/learn`
+- Outlined border in primary color; visually distinct from other cards
+- Navigates to `/exercises/vocabulary/learn` (passes `?collectionId` if present in URL)
 
-**Individual Practice Mode Cards** (4 cards in a grid):
+**Speed Quiz Card**:
+
+```
+┌───────────────────────────────────────┐
+│  ⏱  Speed Quiz                        │
+│      Test your fully-learned words    │
+└───────────────────────────────────────┘
+```
+
+- Outlined border in warning color (amber/orange)
+- Only includes words the user has fully learned (100% progress)
+- Tapping the card starts a practice session immediately and navigates to `/exercises/vocabulary/speed-quiz`
+- Shows a spinner inside the card while the session is being created
+- **Error state**: if the user doesn't have enough learned words, shows a warning alert above the card list: "Not enough learned words to start Speed Quiz"
+
+**Divider**: a horizontal rule separates the two featured cards above from the four individual practice modes below.
+
+**Individual Practice Mode Cards** (4 cards in a list):
 
 | Mode | Description |
 |------|-------------|
@@ -534,6 +581,86 @@ Each sub-exercise uses the same component UI as standalone practice (see [Sectio
 | Current streak | "🔥 5 days" |
 | Learn Again button | Returns to Setup (`/exercises/vocabulary/learn`) |
 | Back to Dictionary | Navigates to `/dictionary/my` |
+
+---
+
+### 3.12a Speed Quiz Session (`/exercises/vocabulary/speed-quiz`)
+
+**Purpose**: A timed multiple-choice quiz that tests retention of fully-learned words under time pressure. Each word has a 5-second countdown. Failing a word twice resets its progress to 0%.
+
+**Layout**:
+- Header row (title + progress + stop button)
+- Linear progress bar
+- Question card (timer + Croatian word + 3 answer buttons)
+
+**Header**:
+
+```
+┌─────────────────────────────────────────────────┐
+│  ⏱ Speed Quiz          3 / 12        [✕ Stop]   │
+├─────────────────────────────────────────────────┤
+│  [█████████░░░░░░░░░░░░░░░░░░░] progress bar    │
+└─────────────────────────────────────────────────┘
+```
+
+| Element | Details |
+|---------|---------|
+| Timer icon + title | "Speed Quiz" in h6 |
+| Progress counter | "N / Total" — questions answered vs total (including retries) |
+| Stop button | Error-colored; opens Stop Exercise Dialog |
+| Progress bar | Reflects `doneCount / (totalWords + retryQueueLength)` |
+
+**Question Card**:
+
+```
+┌──────────────────────────────────────────┐
+│                   5                      │  ← countdown (primary color)
+│                                          │
+│           kuća                           │  ← Croatian word
+│                                          │
+│  [ house                               ] │  ← option button
+│  [ head                                ] │
+│  [ hand                                ] │
+└──────────────────────────────────────────┘
+```
+
+| Element | Details |
+|---------|---------|
+| Countdown number | Large, centered; color shifts: primary → warning-light → warning → error as time runs low (5 → 3 → 2 → 1) |
+| Croatian word | Large bold heading; auto-played via text-to-speech on each new question |
+| Option buttons | 3 full-width outlined buttons; left-aligned text |
+
+**Answer Feedback** (shown immediately on tap or timeout, for ~1–2 seconds before auto-advance):
+
+| Outcome | Button appearance |
+|---------|-------------------|
+| Correct option | Green background + green border |
+| Wrong selected option | Red background + red border |
+| Correct option (when wrong was tapped) | Also turns green so user sees the right answer |
+
+**Retry Logic**:
+- First wrong answer: word added to retry queue (seen again after all other words)
+- Second wrong answer on same word: word's progress reset to 0% (recorded as `speedQuizOutcome`)
+- Timeout (5 s with no answer): treated as wrong
+
+**Auto-advance**:
+- Correct answer: next question after 1 second
+- Wrong answer / timeout: next question after 2 seconds
+
+**Session End**:
+- After all words and retries are exhausted, session results submitted automatically
+- Navigates to `/dictionary/practice/results/:sessionId` (same results screen as dictionary practice)
+
+**States**:
+
+| State | Behavior |
+|-------|---------|
+| Submitting | Spinner shown while session is being finalized (replaces card) |
+| Submit error | Error alert shown; quiz stays on last question |
+
+**Dialogs / Modals**:
+
+- [Stop Exercise Dialog](#stop-exercise-dialog) — opens when user taps Stop; abandons session and returns to `/exercises/vocabulary`
 
 ---
 
@@ -1165,10 +1292,12 @@ Appears when user tries to start a grammar exercise but has completed all items 
         │                       └─ /exercises/results/:id ── Results
         │
         └─ /exercises/vocabulary ──────── Vocabulary hub
-                └─ /exercises/vocabulary/learn ────── Setup (Step 1)
-                        └─ .../learn/preview ─────── Preview (Step 2)
-                                └─ .../learn/session ─── Practice (Step 3)
-                                        └─ .../learn/results ── Results (Step 4)
+                ├─ /exercises/vocabulary/learn ────── Setup (Step 1)
+                │       └─ .../learn/preview ─────── Preview (Step 2)
+                │               └─ .../learn/session ─── Practice (Step 3)
+                │                       └─ .../learn/results ── Results (Step 4)
+                └─ /exercises/vocabulary/speed-quiz ── Speed Quiz session
+                        └─ /dictionary/practice/results/:id ── Results (shared)
 
     Header: Dictionary ▼
         ├─ /dictionary/my ─────────────── Personal words

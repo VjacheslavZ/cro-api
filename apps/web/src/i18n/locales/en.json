@@ -139,8 +139,11 @@
     "start": "Start",
     "types": {
       "typeTheAnswer": "Type the Answer",
+      "typeTheAnswerDesc": "Type the correct form of the word",
       "flashcards": "Flashcards",
-      "fillInBlank": "Fill in the Blank"
+      "flashcardsDesc": "Review grammar rules with flip cards",
+      "fillInBlank": "Fill in the Blank",
+      "fillInBlankDesc": "Insert the missing word in the sentence"
     },
     "session": {
       "progress": "Question {{current}} of {{total}}",

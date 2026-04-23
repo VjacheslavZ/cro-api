@@ -1,4 +1,5 @@
-import { useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography, CircularProgress, Skeleton, Checkbox, Alert } from '@mui/material';
 import { LibraryBooks as LibraryBooksIcon } from '@mui/icons-material';
@@ -7,13 +8,12 @@ import type { DictionaryWord } from '@cro/shared';
 import { WordRow } from '../WordRow.tsx';
 
 /**
- * Scrollable word list for the My Dictionary page with infinite scroll.
+ * Virtualized word list for the My Dictionary page.
  *
- * Used in: MyDictionaryPage.
- *
- * Handles loading, error, and empty states via QueryState. Renders one
- * WordRow per word and attaches an IntersectionObserver sentinel at the
- * bottom to trigger `onFetchNextPage` when the user scrolls to the end.
+ * Renders only the rows currently in the viewport using @tanstack/react-virtual.
+ * The scroll container has a fixed height so the page never grows when new pages
+ * are loaded. Infinite scroll is triggered when the last visible item reaches
+ * the end of the loaded word array.
  */
 interface DictionaryWordListProps {
   words: DictionaryWord[];
@@ -31,6 +31,9 @@ interface DictionaryWordListProps {
   onMarkLearned: (word: DictionaryWord) => void;
   onResetProgress: (word: DictionaryWord) => void;
 }
+
+const ROW_GAP = 8;
+const ESTIMATED_ROW_HEIGHT = 62;
 
 const COLUMN_HEADER_SX = {
   fontSize: '0.7rem',
@@ -57,21 +60,24 @@ export function DictionaryWordList({
   onResetProgress,
 }: DictionaryWordListProps) {
   const { t } = useTranslation();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const observerRef = useRef<IntersectionObserver>(null);
-  const sentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (observerRef.current) observerRef.current.disconnect();
-      if (!node) return;
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          onFetchNextPage();
-        }
-      });
-      observerRef.current.observe(node);
-    },
-    [hasNextPage, isFetchingNextPage, onFetchNextPage],
-  );
+  const virtualizer = useVirtualizer({
+    count: words.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT + ROW_GAP,
+    overscan: 5,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+
+  // Trigger next page fetch when the last visible item reaches the end of loaded words
+  useEffect(() => {
+    const lastItem = virtualItems.at(-1);
+    if (lastItem && lastItem.index >= words.length - 1 && hasNextPage && !isFetchingNextPage) {
+      onFetchNextPage();
+    }
+  }, [virtualItems, words.length, hasNextPage, isFetchingNextPage, onFetchNextPage]);
 
   if (isLoading) {
     return (
@@ -135,8 +141,8 @@ export function DictionaryWordList({
   }
 
   return (
-    <>
-      {/* Column headers */}
+    <Box sx={{ overflow: 'hidden' }}>
+      {/* Column headers — outside the scroll container so they stay fixed */}
       <Box
         sx={{
           display: 'flex',
@@ -165,22 +171,47 @@ export function DictionaryWordList({
         <Box sx={{ width: 164, flexShrink: 0 }} />
       </Box>
 
-      {/* Word cards */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {words.map((word) => (
-          <WordRow
-            key={word.id}
-            word={word}
-            selected={selectedIds.has(word.id)}
-            onSelect={onSelect}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onMarkLearned={onMarkLearned}
-            onResetProgress={onResetProgress}
-          />
-        ))}
-
-        <div ref={sentinelRef} style={{ height: 1 }} />
+      {/* Fixed-height scroll container — page height never changes as pages load */}
+      <Box
+        ref={scrollContainerRef}
+        sx={{
+          height: 'calc(100vh - 450px)',
+          minHeight: 300,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        {/* Virtual spacer — as tall as all rows combined */}
+        <Box sx={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+          {virtualItems.map((virtualItem) => {
+            const word = words[virtualItem.index];
+            return (
+              <Box
+                key={virtualItem.key}
+                ref={virtualizer.measureElement}
+                data-index={virtualItem.index}
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualItem.start}px)`,
+                  pb: `${ROW_GAP}px`,
+                }}
+              >
+                <WordRow
+                  word={word}
+                  selected={selectedIds.has(word.id)}
+                  onSelect={onSelect}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onMarkLearned={onMarkLearned}
+                  onResetProgress={onResetProgress}
+                />
+              </Box>
+            );
+          })}
+        </Box>
 
         {isFetchingNextPage && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
@@ -188,6 +219,6 @@ export function DictionaryWordList({
           </Box>
         )}
       </Box>
-    </>
+    </Box>
   );
 }
