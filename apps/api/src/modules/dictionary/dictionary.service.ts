@@ -43,6 +43,16 @@ export class DictionaryService {
             },
           }
         : {}),
+      ...(query.onlyLearned
+        ? {
+            progress: {
+              wordToTranslatePercent: 100,
+              translateToWordPercent: 100,
+              letterPickPercent: 100,
+              matchingPercent: 100,
+            },
+          }
+        : {}),
     };
 
     // progress and collection sorts require JS-side sorting

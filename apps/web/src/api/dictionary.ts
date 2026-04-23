@@ -139,6 +139,18 @@ export function useDictionaryWordCount() {
   });
 }
 
+export function useDictionaryLearnedWordCount() {
+  return useQuery<number>({
+    queryKey: ['dictionary-word-count', 'learned'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<PaginatedResponse<DictionaryWord>>('/dictionary/words', {
+        params: { limit: 1, onlyLearned: true },
+      });
+      return data.total;
+    },
+  });
+}
+
 // --- Suggestions ---
 
 export function useTranslationSuggestions(word: string) {

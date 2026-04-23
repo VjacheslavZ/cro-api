@@ -36,4 +36,10 @@ export class GetWordsQueryDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   excludeLearned?: boolean;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  onlyLearned?: boolean;
 }

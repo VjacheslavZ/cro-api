@@ -10,13 +10,13 @@ import { Box, Container, Typography, Grid, Card, CardContent, Button } from '@mu
 
 import { useAppSelector } from '../../store';
 import { useTopics } from '../../api/content';
-import { useDictionaryWordCount } from '../../api/dictionary';
+import { useDictionaryLearnedWordCount } from '../../api/dictionary';
 
 export function HomePage() {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);
   const { data: topics } = useTopics();
-  const { data: wordCount } = useDictionaryWordCount();
+  const { data: wordCount } = useDictionaryLearnedWordCount();
 
   const stats = [
     {
