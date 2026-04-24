@@ -13,18 +13,15 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Typography,
-  LinearProgress,
   Box,
   Alert,
   Button,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Container,
 } from '@mui/material';
-import { MenuBook, ArrowBack } from '@mui/icons-material';
 import type { ExerciseItem } from '@cro/shared';
 
 import { useAppDispatch } from '../../store';
@@ -34,6 +31,7 @@ import { TypeTheAnswerExercise } from './TypeTheAnswerExercise/TypeTheAnswerExer
 import { FlashcardExercise } from './FlashcardExercise/FlashcardExercise.tsx';
 import { FillInBlankExercise } from './FillInBlankExercise/FillInBlankExercise.tsx';
 import { ExerciseRulesDialog } from './ExerciseRulesDialog';
+import { ExerciseProgressHeader } from './ExerciseProgressHeader';
 
 interface SessionLocationState {
   items: ExerciseItem[];
@@ -112,7 +110,6 @@ export function SessionPage() {
 
   const { items, exerciseType, rulesHtml } = state;
   const currentItem = items[currentIndex];
-  const progress = ((currentIndex + 1) / items.length) * 100;
 
   return (
     <Box
@@ -124,46 +121,12 @@ export function SessionPage() {
       }}
     >
       <Box sx={{ maxWidth: 672, mx: 'auto' }}>
-        {/* Progress header */}
-        <Paper elevation={2} sx={{ borderRadius: 2, p: 2, mb: 4 }}>
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}
-          >
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <Button
-                size="small"
-                variant="text"
-                startIcon={<ArrowBack />}
-                onClick={() => setStopOpen(true)}
-              >
-                {t('exercises.session.stop')}
-              </Button>
-              {rulesHtml && (
-                <Button
-                  size="small"
-                  variant="text"
-                  startIcon={<MenuBook />}
-                  onClick={() => setRulesOpen(true)}
-                >
-                  {t('exercises.rules.show')}
-                </Button>
-              )}
-            </Box>
-            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
-              {currentIndex + 1} / {items.length}
-            </Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            sx={{
-              height: 8,
-              borderRadius: 4,
-              bgcolor: 'rgba(0,0,0,0.08)',
-              '& .MuiLinearProgress-bar': { bgcolor: '#0f172a' },
-            }}
-          />
-        </Paper>
+        <ExerciseProgressHeader
+          currentIndex={currentIndex}
+          total={items.length}
+          onStop={() => setStopOpen(true)}
+          onShowRules={rulesHtml ? () => setRulesOpen(true) : undefined}
+        />
 
         {finishSession.isError && (
           <Alert severity="error" sx={{ mb: 2 }}>
