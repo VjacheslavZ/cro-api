@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
-  LinearProgress,
   Box,
   Alert,
   Button,
@@ -187,7 +186,6 @@ export function DictionaryPracticePage() {
 
   const reverseDirection = direction === 'translate-to-word';
   const currentItem = items[currentIndex];
-  const progress = ((currentIndex + 1) / items.length) * 100;
 
   const prompt = reverseDirection ? currentItem.translation : currentItem.wordHr;
   const correctAnswer = reverseDirection ? currentItem.wordHr : currentItem.translation;
@@ -200,28 +198,6 @@ export function DictionaryPracticePage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('exercises.session.progress', {
-            current: currentIndex + 1,
-            total: items.length,
-          })}
-        </Typography>
-        <Button
-          size="small"
-          color="inherit"
-          startIcon={<Stop />}
-          onClick={() => setStopDialogOpen(true)}
-        >
-          {t('exercises.session.stop')}
-        </Button>
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={progress}
-        sx={{ mb: 3, height: 8, borderRadius: 4 }}
-      />
-
       {finishPractice.isError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {t('common.error')}
@@ -246,6 +222,7 @@ export function DictionaryPracticePage() {
           correctAnswer={correctAnswer}
           placeholder={placeholder}
           wordToSpeak={currentItem.wordHr}
+          progress={{ currentIndex, total: items.length, onStop: () => setStopDialogOpen(true) }}
           prompt={
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
