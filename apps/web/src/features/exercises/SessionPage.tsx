@@ -11,8 +11,20 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, LinearProgress, Box, Alert, Button } from '@mui/material';
-import { MenuBook } from '@mui/icons-material';
+import {
+  Typography,
+  LinearProgress,
+  Box,
+  Alert,
+  Button,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Container,
+} from '@mui/material';
+import { MenuBook, ArrowBack } from '@mui/icons-material';
 import type { ExerciseItem } from '@cro/shared';
 
 import { useAppDispatch } from '../../store';
@@ -52,6 +64,7 @@ export function SessionPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<SessionAnswer[]>([]);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [stopOpen, setStopOpen] = useState(false);
   const finishSession = useFinishSession();
 
   const handleAnswer = useCallback(
@@ -102,62 +115,88 @@ export function SessionPage() {
   const progress = ((currentIndex + 1) / items.length) * 100;
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('exercises.session.progress', {
-            current: currentIndex + 1,
-            total: items.length,
-          })}
-        </Typography>
-        {rulesHtml && (
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<MenuBook />}
-            onClick={() => setRulesOpen(true)}
+    <Box
+      sx={{
+        background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+        minHeight: 'calc(100vh - 64px)',
+        py: 6,
+        px: 2,
+      }}
+    >
+      <Box sx={{ maxWidth: 672, mx: 'auto' }}>
+        {/* Progress header */}
+        <Paper elevation={2} sx={{ borderRadius: 2, p: 2, mb: 4 }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}
           >
-            {t('exercises.rules.show')}
-          </Button>
-        )}
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={progress}
-        sx={{ mb: 3, height: 8, borderRadius: 4 }}
-      />
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Button
+                size="small"
+                variant="text"
+                startIcon={<ArrowBack />}
+                onClick={() => setStopOpen(true)}
+              >
+                {t('exercises.session.stop')}
+              </Button>
+              {rulesHtml && (
+                <Button
+                  size="small"
+                  variant="text"
+                  startIcon={<MenuBook />}
+                  onClick={() => setRulesOpen(true)}
+                >
+                  {t('exercises.rules.show')}
+                </Button>
+              )}
+            </Box>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+              {currentIndex + 1} / {items.length}
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              height: 8,
+              borderRadius: 4,
+              bgcolor: 'rgba(0,0,0,0.08)',
+              '& .MuiLinearProgress-bar': { bgcolor: '#0f172a' },
+            }}
+          />
+        </Paper>
 
-      {finishSession.isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+        {finishSession.isError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {t('common.error')}
+          </Alert>
+        )}
 
-      <Box>
-        {exerciseType === 'TYPE_THE_ANSWER' && (
-          <TypeTheAnswerExercise
-            key={currentItem.id}
-            item={currentItem as ExerciseItem & { type: 'TYPE_THE_ANSWER' }}
-            onAnswer={handleAnswer}
-            isLast={currentIndex + 1 >= items.length}
-          />
-        )}
-        {exerciseType === 'FLASHCARDS' && (
-          <FlashcardExercise
-            key={currentItem.id}
-            item={currentItem as ExerciseItem & { type: 'FLASHCARDS' }}
-            onAnswer={handleAnswer}
-            isLast={currentIndex + 1 >= items.length}
-          />
-        )}
-        {exerciseType === 'FILL_IN_BLANK' && (
-          <FillInBlankExercise
-            key={currentItem.id}
-            item={currentItem as ExerciseItem & { type: 'FILL_IN_BLANK' }}
-            onAnswer={handleAnswer}
-            isLast={currentIndex + 1 >= items.length}
-          />
-        )}
+        <Box>
+          {exerciseType === 'TYPE_THE_ANSWER' && (
+            <TypeTheAnswerExercise
+              key={currentItem.id}
+              item={currentItem as ExerciseItem & { type: 'TYPE_THE_ANSWER' }}
+              onAnswer={handleAnswer}
+              isLast={currentIndex + 1 >= items.length}
+            />
+          )}
+          {exerciseType === 'FLASHCARDS' && (
+            <FlashcardExercise
+              key={currentItem.id}
+              item={currentItem as ExerciseItem & { type: 'FLASHCARDS' }}
+              onAnswer={handleAnswer}
+              isLast={currentIndex + 1 >= items.length}
+            />
+          )}
+          {exerciseType === 'FILL_IN_BLANK' && (
+            <FillInBlankExercise
+              key={currentItem.id}
+              item={currentItem as ExerciseItem & { type: 'FILL_IN_BLANK' }}
+              onAnswer={handleAnswer}
+              isLast={currentIndex + 1 >= items.length}
+            />
+          )}
+        </Box>
       </Box>
 
       {rulesHtml && (
@@ -167,6 +206,22 @@ export function SessionPage() {
           rulesHtml={rulesHtml}
         />
       )}
-    </Container>
+
+      {/* Stop confirmation dialog */}
+      <Dialog open={stopOpen} onClose={() => setStopOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            {t('exercises.session.stopMessage')}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setStopOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={() => navigate(-1)}>
+            {t('exercises.session.stopConfirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

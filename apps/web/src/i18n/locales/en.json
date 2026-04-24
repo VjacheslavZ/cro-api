@@ -94,7 +94,8 @@
       "learnWords": "Learn Words",
       "learnWordsDesc": "A guided session through all 4 exercise types for selected words.",
       "speedQuiz": "Speed Quiz",
-      "speedQuizDesc": "Test your learned words under time pressure. 5 seconds per question!"
+      "speedQuizDesc": "Test your learned words under time pressure. 5 seconds per question!",
+      "practiceModesLabel": "Practice modes"
     },
     "speedQuiz": {
       "notEnoughWords": "You need at least 12 fully learned words to start Speed Quiz.",

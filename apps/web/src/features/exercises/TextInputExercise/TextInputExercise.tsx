@@ -10,17 +10,8 @@
  */
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  TextField,
-  Button,
-  Card,
-  CardContent,
-  Box,
-  Alert,
-  IconButton,
-  InputAdornment,
-} from '@mui/material';
-import { HelpOutline } from '@mui/icons-material';
+import { TextField, Button, Card, CardContent, Box, Typography, IconButton } from '@mui/material';
+import { LightbulbOutlined, CheckCircle, Cancel, ArrowForward } from '@mui/icons-material';
 
 import { normalizeAnswer } from '../../../shared/lib/content-utils.ts';
 import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
@@ -148,63 +139,126 @@ export function TextInputExercise({
   };
 
   return (
-    <Card variant="outlined">
-      <CardContent>
+    <Card sx={{ boxShadow: '0 4px 24px rgba(0,0,0,0.10)', borderRadius: 4 }}>
+      <CardContent sx={{ p: { xs: 3, md: 5 } }}>
         {prompt}
 
-        <TextField
-          fullWidth
-          value={input}
-          onChange={(e) => {
-            const value = e.target.value;
-            setInput(value);
-            if (!checked && normalizeAnswer(value) === normalizeAnswer(correctAnswer)) {
-              handleCheck(value);
-            }
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={checked}
-          autoFocus
-          sx={{ mb: 2 }}
-          slotProps={{
-            input: {
-              endAdornment: !checked && (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={handleHint}
-                    title={t('exercises.session.hint')}
-                    edge="end"
-                  >
-                    <HelpOutline fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
+          <TextField
+            value={input}
+            onChange={(e) => {
+              const value = e.target.value;
+              setInput(value);
+              if (!checked && normalizeAnswer(value) === normalizeAnswer(correctAnswer)) {
+                handleCheck(value);
+              }
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={checked}
+            autoFocus
+            sx={{
+              flex: 1,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '100px',
+                backgroundColor: '#f3f4f6',
+                fontSize: '1.1rem',
+                '& fieldset': { border: 'none' },
+                '&.Mui-focused fieldset': { border: 'none' },
+              },
+            }}
+          />
+          <IconButton
+            sx={{
+              width: 56,
+              height: 56,
+              border: '1px solid rgba(0,0,0,0.12)',
+              borderRadius: 2,
+              bgcolor: 'white',
+              flexShrink: 0,
+              visibility: checked ? 'hidden' : 'visible',
+            }}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleHint}
+            title={t('exercises.session.hint')}
+          >
+            <LightbulbOutlined />
+          </IconButton>
+        </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Box sx={{ width: isCorrect ? '100%' : '80%' }}>
-            {checked && (
-              <Alert severity={isCorrect ? 'success' : 'error'}>
-                {isCorrect ? correctMessage : incorrectMessage}
-              </Alert>
-            )}
-          </Box>
-          {!checked && (
-            <Button variant="contained" onClick={() => handleCheck()} disabled={!input.trim()}>
-              {t('exercises.session.check')}
-            </Button>
+        {/* Feedback area — fixed min-height prevents layout jump */}
+        <Box
+          sx={{
+            minHeight: 64,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 2,
+          }}
+        >
+          {checked && isCorrect && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
+              <CheckCircle sx={{ fontSize: 28 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {correctMessage}
+              </Typography>
+            </Box>
           )}
           {checked && !isCorrect && (
-            <Button variant="contained" onClick={handleNext}>
-              {t('exercises.session.next')}
-            </Button>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1,
+                color: 'error.main',
+              }}
+            >
+              <Cancel sx={{ fontSize: 28, flexShrink: 0, mt: 0.25 }} />
+              <Typography variant="body1">{incorrectMessage}</Typography>
+            </Box>
           )}
         </Box>
+
+        {/* Action button */}
+        {!checked && (
+          <Button
+            fullWidth
+            size="large"
+            variant="contained"
+            onClick={() => handleCheck()}
+            disabled={!input.trim()}
+            sx={{
+              bgcolor: '#0f172a',
+              borderRadius: 2,
+              py: 1.75,
+              fontSize: '1rem',
+              fontWeight: 600,
+              '&:hover': { bgcolor: '#1e293b' },
+              '&.Mui-disabled': { bgcolor: 'rgba(0,0,0,0.08)', color: 'rgba(0,0,0,0.26)' },
+            }}
+          >
+            {t('exercises.session.check')}
+          </Button>
+        )}
+        {checked && !isCorrect && (
+          <Button
+            fullWidth
+            size="large"
+            variant="contained"
+            onClick={handleNext}
+            endIcon={<ArrowForward />}
+            sx={{
+              bgcolor: '#0f172a',
+              borderRadius: 2,
+              py: 1.75,
+              fontSize: '1rem',
+              fontWeight: 600,
+              '&:hover': { bgcolor: '#1e293b' },
+            }}
+          >
+            {t('exercises.session.next')}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
