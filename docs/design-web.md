@@ -4,7 +4,7 @@
 > **Scope**: Student web app only (`apps/web`) — the interface used by learners  
 > **Admin panel** is out of scope for this document  
 > **Status**: Current implementation as of Phase 2 (Content + Exercise Engine)  
-> **Last updated**: 2026-04-23 (updated 3.3 Home — implemented; updated 3.8 Vocabulary Hub — added Speed Quiz card; added 3.12a Speed Quiz Session; updated Section 6 Navigation Map)
+> **Last updated**: 2026-04-24 (updated 3.8 Vocabulary Hub — corrected layout to vertical list, card interaction model, collectionId scope)
 
 ---
 
@@ -421,53 +421,73 @@ The main area renders one of three exercise components depending on the session'
 
 **Layout**:
 - Page title + subtitle
-- Featured card at top (Learn Words — primary flow)
-- Grid of 4 individual practice mode cards below
-
-**Featured Card — "Learn Words"**:
+- Vertical list of cards (single column, full-width)
+- Learn Words card → Speed Quiz card → horizontal divider → 4 individual practice cards
 
 ```
 ┌───────────────────────────────────────┐
-│  🎓  Learn Words                      │
+│  🎓  Learn Words                      │  ← primary border
 │      Guided 4-step vocabulary session │
 └───────────────────────────────────────┘
-```
-
-- Outlined border in primary color; visually distinct from other cards
-- Navigates to `/exercises/vocabulary/learn` (passes `?collectionId` if present in URL)
-
-**Speed Quiz Card**:
-
-```
 ┌───────────────────────────────────────┐
-│  ⏱  Speed Quiz                        │
+│  ⏱  Speed Quiz                        │  ← warning border
 │      Test your fully-learned words    │
+└───────────────────────────────────────┘
+────────────────────────────────────────
+┌───────────────────────────────────────┐
+│  🔤  Word to Translate                │
+│      See Croatian word, type meaning  │
+└───────────────────────────────────────┘
+┌───────────────────────────────────────┐
+│  Aa  Translate to Word                │
+│      See meaning, type Croatian       │
+└───────────────────────────────────────┘
+┌───────────────────────────────────────┐
+│  ⊞   Letter Pick                      │
+│      Build the Croatian word          │
+└───────────────────────────────────────┘
+┌───────────────────────────────────────┐
+│  🎧  Matching                         │
+│      Pair words with translations     │
 └───────────────────────────────────────┘
 ```
 
+**Learn Words Card**:
+- Outlined border in primary color
+- Entire card is tappable (no separate button)
+- Navigates to `/exercises/vocabulary/learn` — passes `?collectionId` if present in the current URL
+
+**Speed Quiz Card**:
 - Outlined border in warning color (amber/orange)
-- Only includes words the user has fully learned (100% progress)
-- Tapping the card starts a practice session immediately and navigates to `/exercises/vocabulary/speed-quiz`
-- Shows a spinner inside the card while the session is being created
-- **Error state**: if the user doesn't have enough learned words, shows a warning alert above the card list: "Not enough learned words to start Speed Quiz"
+- Only uses fully-learned words (`learnedOnly` flag; ignores `?collectionId`)
+- Tapping immediately creates a practice session and navigates to `/exercises/vocabulary/speed-quiz`
+- While loading: timer icon replaced by an inline spinner; card is disabled
+- **Not enough words error**: warning alert shown above the card list
 
-**Divider**: a horizontal rule separates the two featured cards above from the four individual practice modes below.
+**Divider**: horizontal rule between the two featured cards and the four individual practice modes.
 
-**Individual Practice Mode Cards** (4 cards in a list):
+**Individual Practice Mode Cards**:
 
-| Mode | Description |
-|------|-------------|
-| Word to Translate | See Croatian word → type translation |
-| Translate to Word | See translation → type Croatian word |
-| Letter Pick | Reconstruct Croatian word from shuffled letter tiles |
-| Matching | Pair all 10 Croatian words with their translations at once |
+| Mode | Icon | Description |
+|------|------|-------------|
+| Word to Translate | Translate icon | See Croatian word → type translation in native language |
+| Translate to Word | TextFields icon | See native translation → type the Croatian word |
+| Letter Pick | Grid icon | Reconstruct the Croatian word by tapping letter tiles |
+| Matching | Hearing icon | Pair all 10 Croatian words with their translations |
 
 Each card:
-- Mode name
-- One-line description
-- "Start" button → creates a practice session → `/dictionary/practice/:sessionId`
+- Entire card is tappable (`CardActionArea`) — no separate button
+- Icon replaced by an inline spinner while that mode's session is being created
+- All other cards disabled while any session is in progress
 
-**URL Parameter**: `?collectionId=xxx` scopes all modes to a specific word collection.
+**Errors**:
+
+| Error | Trigger | Display |
+|-------|---------|---------|
+| No words available | Individual practice fails (empty dictionary) | Error alert above card list |
+| Not enough learned words | Speed Quiz fails | Warning alert above card list |
+
+**URL Parameter**: `?collectionId=xxx` is only forwarded to the Learn Words flow. Speed Quiz and the 4 individual practice modes ignore it.
 
 ---
 
