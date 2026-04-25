@@ -133,7 +133,8 @@
       "instruction": "Build the Croatian word:",
       "hint": "Hint",
       "perfect": "Perfect! No mistakes!",
-      "withErrors": "Completed with errors"
+      "withErrors": "Completed with errors",
+      "reset": "Reset"
     },
     "chooseType": "Choose an exercise type to start practicing.",
     "noTypes": "No exercise types available for this topic.",

@@ -211,6 +211,7 @@ export function DictionaryPracticePage() {
           wordHr={currentItem.wordHr}
           translation={currentItem.translation}
           wordToSpeak={currentItem.wordHr}
+          progress={{ currentIndex, total: items.length, onStop: () => setStopDialogOpen(true) }}
           onAnswer={handleAnswer}
         />
       )}
