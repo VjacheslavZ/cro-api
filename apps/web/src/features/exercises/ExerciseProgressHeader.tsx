@@ -7,6 +7,8 @@ interface ExerciseProgressHeaderProps {
   total: number;
   onStop: () => void;
   onShowRules?: () => void;
+  /** Overrides the computed (currentIndex + 1) / total progress percentage */
+  progressValue?: number;
 }
 
 export function ExerciseProgressHeader({
@@ -14,9 +16,10 @@ export function ExerciseProgressHeader({
   total,
   onStop,
   onShowRules,
+  progressValue,
 }: ExerciseProgressHeaderProps) {
   const { t } = useTranslation();
-  const progress = ((currentIndex + 1) / total) * 100;
+  const progress = progressValue ?? ((currentIndex + 1) / total) * 100;
 
   return (
     <Paper elevation={2} sx={{ borderRadius: 2, p: 2, mb: 4 }}>

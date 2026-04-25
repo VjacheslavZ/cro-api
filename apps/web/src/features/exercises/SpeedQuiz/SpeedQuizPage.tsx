@@ -11,12 +11,12 @@
  */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, LinearProgress, Alert, CircularProgress, Box } from '@mui/material';
+import { Container, Alert, CircularProgress, Box } from '@mui/material';
 import type { DictionaryPracticeItem } from '@cro/shared';
 
 import { StopExerciseDialog } from '../StopExerciseDialog';
+import { ExerciseProgressHeader } from '../ExerciseProgressHeader';
 import { useSpeedQuiz } from './useSpeedQuiz';
-import { SpeedQuizHeader } from './SpeedQuizHeader';
 import { SpeedQuizCard } from './SpeedQuizCard';
 
 interface LocationState {
@@ -43,16 +43,11 @@ export function SpeedQuizPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <SpeedQuizHeader
-        doneCount={quiz.doneCount}
-        totalWords={quiz.totalWords}
+      <ExerciseProgressHeader
+        currentIndex={quiz.doneCount - 1}
+        total={quiz.totalWords}
+        progressValue={quiz.progressPercent}
         onStop={() => quiz.setStopOpen(true)}
-      />
-
-      <LinearProgress
-        variant="determinate"
-        value={quiz.progressPercent}
-        sx={{ mb: 3, height: 6, borderRadius: 3 }}
       />
 
       {quiz.isError && (
