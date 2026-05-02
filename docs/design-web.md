@@ -39,6 +39,7 @@
    - [4.3 Fill in the Blank](#43-fill-in-the-blank)
    - [4.4 Letter Pick](#44-letter-pick)
    - [4.5 Matching](#45-matching)
+   - [4.6 Build a Sentence](#46-build-a-sentence)
 5. [Shared Dialogs](#5-shared-dialogs)
 6. [Navigation Map](#6-navigation-map)
 7. [Gamification System](#7-gamification-system)
@@ -339,7 +340,7 @@ Each card: title + one-line description + full-width button at bottom. Cards lif
 | Element | Details |
 |---------|---------|
 | Icon | Visual icon representing the exercise type |
-| Type name | "Type the Answer", "Flashcards", "Fill in the Blank" |
+| Type name | "Type the Answer", "Flashcards", "Fill in the Blank", "Build a Sentence" |
 | Description | One-line description of what the exercise involves |
 | Start button | Creates a session and navigates to `/exercises/session/:sessionId` |
 
@@ -374,7 +375,7 @@ Shown when the user tries to start an exercise but has exhausted all items in th
 
 **Exercise Area**:
 
-The main area renders one of three exercise components depending on the session's exercise type. See [Section 4](#4-exercise-ui-components) for detailed component specs.
+The main area renders one of four exercise components depending on the session's exercise type. See [Section 4](#4-exercise-ui-components) for detailed component specs.
 
 **Session Flow**:
 1. Render first item
@@ -1213,6 +1214,48 @@ Used in: Learn Words Step 4, standalone Matching practice mode
 - Wrong pair: both items flash red (500ms) then deselect
 - Complete when all 10 pairs are matched
 - No "Check" button — validation is immediate on each pair attempt
+
+---
+
+### 4.6 Build a Sentence
+
+Used in: Grammar (BUILD_SENTENCE)
+
+**Layout**:
+```
+┌──────────────────────────────────────────┐
+│  Build the Croatian sentence:            │
+│                                          │
+│  She watches theatre performances.       │
+│                                          │
+│  [ Katerina ] [ gleda ] ← built so far  │
+│                                          │
+│  Word 3 of 4                             │
+│  [kazališne]  [puno]  [rijetko]          │
+│  [brzo]       [uvijek] [nikad]           │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+| Element | Details |
+|---------|---------|
+| Instruction | "Build the Croatian sentence:" |
+| Native translation | Full sentence in user's native language shown as the prompt |
+| Built-so-far row | Blue chips for words already selected (during selecting); green/red chips after completion |
+| Word counter | "Word N of M" — shows position of the slot currently being filled |
+| Option buttons | 6 outlined buttons (1 correct + 5 distractors); tapping one fills the current slot and advances to the next |
+
+**After all words are chosen**:
+
+| Outcome | Behaviour |
+|---------|-----------|
+| All correct | Built-so-far chips turn green; correct sentence spoken aloud; auto-advance after 1.5 s |
+| Any wrong | Wrong chips turn red with strikethrough; correct word shown above in green; correct sentence spoken aloud; user presses **Next** / **Finish** to advance |
+
+**States**:
+- `selecting`: Option buttons visible; built-so-far shows blue chips
+- `correct`: Green success alert + auto-advance timer running
+- `incorrect`: Red alert with correct sentence shown; Next/Finish button visible
 
 ---
 

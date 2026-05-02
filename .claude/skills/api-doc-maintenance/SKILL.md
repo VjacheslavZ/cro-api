@@ -24,6 +24,7 @@ After completing any change to a file matched by this skill's paths, check wheth
 | Pagination behavior changed | Cursor pagination description |
 | Dictionary practice logic changed | Practice session section |
 | Exercise component callback contract changed | Component callback contracts section |
+| New exercise type implemented end-to-end | Add component row to conventions table + add a dedicated section for the new type (phase state, component files, data shape) |
 | `fetchMe` / `AuthGuard` interaction changed | Critical gotchas section |
 | Learn Words step order or flow changed | Learn Words flow section |
 | Inter-step phase behavior changed | Learn Words flow section |

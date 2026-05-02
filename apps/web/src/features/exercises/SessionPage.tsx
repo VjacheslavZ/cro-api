@@ -30,6 +30,7 @@ import { fetchMe } from '../../api/auth';
 import { TypeTheAnswerExercise } from './TypeTheAnswerExercise/TypeTheAnswerExercise.tsx';
 import { FlashcardExercise } from './FlashcardExercise/FlashcardExercise.tsx';
 import { FillInBlankExercise } from './FillInBlankExercise/FillInBlankExercise.tsx';
+import { BuildSentenceExercise } from './BuildSentenceExercise/BuildSentenceExercise.tsx';
 import { ExerciseRulesDialog } from './ExerciseRulesDialog';
 import { ExerciseProgressHeader } from './ExerciseProgressHeader';
 
@@ -155,6 +156,14 @@ export function SessionPage() {
             <FillInBlankExercise
               key={currentItem.id}
               item={currentItem as ExerciseItem & { type: 'FILL_IN_BLANK' }}
+              onAnswer={handleAnswer}
+              isLast={currentIndex + 1 >= items.length}
+            />
+          )}
+          {exerciseType === 'BUILD_SENTENCE' && (
+            <BuildSentenceExercise
+              key={currentItem.id}
+              item={currentItem as ExerciseItem & { type: 'BUILD_SENTENCE' }}
               onAnswer={handleAnswer}
               isLast={currentIndex + 1 >= items.length}
             />

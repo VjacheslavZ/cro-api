@@ -10,7 +10,7 @@ import { LoginPage } from '../features/auth/LoginPage';
 import { LanguageSelectPage } from '../features/auth/LanguageSelectPage';
 import { ExercisesPage } from '../features/exercises/ExercisesPage';
 import { VocabularyPage } from '../features/exercises/VocabularyPage';
-import { TopicExercisesPage } from '../features/exercises/TopicExercisesPage';
+import { TopicExercisesPage } from '../features/exercises/TopicExercisesPage/TopicExercisesPage.tsx';
 import { SessionPage } from '../features/exercises/SessionPage';
 import { SessionResultsPage } from '../features/exercises/SessionResultsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';

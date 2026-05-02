@@ -13,6 +13,7 @@ export enum ExerciseType {
   TYPE_THE_ANSWER = 'TYPE_THE_ANSWER',
   FLASHCARDS = 'FLASHCARDS',
   FILL_IN_BLANK = 'FILL_IN_BLANK',
+  BUILD_SENTENCE = 'BUILD_SENTENCE',
 }
 
 export enum SessionStatus {
@@ -98,10 +99,28 @@ export interface FillInBlankItem {
   sortOrder: number;
 }
 
+export interface BuildSentenceWordOption {
+  id: string;
+  wordHr: string;
+  position: number;
+  options: string[];
+}
+
+export interface BuildSentenceItem {
+  id: string;
+  topicId: string;
+  translationRu: string;
+  translationUk: string;
+  translationEn: string;
+  sortOrder: number;
+  words: BuildSentenceWordOption[];
+}
+
 export type ExerciseItem =
   | ({ type: ExerciseType.TYPE_THE_ANSWER } & TypeTheAnswerItem)
   | ({ type: ExerciseType.FLASHCARDS } & FlashcardItem)
-  | ({ type: ExerciseType.FILL_IN_BLANK } & FillInBlankItem);
+  | ({ type: ExerciseType.FILL_IN_BLANK } & FillInBlankItem)
+  | ({ type: ExerciseType.BUILD_SENTENCE } & BuildSentenceItem);
 
 export interface CreateSessionRequest {
   topicId: string;

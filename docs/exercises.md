@@ -9,6 +9,7 @@ Each exercise type lives in a self-contained folder under `apps/web/src/features
 | `LetterPickExercise` | `onAnswer(answer)` | Once, on "Next" button click after the word is fully assembled |
 | `TextInputExercise` | `onAnswer(answer)` | Once, after the user submits and sees the result |
 | `MatchingExercise` | `onComplete(answers[])` | Once, when all word–translation pairs are matched |
+| `BuildSentenceExercise` | `onAnswer(answer)` | Once, when the sentence is fully assembled: auto-fires after 1.5 s on correct; fires on user pressing Next on incorrect |
 
 ### Critical gotcha — `dispatch(fetchMe())` unmounts the session page
 
@@ -102,6 +103,57 @@ Updates that type's progress column (+25/−25 per answer). Without `exerciseTyp
 | `LearnWords/LearnWordsPreviewPage.tsx` | One-word-at-a-time preview before exercises |
 | `LearnWords/LearnWordsSessionPage.tsx` | Orchestrates 4 sequential exercises |
 | `LearnWords/LearnWordsResultsPage.tsx` | Aggregate results after all 4 steps |
+
+---
+
+## Build Sentence Exercise
+
+### Overview
+
+`BUILD_SENTENCE` is a word-ordering exercise where the user taps words one at a time to construct the Croatian translation of a sentence shown in their native language.
+
+### Component files
+
+| File | Responsibility |
+|------|----------------|
+| `BuildSentenceExercise/BuildSentenceExercise.tsx` | Phase state machine, handlers, card wrapper |
+| `BuildSentenceExercise/WordProgressRow.tsx` | Built-so-far chips row (blue during selecting; green/red-strikethrough after) |
+| `BuildSentenceExercise/WordOptions.tsx` | Current-slot word counter + 6 option buttons |
+| `BuildSentenceExercise/ResultBanner.tsx` | Correct (green) or incorrect (red + correct sentence + Next) banners |
+
+### Phase state machine
+
+| Phase | Trigger | UI |
+|-------|---------|-----|
+| `selecting` | Initial | Option buttons shown; built-so-far chips blue |
+| `correct` | All words chosen, all correct | Green alert; auto-advance after 1500 ms; `speak(correctSentence)` fires |
+| `incorrect` | All words chosen, ≥1 wrong | Red alert with correct sentence; Next/Finish button; `speak(correctSentence)` fires |
+
+### Options generation (server-side, `ContentService.getBuildSentenceItemsWithOptions`)
+
+For each word slot, the server builds a pool of 6 options: the correct `wordHr` + admin-configured distractors. If fewer than 5 distractors are configured, the pool is padded with other `wordHr` values from the same session batch. Options are Fisher-Yates shuffled before being sent in the session response.
+
+### Data shape
+
+```ts
+interface BuildSentenceWordOption {
+  id: string;
+  wordHr: string;
+  position: number;   // 0-based slot index
+  options: string[];  // 6 shuffled choices (correct + distractors)
+}
+interface BuildSentenceItem {
+  id: string;
+  topicId: string;
+  translationRu: string;
+  translationUk: string;
+  translationEn: string;
+  sortOrder: number;
+  words: BuildSentenceWordOption[];
+}
+```
+
+---
 
 ### Collection Support
 

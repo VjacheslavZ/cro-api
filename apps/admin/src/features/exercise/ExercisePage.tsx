@@ -19,6 +19,7 @@ import { QueryState } from '../../shared/components/QueryState';
 import { TypeTheAnswer } from './TypeTheAnswer';
 import { Flashcards } from './Flashcards';
 import { FillInBlankTab } from './FillInBlank';
+import { BuildSentenceTab } from './BuildSentence';
 
 interface TopicDetail {
   id: string;
@@ -31,6 +32,7 @@ const EXERCISE_TABS = [
   { type: ExerciseType.TYPE_THE_ANSWER, label: 'Type the Answer' },
   { type: ExerciseType.FLASHCARDS, label: 'Flashcards' },
   { type: ExerciseType.FILL_IN_BLANK, label: 'Fill in Blank' },
+  { type: ExerciseType.BUILD_SENTENCE, label: 'Build a Sentence' },
 ];
 
 /**
@@ -57,6 +59,7 @@ export function ExercisePage() {
 
   const toggleTypeMutation = useMutation({
     mutationFn: async ({ exerciseType, enabled }: { exerciseType: string; enabled: boolean }) => {
+      console.log('exerciseType', exerciseType);
       await apiClient.patch(`/admin/topics/${topicId}/exercise-types`, {
         configs: [{ exerciseType, enabled }],
       });
@@ -116,6 +119,7 @@ export function ExercisePage() {
       {currentTab.type === ExerciseType.TYPE_THE_ANSWER && <TypeTheAnswer topicId={topicId!} />}
       {currentTab.type === ExerciseType.FLASHCARDS && <Flashcards topicId={topicId!} />}
       {currentTab.type === ExerciseType.FILL_IN_BLANK && <FillInBlankTab topicId={topicId!} />}
+      {currentTab.type === ExerciseType.BUILD_SENTENCE && <BuildSentenceTab topicId={topicId!} />}
     </Box>
   );
 }
