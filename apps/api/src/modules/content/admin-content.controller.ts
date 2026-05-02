@@ -24,6 +24,9 @@ import { CreateFlashcardItemDto } from './dto/create-flashcard-item.dto';
 import { UpdateFlashcardItemDto } from './dto/update-flashcard-item.dto';
 import { CreateFillInBlankItemDto } from './dto/create-fill-in-blank-item.dto';
 import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
+import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
+import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
+import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
 
 @ApiTags('Admin Content')
 @Controller('admin')
@@ -64,7 +67,7 @@ export class AdminContentController {
   async updateTopicTypes(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTopicTypesDto) {
     return this.contentService.updateTopicTypes(id, dto.configs);
   }
-  // TODO rename
+
   // --- Type The Answer Items ---
 
   @Get('topics/:topicId/type-the-answer-items')
@@ -153,5 +156,44 @@ export class AdminContentController {
   @ApiOperation({ summary: 'Delete a fill-in-blank item' })
   async deleteFillInBlankItem(@Param('id', ParseUUIDPipe) id: string) {
     await this.contentService.deleteFillInBlankItem(id);
+  }
+
+  // --- Build Sentence Items ---
+
+  @Get('topics/:topicId/build-sentence-items')
+  @ApiOperation({ summary: 'List Build Sentence items for a topic' })
+  async getBuildSentenceItems(@Param('topicId', ParseUUIDPipe) topicId: string) {
+    return this.contentService.getBuildSentenceItems(topicId);
+  }
+
+  @Post('build-sentence-items')
+  @ApiOperation({ summary: 'Create a Build Sentence item' })
+  async createBuildSentenceItem(@Body() dto: CreateBuildSentenceItemDto) {
+    return this.contentService.createBuildSentenceItem(dto);
+  }
+
+  @Patch('build-sentence-items/:id')
+  @ApiOperation({ summary: 'Update a Build Sentence item' })
+  async updateBuildSentenceItem(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateBuildSentenceItemDto,
+  ) {
+    return this.contentService.updateBuildSentenceItem(id, dto);
+  }
+
+  @Delete('build-sentence-items/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a Build Sentence item' })
+  async deleteBuildSentenceItem(@Param('id', ParseUUIDPipe) id: string) {
+    await this.contentService.deleteBuildSentenceItem(id);
+  }
+
+  @Patch('build-sentence-items/words/:wordId')
+  @ApiOperation({ summary: 'Update distractors for a Build Sentence word' })
+  async updateBuildSentenceWord(
+    @Param('wordId', ParseUUIDPipe) wordId: string,
+    @Body() dto: UpdateBuildSentenceWordDto,
+  ) {
+    return this.contentService.updateBuildSentenceWord(wordId, dto);
   }
 }

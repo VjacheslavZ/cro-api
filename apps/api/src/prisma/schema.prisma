@@ -22,6 +22,7 @@ enum ExerciseType {
   TYPE_THE_ANSWER
   FLASHCARDS
   FILL_IN_BLANK
+  BUILD_SENTENCE
 }
 
 enum SessionStatus {
@@ -146,6 +147,7 @@ model ExerciseTopic {
   typeTheAnswerItems  TypeTheAnswerItem[]
   flashcardItems      FlashcardItem[]
   fillInBlankItems    FillInBlankItem[]
+  buildSentenceItems  BuildSentenceItem[]
   sessions            ExerciseSession[]
   exerciseProgress    UserExerciseProgress[]
 }
@@ -204,6 +206,32 @@ model FillInBlankItem {
   updatedAt     DateTime      @default(now()) @updatedAt
 
   topic         ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
+model BuildSentenceItem {
+  id            String              @id @default(dbgenerated("gen_random_uuid()"))
+  topicId       String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int                 @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @default(now()) @updatedAt
+
+  topic         ExerciseTopic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  words         BuildSentenceWord[]
+}
+
+model BuildSentenceWord {
+  id          String            @id @default(dbgenerated("gen_random_uuid()"))
+  itemId      String
+  wordHr      String
+  position    Int
+  distractors String[]
+
+  item        BuildSentenceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, position])
 }
 
 model UserExerciseProgress {
