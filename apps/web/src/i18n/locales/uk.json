@@ -145,7 +145,17 @@
       "flashcards": "Картки",
       "flashcardsDesc": "Повторюйте правила з картками",
       "fillInBlank": "Заповни пропуск",
-      "fillInBlankDesc": "Вставте пропущене слово в речення"
+      "fillInBlankDesc": "Вставте пропущене слово в речення",
+      "buildSentence": "Скласти речення",
+      "buildSentenceDesc": "Натискайте слова у правильному порядку, щоб скласти хорватське речення"
+    },
+    "buildSentence": {
+      "instruction": "Складіть хорватське речення:",
+      "wordOf": "Слово {{current}} з {{total}}",
+      "correct": "Правильно!",
+      "incorrect": "Майже! Ось правильне речення:",
+      "next": "Далі",
+      "finish": "Завершити"
     },
     "session": {
       "progress": "Питання {{current}} з {{total}}",

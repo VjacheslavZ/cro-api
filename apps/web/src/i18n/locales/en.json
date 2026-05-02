@@ -145,7 +145,17 @@
       "flashcards": "Flashcards",
       "flashcardsDesc": "Review grammar rules with flip cards",
       "fillInBlank": "Fill in the Blank",
-      "fillInBlankDesc": "Insert the missing word in the sentence"
+      "fillInBlankDesc": "Insert the missing word in the sentence",
+      "buildSentence": "Build a Sentence",
+      "buildSentenceDesc": "Tap the words in the correct order to build the Croatian sentence"
+    },
+    "buildSentence": {
+      "instruction": "Build the Croatian sentence:",
+      "wordOf": "Word {{current}} of {{total}}",
+      "correct": "Correct!",
+      "incorrect": "Almost! Here is the correct sentence:",
+      "next": "Next",
+      "finish": "Finish"
     },
     "session": {
       "progress": "Question {{current}} of {{total}}",
