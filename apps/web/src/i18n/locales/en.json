@@ -1,0 +1,318 @@
+{
+  "home": {
+    "title": "Welcome to CroGrammar",
+    "subtitle": "Master Croatian grammar and vocabulary through interactive exercises and personalized learning",
+    "statsGrammarTopics": "Grammar Topics",
+    "statsWordsLearned": "Words Learned",
+    "statsDayStreak": "Day Streak",
+    "statsTotalXp": "Total XP",
+    "practiceGrammarTitle": "Practice Grammar",
+    "practiceGrammarDesc": "Master Croatian grammar through structured lessons and exercises",
+    "practiceGrammarBtn": "Start Learning",
+    "buildVocabTitle": "Build Vocabulary",
+    "buildVocabDesc": "Create your personal dictionary and practice with custom word sets",
+    "buildVocabBtn": "My Dictionary",
+    "wordSetsTitle": "Word Sets",
+    "wordSetsDesc": "Explore curated word collections for common topics and situations",
+    "wordSetsBtn": "Browse Sets"
+  },
+  "auth": {
+    "welcome": "Welcome to Croatian Grammar",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithApple": "Sign in with Apple",
+    "selectLanguage": "Select your native language",
+    "continue": "Continue",
+    "loginFailed": "Login failed. Please try again.",
+    "orDivider": "or",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "register": "Register",
+    "login": "Log in",
+    "switchToRegister": "Don't have an account? Register",
+    "switchToLogin": "Already have an account? Log in",
+    "registrationFailed": "Registration failed. Please try again.",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create an account",
+    "signInSubtitle": "Sign in to continue your learning journey",
+    "createAccountSubtitle": "Start learning Croatian today",
+    "continueWithEmail": "Continue with email",
+    "tagline": "Learn Croatian the smart way",
+    "languageSubtitle": "This will determine how translations and explanations are shown throughout the app",
+    "changeLanguageLater": "You can change this later in your settings"
+  },
+  "languages": {
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "english": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "exercises": "Exercises",
+    "grammar": "Grammar",
+    "vocabulary": "Vocabulary",
+    "dictionary": "Dictionary",
+    "myDictionary": "My dictionary",
+    "wordSets": "Recommended Word Sets",
+    "collections": "Collections",
+    "profile": "Profile"
+  },
+  "header": {
+    "settings": "Settings",
+    "logout": "Log out",
+    "role": "Role",
+    "xp": "Total XP",
+    "streak": "Current streak",
+    "nativeLanguage": "Native language"
+  },
+  "footer": {
+    "aboutUs": "About us",
+    "forPartners": "For partners",
+    "contacts": "Contacts",
+    "socials": "Follow us",
+    "mobileApps": "Mobile apps",
+    "rights": "All rights reserved.",
+    "company": "Company",
+    "tagline": "Learn Croatian grammar and vocabulary through interactive exercises"
+  },
+  "exercises": {
+    "title": "Grammar Topics",
+    "subtitle": "Choose a topic to practice and improve your Croatian grammar skills",
+    "noTopics": "No topics available",
+    "noTopicsDesc": "Check back later for new grammar topics to practice.",
+    "vocabulary": {
+      "title": "Back",
+      "subtitle": "Choose an exercise type to practice words from your dictionary.",
+      "wordToTranslate": "Word → Translation",
+      "wordToTranslateDesc": "See the Croatian word, type its translation.",
+      "translateToWord": "Translation → Word",
+      "translateToWordDesc": "See the translation, type the Croatian word.",
+      "letterPick": "Build the Word",
+      "letterPickDesc": "See the translation, build the Croatian word by clicking letters.",
+      "matching": "Listening Match",
+      "matchingDesc": "Listen to Croatian words and match them to their translations.",
+      "learnWords": "Learn Words",
+      "learnWordsDesc": "A guided session through all 4 exercise types for selected words.",
+      "speedQuiz": "Speed Quiz",
+      "speedQuizDesc": "Test your learned words under time pressure. 5 seconds per question!",
+      "practiceModesLabel": "Practice modes"
+    },
+    "speedQuiz": {
+      "notEnoughWords": "You need at least 12 fully learned words to start Speed Quiz.",
+      "timeUp": "Time's up!",
+      "correct": "Correct!",
+      "wrongAnswer": "Correct answer: {{answer}}",
+      "progress": "{{done}} / {{total}}"
+    },
+    "learnWords": {
+      "setupTitle": "Learn Words",
+      "wordCount": "Words per session",
+      "filter": "Word selection",
+      "filterNewest": "Newest",
+      "filterOldest": "Oldest",
+      "filterProgress": "By Progress (0%→100%)",
+      "next": "Next",
+      "previewTitle": "Words to Learn",
+      "wordOf": "{{current}} / {{total}}",
+      "startExercises": "Start Exercises",
+      "exerciseStep": "Exercise {{step}} of 4",
+      "stepComplete": "Exercise {{step}} of 4 Complete",
+      "score": "Score: {{correct}} / {{total}}",
+      "continue": "Continue",
+      "resultsTitle": "Learning Session Complete!",
+      "totalScore": "Total: {{correct}} / {{total}}",
+      "backToDictionary": "Back to Dictionary",
+      "learnAgain": "Learn Again",
+      "learned": "Learned"
+    },
+    "matching": {
+      "progress": "{{matched}} / {{total}} matched",
+      "complete": "All words matched!"
+    },
+    "letterPick": {
+      "instruction": "Build the Croatian word:",
+      "hint": "Hint",
+      "perfect": "Perfect! No mistakes!",
+      "withErrors": "Completed with errors",
+      "reset": "Reset"
+    },
+    "chooseType": "Choose an exercise type to start practicing.",
+    "noTypes": "No exercise types available for this topic.",
+    "start": "Start",
+    "types": {
+      "typeTheAnswer": "Type the Answer",
+      "typeTheAnswerDesc": "Type the correct form of the word",
+      "flashcards": "Flashcards",
+      "flashcardsDesc": "Review grammar rules with flip cards",
+      "fillInBlank": "Fill in the Blank",
+      "fillInBlankDesc": "Insert the missing word in the sentence",
+      "buildSentence": "Build a Sentence",
+      "buildSentenceDesc": "Tap the words in the correct order to build the Croatian sentence"
+    },
+    "buildSentence": {
+      "instruction": "Build the Croatian sentence:",
+      "wordOf": "Word {{current}} of {{total}}",
+      "correct": "Correct!",
+      "incorrect": "Almost! Here is the correct sentence:",
+      "next": "Next",
+      "finish": "Finish"
+    },
+    "session": {
+      "progress": "Question {{current}} of {{total}}",
+      "check": "Check",
+      "next": "Next",
+      "finish": "Finish",
+      "stop": "Stop",
+      "stopTitle": "Stop exercise?",
+      "stopMessage": "Your progress in this session will not be saved.",
+      "stopConfirm": "Stop",
+      "hint": "Hint"
+    },
+    "typeTheAnswer": {
+      "title": "Type the Answer",
+      "instruction": "Enter the plural form of the word:",
+      "placeholder": "Enter plural form...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}"
+    },
+    "flashcards": {
+      "title": "Flashcards",
+      "instruction": "Do you know this word?",
+      "tapToFlip": "Tap to see the translation",
+      "knew": "I knew it",
+      "didNotKnow": "I didn't know"
+    },
+    "fillInBlank": {
+      "title": "Fill in the Blank",
+      "instruction": "Fill in the missing word:",
+      "placeholder": "Enter the missing word...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}"
+    },
+    "results": {
+      "title": "Session Complete!",
+      "score": "Score: {{correct}} / {{total}}",
+      "xpEarned": "+{{xp}} XP",
+      "streak_one": "Current streak: {{count}} day",
+      "streak_other": "Current streak: {{count}} days",
+      "continue": "Continue practicing",
+      "backToExercises": "Choose another exercise"
+    },
+    "cycle": {
+      "exhausted": "You've completed all items in this topic!",
+      "resetAndStart": "Reset & Start Again",
+      "back": "Back"
+    },
+    "rules": {
+      "show": "Show Rules",
+      "title": "Rules"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "nativeLanguage": "Native language",
+    "speech": {
+      "title": "Pronunciation",
+      "autoPlay": "Auto-play Croatian pronunciation after each answer"
+    }
+  },
+  "dictionary": {
+    "title": "My Dictionary",
+    "addWord": "Add Word",
+    "searchPlaceholder": "Search words...",
+    "noWords": "Your dictionary is empty. Add your first word!",
+    "word": "Croatian word",
+    "translation": "Translation",
+    "collection": "Collection",
+    "progress": "Progress",
+    "delete": "Delete",
+    "listen": "Listen",
+    "addWordModal": {
+      "title": "Add Word",
+      "wordLabel": "Croatian word",
+      "translationLabel": "Translation",
+      "collectionLabel": "Collection (optional)",
+      "suggestions": "Suggestions from other users",
+      "noSuggestions": "No suggestions found",
+      "add": "Add",
+      "cancel": "Cancel",
+      "duplicate": "This word is already in your dictionary"
+    },
+    "editWordModal": {
+      "title": "Edit Word",
+      "wordLabel": "Croatian word",
+      "translationLabel": "Translation",
+      "save": "Save",
+      "cancel": "Cancel",
+      "duplicate": "This word is already in your dictionary"
+    },
+    "collections": {
+      "title": "Collections",
+      "predefined": "Predefined Collections",
+      "personal": "My Collections",
+      "createCollection": "Create Collection",
+      "name": "Name",
+      "description": "Description (optional)",
+      "wordCount_one": "{{count}} word",
+      "wordCount_other": "{{count}} words",
+      "fromWordSets": "From Word Sets",
+      "wordSet": "Word Set",
+      "noCollections": "No collections yet",
+      "wordsInSet_one": "{{count}} word in set",
+      "wordsInSet_other": "{{count}} words in set",
+      "addSet": "Add Set",
+      "noWords": "No words in this collection yet",
+      "addSelected": "Add to my dictionary ({{count}})",
+      "addSetSuccess": "Added {{added}} words ({{skipped}} already in dictionary)",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "save": "Save"
+    },
+    "practice": {
+      "start": "Practice",
+      "instruction": "Type the translation:",
+      "placeholder": "Enter translation...",
+      "translateInstruction": "Type the Croatian word:",
+      "translatePlaceholder": "Enter Croatian word...",
+      "correct": "Correct!",
+      "incorrect": "Incorrect. The correct answer is: {{answer}}",
+      "noWords": "Add words to your dictionary first to start practicing",
+      "results": "Practice Complete!",
+      "back": "Go Back",
+      "backToDictionary": "Back to Dictionary",
+      "practiceAgain": "Practice Again"
+    },
+    "wordSets": {
+      "title": "Recommended Word Sets",
+      "subtitle": "Browse curated word sets and add them to your dictionary to start learning.",
+      "noSets": "No word sets available yet"
+    },
+    "assignCollection": "Assign to Collection",
+    "unassign": "Remove from collection",
+    "selected": "{{count}} selected",
+    "deleteConfirm": {
+      "title": "Delete word",
+      "message": "Are you sure you want to delete \"{{word}}\"?",
+      "confirm": "Delete"
+    },
+    "markLearned": "Mark as learned",
+    "resetProgress": "Reset progress",
+    "hideLearned": "Hide learned words",
+    "sortBy": "Sort by",
+    "sort": {
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "word": "Word (A–Z)",
+      "collection": "Collection (A–Z)",
+      "progress": "Progress (low → high)"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "close": "Close",
+    "cancel": "Cancel"
+  }
+}

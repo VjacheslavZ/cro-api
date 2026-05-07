@@ -1,0 +1,437 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+enum NativeLanguage {
+  RU
+  UK
+  EN
+}
+
+enum ExerciseType {
+  TYPE_THE_ANSWER
+  FLASHCARDS
+  FILL_IN_BLANK
+  BUILD_SENTENCE
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentPlatform {
+  STRIPE
+  APP_STORE
+  GOOGLE_PLAY
+}
+
+enum Currency {
+  EUR
+  USD
+}
+
+model User {
+  id               String          @id @default(uuid())
+  email            String          @unique
+  name             String
+  avatarUrl        String?
+  role             UserRole        @default(STUDENT)
+  nativeLanguage   NativeLanguage?
+  passwordHash     String?
+  googleId         String?         @unique
+  appleId          String?         @unique
+  emailVerified    Boolean         @default(false)
+  xpTotal          Int             @default(0)
+  currentStreak    Int             @default(0)
+  longestStreak    Int             @default(0)
+  lastPracticeDate DateTime?
+  expoPushToken    String?
+  isBlocked        Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  subscription     Subscription?
+  exerciseProgress UserExerciseProgress[]
+  exerciseSessions ExerciseSession[]
+  streakLogs       StreakLog[]
+  sessions         Session[]
+  accounts         Account[]
+  dictionaryWords       UserDictionaryWord[]
+  dictionaryProgress    DictionaryWordProgress[]
+  dictionaryCollections DictionaryCollection[]  @relation("UserDictionaryCollections")
+  dictionarySessions    DictionaryPracticeSession[]
+}
+
+model SubscriptionPlan {
+  id                  String         @id @default(uuid())
+  name                String
+  intervalMonths      Int
+  priceEur            Decimal        @db.Decimal(10, 2)
+  priceUsd            Decimal        @db.Decimal(10, 2)
+  stripePriceIdEur    String?
+  stripePriceIdUsd    String?
+  rcProductIdIos      String?
+  rcProductIdAndroid  String?
+  isActive            Boolean        @default(true)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  subscriptions       Subscription[]
+}
+
+model Subscription {
+  id                    String             @id @default(uuid())
+  userId                String             @unique
+  planId                String?
+  platform              PaymentPlatform?
+  status                SubscriptionStatus @default(TRIALING)
+  currency              Currency?
+  trialStartedAt        DateTime?
+  trialEndsAt           DateTime?
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  rcOriginalAppUserId   String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                  SubscriptionPlan?  @relation(fields: [planId], references: [id])
+}
+
+model WebhookEvent {
+  id              String   @id @default(uuid())
+  source          String
+  externalEventId String   @unique
+  payload         Json
+  createdAt       DateTime @default(now())
+}
+
+model ExerciseTopic {
+  id        String    @id @default(uuid())
+  nameHr    String
+  nameRu    String
+  nameUk    String
+  nameEn    String
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  rulesHtmlHr String?  @db.Text
+  rulesHtmlRu String?  @db.Text
+  rulesHtmlUk String?  @db.Text
+  rulesHtmlEn String?  @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  topicTypes          ExerciseTopicType[]
+  typeTheAnswerItems  TypeTheAnswerItem[]
+  flashcardItems      FlashcardItem[]
+  fillInBlankItems    FillInBlankItem[]
+  buildSentenceItems  BuildSentenceItem[]
+  sessions            ExerciseSession[]
+  exerciseProgress    UserExerciseProgress[]
+}
+
+model ExerciseTopicType {
+  id           String       @id @default(uuid())
+  topicId      String
+  exerciseType ExerciseType
+
+  topic        ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, exerciseType])
+}
+
+model TypeTheAnswerItem {
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  topicId       String
+  baseForm      String
+  answer        String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+
+  topic         ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([baseForm])
+}
+
+model FlashcardItem {
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  topicId       String
+  frontText     String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  topic         ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
+model FillInBlankItem {
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  topicId       String
+  sentenceHr    String
+  blankAnswer   String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+
+  topic         ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
+model BuildSentenceItem {
+  id            String              @id @default(dbgenerated("gen_random_uuid()"))
+  topicId       String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int                 @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @default(now()) @updatedAt
+
+  topic         ExerciseTopic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  words         BuildSentenceWord[]
+}
+
+model BuildSentenceWord {
+  id          String            @id @default(dbgenerated("gen_random_uuid()"))
+  itemId      String
+  wordHr      String
+  position    Int
+  distractors String[]
+
+  item        BuildSentenceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, position])
+}
+
+model UserExerciseProgress {
+  id                 String        @id @default(uuid())
+  userId             String
+  exerciseType       ExerciseType
+  itemId             String
+  topicId            String
+  seenInCurrentCycle Boolean       @default(false)
+  cycleNumber        Int           @default(1)
+  totalAttempts      Int           @default(0)
+  correctAttempts    Int           @default(0)
+  lastSeenAt         DateTime?
+  lastCorrectAt      DateTime?
+
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic              ExerciseTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseType, itemId])
+}
+
+model ExerciseSession {
+  id              String        @id @default(uuid())
+  userId          String
+  exerciseType    ExerciseType
+  topicId         String
+  status          SessionStatus @default(IN_PROGRESS)
+  totalQuestions  Int           @default(0)
+  correctAnswers  Int           @default(0)
+  xpEarned        Int           @default(0)
+  createdAt       DateTime      @default(now())
+  completedAt     DateTime?
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic           ExerciseTopic @relation(fields: [topicId], references: [id])
+  answers         SessionAnswer[]
+}
+
+model SessionAnswer {
+  id          String          @id @default(uuid())
+  sessionId   String
+  itemId      String
+  givenAnswer String
+  isCorrect   Boolean
+
+  session     ExerciseSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model StreakLog {
+  id       String   @id @default(uuid())
+  userId   String
+  date     DateTime @db.Date
+  xpEarned Int      @default(0)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  dictionaryCollections DictionaryCollection[]
+}
+
+model DictionaryCollection {
+  id               String   @id @default(uuid())
+  personalName     String   @default("")
+  nameRu           String   @default("")
+  nameUk           String   @default("")
+  nameEn           String   @default("")
+  description      String?
+  createdByAdminId String?
+  createdByUserId  String?
+  isPublic         Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  createdByAdmin  Admin? @relation(fields: [createdByAdminId], references: [id], onDelete: SetNull)
+  createdByUser   User?  @relation("UserDictionaryCollections", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  words           UserDictionaryWord[]
+  predefinedWords PredefinedDictionaryWord[]
+}
+
+model PredefinedDictionaryWord {
+  id            String   @id @default(uuid())
+  collectionId  String
+  wordHr        String
+  translationRu String
+  translationUk String
+  translationEn String
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  collection DictionaryCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, wordHr])
+}
+
+model UserDictionaryWord {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()"))
+  userId              String
+  wordHr              String
+  translation         String
+  translationLanguage NativeLanguage
+  collectionId        String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @default(dbgenerated("now()")) @updatedAt
+
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collection DictionaryCollection?  @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  progress   DictionaryWordProgress?
+
+  @@unique([userId, wordHr])
+  @@index([wordHr, translationLanguage])
+}
+
+model DictionaryWordProgress {
+  id              String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId          String
+  wordId          String    @unique
+  totalAttempts   Int       @default(0)
+  correctAttempts Int       @default(0)
+  lastPracticedAt DateTime?
+
+  wordToTranslatePercent Int @default(0)
+  translateToWordPercent Int @default(0)
+  letterPickPercent      Int @default(0)
+  matchingPercent        Int @default(0)
+
+  user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word UserDictionaryWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId])
+}
+
+model DictionaryPracticeSession {
+  id             String        @id @default(uuid())
+  userId         String
+  status         SessionStatus @default(IN_PROGRESS)
+  totalQuestions Int           @default(0)
+  correctAnswers Int           @default(0)
+  xpEarned       Int           @default(0)
+  createdAt      DateTime      @default(now())
+  completedAt    DateTime?
+
+  user    User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers DictionaryPracticeAnswer[]
+}
+
+model DictionaryPracticeAnswer {
+  id          String  @id @default(uuid())
+  sessionId   String
+  wordId      String
+  givenAnswer String
+  isCorrect   Boolean
+
+  session DictionaryPracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}

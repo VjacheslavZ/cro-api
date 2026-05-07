@@ -1,0 +1,321 @@
+{
+  "home": {
+    "title": "Ласкаво просимо до CroGrammar",
+    "subtitle": "Опановуйте хорватську граматику та лексику за допомогою інтерактивних вправ і персоналізованого навчання",
+    "statsGrammarTopics": "Теми граматики",
+    "statsWordsLearned": "Слів вивчено",
+    "statsDayStreak": "Днів підряд",
+    "statsTotalXp": "Всього XP",
+    "practiceGrammarTitle": "Граматика",
+    "practiceGrammarDesc": "Опановуйте хорватську граматику за допомогою структурованих уроків і вправ",
+    "practiceGrammarBtn": "Почати навчання",
+    "buildVocabTitle": "Лексика",
+    "buildVocabDesc": "Створіть свій особистий словник і практикуйтеся з наборами слів",
+    "buildVocabBtn": "Мій словник",
+    "wordSetsTitle": "Набори слів",
+    "wordSetsDesc": "Переглядайте добірки слів за популярними темами і ситуаціями",
+    "wordSetsBtn": "Переглянути набори"
+  },
+  "auth": {
+    "welcome": "Ласкаво просимо до Croatian Grammar",
+    "signInWithGoogle": "Увійти через Google",
+    "signInWithApple": "Увійти через Apple",
+    "selectLanguage": "Оберіть вашу рідну мову",
+    "continue": "Продовжити",
+    "loginFailed": "Помилка входу. Спробуйте ще раз.",
+    "orDivider": "або",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "name": "Ім'я",
+    "register": "Зареєструватися",
+    "login": "Увійти",
+    "switchToRegister": "Немає акаунту? Зареєструйтесь",
+    "switchToLogin": "Вже є акаунт? Увійдіть",
+    "registrationFailed": "Помилка реєстрації. Спробуйте ще раз.",
+    "welcomeBack": "З поверненням",
+    "createAccount": "Створити акаунт",
+    "signInSubtitle": "Увійдіть, щоб продовжити навчання",
+    "createAccountSubtitle": "Почніть вивчати хорватську сьогодні",
+    "continueWithEmail": "Продовжити з email",
+    "tagline": "Вчіть хорватську розумно",
+    "languageSubtitle": "Це визначить, як у застосунку відображатимуться переклади та пояснення",
+    "changeLanguageLater": "Ви можете змінити це пізніше в налаштуваннях"
+  },
+  "languages": {
+    "russian": "Русский",
+    "ukrainian": "Українська",
+    "english": "English"
+  },
+  "nav": {
+    "home": "Головна",
+    "exercises": "Вправи",
+    "grammar": "Граматика",
+    "vocabulary": "Лексика",
+    "dictionary": "Словник",
+    "myDictionary": "Мій словник",
+    "wordSets": "Рекомендовані набори слів",
+    "collections": "Мої колекції",
+    "profile": "Профіль"
+  },
+  "header": {
+    "settings": "Налаштування",
+    "logout": "Вийти",
+    "role": "Роль",
+    "xp": "Всього XP",
+    "streak": "Поточна серія",
+    "nativeLanguage": "Рідна мова"
+  },
+  "footer": {
+    "aboutUs": "Про нас",
+    "forPartners": "Партнерам",
+    "contacts": "Контакти",
+    "socials": "Ми в соцмережах",
+    "mobileApps": "Мобільні додатки",
+    "rights": "Усі права захищені.",
+    "company": "Компанія",
+    "tagline": "Вчіть хорватську граматику та лексику за допомогою інтерактивних вправ"
+  },
+  "exercises": {
+    "title": "Теми граматики",
+    "subtitle": "Оберіть тему для практики та вдосконалення навичок хорватської граматики",
+    "noTopics": "Теми недоступні",
+    "noTopicsDesc": "Зайдіть пізніше — нові теми для практики незабаром з'являться.",
+    "vocabulary": {
+      "title": "Назад",
+      "subtitle": "Оберіть тип вправи для практики слів зі свого словника.",
+      "wordToTranslate": "Слово → Переклад",
+      "wordToTranslateDesc": "Бачите хорватське слово — введіть його переклад.",
+      "translateToWord": "Переклад → Слово",
+      "translateToWordDesc": "Бачите переклад — введіть хорватське слово.",
+      "letterPick": "Скласти слово",
+      "letterPickDesc": "Бачите переклад — складіть хорватське слово з букв.",
+      "matching": "Зіставити на слух",
+      "matchingDesc": "Слухайте хорватські слова та підбирайте до них переклади.",
+      "learnWords": "Вчити слова",
+      "learnWordsDesc": "Пройдіть усі 4 типи вправ для вибраних слів.",
+      "speedQuiz": "Швидкий тест",
+      "speedQuizDesc": "Перевірте вивчені слова на швидкість. 5 секунди на питання!",
+      "practiceModesLabel": "Режими практики"
+    },
+    "speedQuiz": {
+      "notEnoughWords": "Потрібно щонайменше 12 повністю вивчених слів для Швидкого тесту.",
+      "timeUp": "Час вийшов!",
+      "correct": "Правильно!",
+      "wrongAnswer": "Правильна відповідь: {{answer}}",
+      "progress": "{{done}} / {{total}}"
+    },
+    "learnWords": {
+      "setupTitle": "Вчити слова",
+      "wordCount": "Слів за сесію",
+      "filter": "Вибір слів",
+      "filterNewest": "Нові",
+      "filterOldest": "Старі",
+      "filterProgress": "За прогресом (0%→100%)",
+      "next": "Далі",
+      "previewTitle": "Слова для вивчення",
+      "wordOf": "{{current}} / {{total}}",
+      "startExercises": "Розпочати вправи",
+      "exerciseStep": "Вправа {{step}} з 4",
+      "stepComplete": "Вправа {{step}} з 4 завершена",
+      "score": "Результат: {{correct}} / {{total}}",
+      "continue": "Продовжити",
+      "resultsTitle": "Сесію завершено!",
+      "totalScore": "Підсумок: {{correct}} / {{total}}",
+      "backToDictionary": "Назад до словника",
+      "learnAgain": "Вчити знову",
+      "learned": "Вивчено"
+    },
+    "matching": {
+      "progress": "{{matched}} / {{total}} зіставлено",
+      "complete": "Усі слова зіставлено!"
+    },
+    "letterPick": {
+      "instruction": "Складіть хорватське слово:",
+      "hint": "Підказка",
+      "perfect": "Чудово! Без помилок!",
+      "withErrors": "Завершено з помилками",
+      "reset": "Скинути"
+    },
+    "chooseType": "Оберіть тип вправи для початку практики.",
+    "noTypes": "Для цієї теми немає доступних типів вправ.",
+    "start": "Почати",
+    "types": {
+      "typeTheAnswer": "Впишіть відповідь",
+      "typeTheAnswerDesc": "Введіть правильну форму слова",
+      "flashcards": "Картки",
+      "flashcardsDesc": "Повторюйте правила з картками",
+      "fillInBlank": "Заповни пропуск",
+      "fillInBlankDesc": "Вставте пропущене слово в речення",
+      "buildSentence": "Скласти речення",
+      "buildSentenceDesc": "Натискайте слова у правильному порядку, щоб скласти хорватське речення"
+    },
+    "buildSentence": {
+      "instruction": "Складіть хорватське речення:",
+      "wordOf": "Слово {{current}} з {{total}}",
+      "correct": "Правильно!",
+      "incorrect": "Майже! Ось правильне речення:",
+      "next": "Далі",
+      "finish": "Завершити"
+    },
+    "session": {
+      "progress": "Питання {{current}} з {{total}}",
+      "check": "Перевірити",
+      "next": "Далі",
+      "finish": "Завершити",
+      "stop": "Стоп",
+      "stopTitle": "Зупинити вправу?",
+      "stopMessage": "Прогрес поточної сесії не буде збережено.",
+      "stopConfirm": "Зупинити",
+      "hint": "Підказка"
+    },
+    "typeTheAnswer": {
+      "title": "Впишіть відповідь",
+      "instruction": "Введіть множину слова:",
+      "placeholder": "Введіть множину...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}"
+    },
+    "flashcards": {
+      "title": "Картки",
+      "instruction": "Ви знаєте це слово?",
+      "tapToFlip": "Натисніть, щоб побачити переклад",
+      "knew": "Знав/Знала",
+      "didNotKnow": "Не знав/Не знала"
+    },
+    "fillInBlank": {
+      "title": "Заповни пропуск",
+      "instruction": "Вставте пропущене слово:",
+      "placeholder": "Введіть пропущене слово...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}"
+    },
+    "results": {
+      "title": "Сесію завершено!",
+      "score": "Результат: {{correct}} / {{total}}",
+      "xpEarned": "+{{xp}} XP",
+      "streak_one": "Поточна серія: {{count}} день",
+      "streak_few": "Поточна серія: {{count}} дні",
+      "streak_many": "Поточна серія: {{count}} днів",
+      "continue": "Продовжити практику",
+      "backToExercises": "Обрати іншу вправу"
+    },
+    "cycle": {
+      "exhausted": "Ви пройшли всі завдання у цій темі!",
+      "resetAndStart": "Скинути і почати знову",
+      "back": "Назад"
+    },
+    "rules": {
+      "show": "Показати правила",
+      "title": "Правила"
+    }
+  },
+  "settings": {
+    "title": "Налаштування",
+    "nativeLanguage": "Рідна мова",
+    "speech": {
+      "title": "Вимова",
+      "autoPlay": "Автоматично відтворювати хорватську вимову після кожної відповіді"
+    }
+  },
+  "dictionary": {
+    "title": "Мій словник",
+    "addWord": "Додати слово",
+    "searchPlaceholder": "Пошук слів...",
+    "noWords": "Ваш словник порожній. Додайте перше слово!",
+    "word": "Хорватське слово",
+    "translation": "Переклад",
+    "collection": "Колекція",
+    "progress": "Прогрес",
+    "delete": "Видалити",
+    "listen": "Прослухати",
+    "addWordModal": {
+      "title": "Додати слово",
+      "wordLabel": "Хорватське слово",
+      "translationLabel": "Переклад",
+      "collectionLabel": "Колекція (необов'язково)",
+      "suggestions": "Пропозиції від інших користувачів",
+      "noSuggestions": "Пропозицій не знайдено",
+      "add": "Додати",
+      "cancel": "Скасувати",
+      "duplicate": "Це слово вже є у вашому словнику"
+    },
+    "editWordModal": {
+      "title": "Редагувати слово",
+      "wordLabel": "Хорватське слово",
+      "translationLabel": "Переклад",
+      "save": "Зберегти",
+      "cancel": "Скасувати",
+      "duplicate": "Це слово вже є у вашому словнику"
+    },
+    "collections": {
+      "title": "Колекції",
+      "predefined": "Готові колекції",
+      "personal": "Мої колекції",
+      "createCollection": "Створити колекцію",
+      "name": "Назва",
+      "description": "Опис (необов'язково)",
+      "wordCount_one": "{{count}} слово",
+      "wordCount_few": "{{count}} слова",
+      "wordCount_many": "{{count}} слів",
+      "fromWordSets": "З наборів слів",
+      "wordSet": "Набір слів",
+      "noCollections": "Колекцій поки немає",
+      "wordsInSet_one": "{{count}} слово в наборі",
+      "wordsInSet_few": "{{count}} слова в наборі",
+      "wordsInSet_many": "{{count}} слів в наборі",
+      "addSet": "Додати набір",
+      "noWords": "У цій колекції поки немає слів",
+      "addSelected": "Додати до мого словника ({{count}})",
+      "addSetSuccess": "Додано {{added}} слів ({{skipped}} вже у словнику)",
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "create": "Створити",
+      "save": "Зберегти"
+    },
+    "practice": {
+      "start": "Практика",
+      "instruction": "Введіть переклад:",
+      "placeholder": "Введіть переклад...",
+      "translateInstruction": "Введіть хорватське слово:",
+      "translatePlaceholder": "Введіть хорватське слово...",
+      "correct": "Правильно!",
+      "incorrect": "Неправильно. Правильна відповідь: {{answer}}",
+      "noWords": "Спочатку додайте слова до словника, щоб почати практику",
+      "results": "Практику завершено!",
+      "back": "Назад",
+      "backToDictionary": "Назад до словника",
+      "practiceAgain": "Практикувати знову"
+    },
+    "wordSets": {
+      "title": "Рекомендовані набори слів",
+      "subtitle": "Оберіть готові набори слів та додайте їх до свого словника для вивчення.",
+      "noSets": "Наборів слів поки немає"
+    },
+    "assignCollection": "Призначити колекцію",
+    "unassign": "Прибрати з колекції",
+    "selected": "{{count}} обрано",
+    "deleteConfirm": {
+      "title": "Видалити слово",
+      "message": "Ви впевнені, що хочете видалити «{{word}}»?",
+      "confirm": "Видалити"
+    },
+    "markLearned": "Позначити як вивчене",
+    "resetProgress": "Скинути прогрес",
+    "hideLearned": "Приховати вивчені слова",
+    "sortBy": "Сортування",
+    "sort": {
+      "newest": "Спочатку нові",
+      "oldest": "Спочатку старі",
+      "word": "Слово (А–Я)",
+      "collection": "Колекція (А–Я)",
+      "progress": "Прогрес (низький → високий)"
+    }
+  },
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Сталася помилка",
+    "retry": "Повторити",
+    "close": "Закрити",
+    "cancel": "Скасувати"
+  }
+}

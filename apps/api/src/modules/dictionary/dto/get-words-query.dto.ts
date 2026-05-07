@@ -1,0 +1,45 @@
+import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsIn, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+
+export class GetWordsQueryDto {
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  cursor?: string;
+
+  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 50 })
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  @Type(() => Number)
+  @IsOptional()
+  limit?: number = 20;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  collectionId?: string;
+
+  @ApiPropertyOptional({ enum: ['newest', 'oldest', 'progress', 'word', 'collection'] })
+  @IsIn(['newest', 'oldest', 'progress', 'word', 'collection'])
+  @IsOptional()
+  sort?: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  excludeLearned?: boolean;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  onlyLearned?: boolean;
+}
