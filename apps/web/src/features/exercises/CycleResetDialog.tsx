@@ -1,3 +1,9 @@
+/**
+ * @module CycleResetDialog
+ * @description Confirmation dialog shown when a user's exercise cycle is exhausted
+ * (all items have been seen). Calls the reset-cycle API and re-starts the session on confirm.
+ * @usedBy TopicExercisesPage
+ */
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -18,6 +24,14 @@ interface CycleResetDialogProps {
   exerciseType: string;
 }
 
+/**
+ * Prompts the user to confirm resetting their exercise cycle, then fires the reset mutation.
+ * @param props.open - Whether the dialog is visible
+ * @param props.onReset - Called after successful reset; parent should restart the session
+ * @param props.onClose - Called when user dismisses without resetting
+ * @param props.topicId - Topic whose cycle will be reset
+ * @param props.exerciseType - Exercise type whose cycle will be reset
+ */
 export function CycleResetDialog({
   open,
   onReset,

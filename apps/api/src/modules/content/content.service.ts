@@ -5,12 +5,15 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { ContentCacheService } from './content-cache.service';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { UpdateTopicDto } from './dto/update-topic.dto';
-import { CreateSingularPluralItemDto } from './dto/create-singular-plural-item.dto';
-import { UpdateSingularPluralItemDto } from './dto/update-singular-plural-item.dto';
+import { CreateTypeTheAnswerItemDto } from './dto/create-type-the-answer-item.dto';
+import { UpdateTypeTheAnswerItemDto } from './dto/update-type-the-answer-item.dto';
 import { CreateFlashcardItemDto } from './dto/create-flashcard-item.dto';
 import { UpdateFlashcardItemDto } from './dto/update-flashcard-item.dto';
 import { CreateFillInBlankItemDto } from './dto/create-fill-in-blank-item.dto';
 import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
+import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
+import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
+import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
 
 @Injectable()
 export class ContentService {
@@ -121,48 +124,47 @@ export class ContentService {
     await this.cache.invalidate('content:topics');
     return this.getTopicById(topicId);
   }
-  // TODO rename Singular Plural Items
-  // --- Singular Plural Items ---
-  async getSingularPluralItems(topicId: string) {
-    return this.prisma.singularPluralItem.findMany({
+  // --- Type The Answer Items ---
+  async getTypeTheAnswerItems(topicId: string) {
+    return this.prisma.typeTheAnswerItem.findMany({
       where: { topicId },
       orderBy: { sortOrder: 'asc' },
     });
   }
 
-  async createSingularPluralItem(dto: CreateSingularPluralItemDto) {
+  async createTypeTheAnswerItem(dto: CreateTypeTheAnswerItemDto) {
     await this.getTopicById(dto.topicId);
-    const duplicate = await this.prisma.singularPluralItem.findUnique({
+    const duplicate = await this.prisma.typeTheAnswerItem.findUnique({
       where: { baseForm: dto.baseForm },
     });
     if (duplicate) {
       throw new ConflictException('Item with this baseForm already exists');
     }
-    const item = await this.prisma.singularPluralItem.create({ data: dto });
+    const item = await this.prisma.typeTheAnswerItem.create({ data: dto });
     await this.invalidateItemsCache(dto.topicId, ExerciseType.TYPE_THE_ANSWER);
     return item;
   }
 
-  async updateSingularPluralItem(id: string, dto: UpdateSingularPluralItemDto) {
-    const existing = await this.prisma.singularPluralItem.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException('Singular plural item not found');
+  async updateTypeTheAnswerItem(id: string, dto: UpdateTypeTheAnswerItemDto) {
+    const existing = await this.prisma.typeTheAnswerItem.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Type the answer item not found');
     if (dto.baseForm && dto.baseForm !== existing.baseForm) {
-      const duplicate = await this.prisma.singularPluralItem.findUnique({
+      const duplicate = await this.prisma.typeTheAnswerItem.findUnique({
         where: { baseForm: dto.baseForm },
       });
       if (duplicate) {
         throw new ConflictException('Item with this baseForm already exists');
       }
     }
-    const item = await this.prisma.singularPluralItem.update({ where: { id }, data: dto });
+    const item = await this.prisma.typeTheAnswerItem.update({ where: { id }, data: dto });
     await this.invalidateItemsCache(existing.topicId, ExerciseType.TYPE_THE_ANSWER);
     return item;
   }
 
-  async deleteSingularPluralItem(id: string) {
-    const existing = await this.prisma.singularPluralItem.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException('Singular plural item not found');
-    await this.prisma.singularPluralItem.delete({ where: { id } });
+  async deleteTypeTheAnswerItem(id: string) {
+    const existing = await this.prisma.typeTheAnswerItem.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Type the answer item not found');
+    await this.prisma.typeTheAnswerItem.delete({ where: { id } });
     await this.invalidateItemsCache(existing.topicId, ExerciseType.TYPE_THE_ANSWER);
   }
 
@@ -226,6 +228,80 @@ export class ContentService {
     await this.invalidateItemsCache(existing.topicId, ExerciseType.FILL_IN_BLANK);
   }
 
+  // --- Build Sentence Items ---
+
+  async getBuildSentenceItems(topicId: string) {
+    return this.prisma.buildSentenceItem.findMany({
+      where: { topicId },
+      include: { words: { orderBy: { position: 'asc' } } },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async createBuildSentenceItem(dto: CreateBuildSentenceItemDto) {
+    await this.getTopicById(dto.topicId);
+    const { words, topicId, ...itemData } = dto;
+    const item = await this.prisma.buildSentenceItem.create({
+      data: {
+        ...itemData,
+        topicId,
+        words: {
+          create: words.map((w) => ({
+            wordHr: w.wordHr,
+            position: w.position,
+            distractors: w.distractors,
+          })),
+        },
+      },
+      include: { words: { orderBy: { position: 'asc' } } },
+    });
+    await this.invalidateItemsCache(topicId, ExerciseType.BUILD_SENTENCE);
+    return item;
+  }
+
+  async updateBuildSentenceItem(id: string, dto: UpdateBuildSentenceItemDto) {
+    const existing = await this.prisma.buildSentenceItem.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Build sentence item not found');
+
+    const { words, ...itemData } = dto;
+
+    if (words !== undefined) {
+      await this.prisma.buildSentenceWord.deleteMany({ where: { itemId: id } });
+      await this.prisma.buildSentenceWord.createMany({
+        data: words.map((w) => ({
+          itemId: id,
+          wordHr: w.wordHr,
+          position: w.position,
+          distractors: w.distractors,
+        })),
+      });
+    }
+
+    const item = await this.prisma.buildSentenceItem.update({
+      where: { id },
+      data: itemData,
+      include: { words: { orderBy: { position: 'asc' } } },
+    });
+    await this.invalidateItemsCache(existing.topicId, ExerciseType.BUILD_SENTENCE);
+    return item;
+  }
+
+  async updateBuildSentenceWord(wordId: string, dto: UpdateBuildSentenceWordDto) {
+    const existing = await this.prisma.buildSentenceWord.findUnique({ where: { id: wordId } });
+    if (!existing) throw new NotFoundException('Build sentence word not found');
+    return this.prisma.buildSentenceWord.update({
+      where: { id: wordId },
+      data: { distractors: dto.distractors },
+    });
+  }
+
+  async deleteBuildSentenceItem(id: string) {
+    const existing = await this.prisma.buildSentenceItem.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Build sentence item not found');
+    await this.prisma.buildSentenceItem.delete({ where: { id } });
+    await this.invalidateItemsCache(existing.topicId, ExerciseType.BUILD_SENTENCE);
+  }
+
   // --- Generic Item Access (used by exercises/progress modules) ---
 
   async getItemsForTopic(
@@ -250,7 +326,7 @@ export class ContentService {
 
     switch (exerciseType) {
       case ExerciseType.TYPE_THE_ANSWER:
-        return this.prisma.singularPluralItem.findMany({
+        return this.prisma.typeTheAnswerItem.findMany({
           where: { id: { in: itemIds } },
           orderBy: { sortOrder: 'asc' },
         });
@@ -264,6 +340,8 @@ export class ContentService {
           where: { id: { in: itemIds } },
           orderBy: { sortOrder: 'asc' },
         });
+      case ExerciseType.BUILD_SENTENCE:
+        return this.getBuildSentenceItemsWithOptions(itemIds);
     }
   }
 
@@ -272,7 +350,7 @@ export class ContentService {
   private async queryItemsByType(topicId: string, exerciseType: ExerciseType) {
     switch (exerciseType) {
       case ExerciseType.TYPE_THE_ANSWER:
-        return this.prisma.singularPluralItem.findMany({
+        return this.prisma.typeTheAnswerItem.findMany({
           where: { topicId },
           orderBy: { sortOrder: 'asc' },
         });
@@ -286,16 +364,61 @@ export class ContentService {
           where: { topicId },
           orderBy: { sortOrder: 'asc' },
         });
+      case ExerciseType.BUILD_SENTENCE:
+        return this.prisma.buildSentenceItem.findMany({
+          where: { topicId },
+          orderBy: { sortOrder: 'asc' },
+        });
     }
   }
 
+  private async getBuildSentenceItemsWithOptions(
+    itemIds: string[],
+  ): Promise<Record<string, unknown>[]> {
+    const items = await this.prisma.buildSentenceItem.findMany({
+      where: { id: { in: itemIds } },
+      include: { words: { orderBy: { position: 'asc' } } },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    const allWords = items.flatMap((item) => item.words.map((w) => w.wordHr));
+    const uniqueWords = [...new Set(allWords)];
+
+    return items.map((item) => ({
+      ...item,
+      words: item.words.map((word) => {
+        const pool = [word.wordHr, ...word.distractors];
+        if (pool.length < 6) {
+          const candidates = uniqueWords.filter((w) => !pool.includes(w));
+          this.shuffleArray(candidates);
+          pool.push(...candidates.slice(0, 6 - pool.length));
+        }
+        return {
+          id: word.id,
+          wordHr: word.wordHr,
+          position: word.position,
+          options: this.shuffleArray([...pool.slice(0, 6)]),
+        };
+      }),
+    }));
+  }
+
+  private shuffleArray<T>(arr: T[]): T[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   private async countTopicItems(topicId: string): Promise<number> {
-    const [sp, fc, fib] = await Promise.all([
-      this.prisma.singularPluralItem.count({ where: { topicId } }),
+    const [sp, fc, fib, bs] = await Promise.all([
+      this.prisma.typeTheAnswerItem.count({ where: { topicId } }),
       this.prisma.flashcardItem.count({ where: { topicId } }),
       this.prisma.fillInBlankItem.count({ where: { topicId } }),
+      this.prisma.buildSentenceItem.count({ where: { topicId } }),
     ]);
-    return sp + fc + fib;
+    return sp + fc + fib + bs;
   }
 
   private async invalidateItemsCache(topicId: string, exerciseType: ExerciseType) {

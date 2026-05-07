@@ -16,6 +16,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "prisma:generate": "npm run -w cro-api prisma:generate",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -13,6 +13,7 @@ export enum ExerciseType {
   TYPE_THE_ANSWER = 'TYPE_THE_ANSWER',
   FLASHCARDS = 'FLASHCARDS',
   FILL_IN_BLANK = 'FILL_IN_BLANK',
+  BUILD_SENTENCE = 'BUILD_SENTENCE',
 }
 
 export enum SessionStatus {
@@ -66,11 +67,11 @@ export interface ExerciseTopic {
   rulesHtmlEn: string | null;
 }
 
-export interface SingularPluralItem {
+export interface TypeTheAnswerItem {
   id: string;
   topicId: string;
   baseForm: string;
-  pluralForm: string;
+  answer: string;
   translationRu: string;
   translationUk: string;
   translationEn: string;
@@ -98,10 +99,28 @@ export interface FillInBlankItem {
   sortOrder: number;
 }
 
+export interface BuildSentenceWordOption {
+  id: string;
+  wordHr: string;
+  position: number;
+  options: string[];
+}
+
+export interface BuildSentenceItem {
+  id: string;
+  topicId: string;
+  translationRu: string;
+  translationUk: string;
+  translationEn: string;
+  sortOrder: number;
+  words: BuildSentenceWordOption[];
+}
+
 export type ExerciseItem =
-  | ({ type: ExerciseType.TYPE_THE_ANSWER } & SingularPluralItem)
+  | ({ type: ExerciseType.TYPE_THE_ANSWER } & TypeTheAnswerItem)
   | ({ type: ExerciseType.FLASHCARDS } & FlashcardItem)
-  | ({ type: ExerciseType.FILL_IN_BLANK } & FillInBlankItem);
+  | ({ type: ExerciseType.FILL_IN_BLANK } & FillInBlankItem)
+  | ({ type: ExerciseType.BUILD_SENTENCE } & BuildSentenceItem);
 
 export interface CreateSessionRequest {
   topicId: string;
@@ -153,6 +172,12 @@ export interface GamificationStats {
 
 // --- Dictionary types ---
 
+export type VocabularyExerciseType =
+  | 'word-to-translate'
+  | 'translate-to-word'
+  | 'letter-pick'
+  | 'matching';
+
 export interface DictionaryWord {
   id: string;
   wordHr: string;
@@ -161,6 +186,11 @@ export interface DictionaryWord {
   collectionId: string | null;
   collectionName: string | null;
   progressPercent: number;
+  wordToTranslatePercent: number;
+  translateToWordPercent: number;
+  letterPickPercent: number;
+  matchingPercent: number;
+  isLearned: boolean;
   createdAt: string;
 }
 
@@ -171,7 +201,27 @@ export interface DictionaryCollection {
   isPublic: boolean;
   sortOrder: number;
   wordCount?: number;
+  predefinedWordCount?: number;
   type: 'predefined' | 'personal';
+}
+
+export interface PredefinedDictionaryWord {
+  id: string;
+  collectionId: string;
+  wordHr: string;
+  translationRu: string;
+  translationUk: string;
+  translationEn: string;
+  sortOrder: number;
+}
+
+export interface AddSetRequest {
+  wordIds?: string[];
+}
+
+export interface AddSetResponse {
+  addedCount: number;
+  skippedCount: number;
 }
 
 export interface TranslationSuggestion {
@@ -182,6 +232,7 @@ export interface TranslationSuggestion {
 export interface PaginatedResponse<T> {
   items: T[];
   nextCursor: string | null;
+  total: number;
 }
 
 export interface DictionaryPracticeItem {
@@ -204,4 +255,24 @@ export interface FinishDictionaryPracticeResponse {
   newXpTotal: number;
   currentStreak: number;
   longestStreak: number;
+}
+
+export interface SpeedQuizOutcome {
+  wordId: string;
+  progressTarget: 0 | 100;
+}
+
+export interface StartDictionaryPracticeRequest {
+  collectionId?: string;
+  count?: number;
+  wordIds?: string[];
+  exerciseType?: VocabularyExerciseType;
+  filter?: 'newest' | 'oldest' | 'progress';
+  learnedOnly?: boolean;
+}
+
+export interface FinishDictionaryPracticeRequest {
+  answers: { wordId: string; givenAnswer: string; isCorrect: boolean }[];
+  exerciseType?: VocabularyExerciseType;
+  speedQuizOutcomes?: SpeedQuizOutcome[];
 }

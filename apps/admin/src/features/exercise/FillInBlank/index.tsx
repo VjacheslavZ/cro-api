@@ -1,9 +1,20 @@
+/**
+ * @module FillInBlankTab
+ * @description Tab content for managing Fill in the Blank exercise items within a topic. Fetches
+ * items via ['fill-in-blank-items', topicId] from GET /admin/topics/:id/fill-in-blank-items.
+ * saveMutation handles add (POST /admin/fill-in-blank-items) and edit
+ * (PATCH /admin/fill-in-blank-items/:id). Uses useTablePagination for client-side pagination.
+ * Inline form is toggled by the "Add Item" button; editing a row pre-populates the form via
+ * AddExerciseQuestion's useEffect reset. sentenceHr must include a {{BLANK}} placeholder.
+ * @usedBy ExercisePage
+ */
 import { useState } from 'react';
-import { CircularProgress, Alert, Box, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client.ts';
+import { QueryState } from '../../../shared/components/QueryState';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
 import {
   AddExerciseQuestion,
@@ -12,6 +23,10 @@ import {
 } from './AddExerciseQuestion.tsx';
 import { ContentTable } from './ContentTable.tsx';
 
+/**
+ * Renders the Fill in the Blank item list with inline add/edit form for a given topic.
+ * @param topicId - The topic whose Fill in the Blank items are being managed.
+ */
 export function FillInBlankTab({ topicId }: { topicId: string }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<FillInBlankItem | null>(null);
@@ -54,14 +69,9 @@ export function FillInBlankTab({ topicId }: { topicId: string }) {
       queryClient.invalidateQueries({ queryKey: ['fill-in-blank-items', topicId] });
     },
   });
-  // showing progress and error are duplicated in neighboring components
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  if (error) return <Alert severity="error">Failed to load items</Alert>;
+
+  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load items' });
+  if (queryState) return queryState;
 
   return (
     <Box>

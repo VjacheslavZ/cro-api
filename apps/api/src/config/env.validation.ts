@@ -9,7 +9,7 @@ export const envSchema = z.object({
   JWT_REFRESH_EXPIRY_SECONDS: z.coerce.number().default(2592000),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
-  GOOGLE_CALLBACK_URL: z.string().url(),
+  API_URL: z.string().url().default('http://localhost:3000'),
   WEB_URL: z.string().url().default('http://localhost:5173'),
   ADMIN_URL: z.string().url().default('http://localhost:5174'),
   PORT: z.coerce.number().default(3000),

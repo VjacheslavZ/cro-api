@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Container,
   Typography,
   Button,
   Box,
@@ -11,14 +10,27 @@ import {
   CardActions,
   Grid,
   IconButton,
-  CircularProgress,
-  Alert,
+  Chip,
+  Container,
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 
 import { useDictionaryCollections, useDeleteCollection } from '../../api/dictionary';
+import { QueryState } from '../../shared/components/QueryState';
 import { CreateCollectionModal } from './CreateCollectionModal';
 
+/**
+ * Route: /dictionary/my-collections
+ *
+ * Displays two sections:
+ * - "From Word Sets" — predefined (admin-created) collections the user has
+ *   already added words from, shown as read-only cards linking to the filtered
+ *   My Dictionary view.
+ * - "My Collections" — user-created personal collections with edit / delete
+ *   actions. Clicking a card navigates to /dictionary/my?collectionId=<id>.
+ *
+ * Collection create / edit is handled by CreateCollectionModal.
+ */
 export function CollectionsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -32,8 +44,10 @@ export function CollectionsPage() {
     description: string | null;
   } | null>(null);
 
-  const predefined = collections.filter((c) => c.type === 'predefined');
   const personal = collections.filter((c) => c.type === 'personal');
+  const addedWordSets = collections.filter(
+    (c) => c.type === 'predefined' && (c.wordCount ?? 0) > 0,
+  );
 
   const handleEdit = (c: { id: string; name: string; description: string | null }) => {
     setEditData(c);
@@ -49,21 +63,8 @@ export function CollectionsPage() {
     setEditData(null);
   };
 
-  if (isLoading) {
-    return (
-      <Container maxWidth="md" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
-    );
-  }
+  const queryState = QueryState({ isLoading, isError });
+  if (queryState) return queryState;
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -81,22 +82,29 @@ export function CollectionsPage() {
         </Button>
       </Box>
 
-      {/* Predefined Collections */}
-      {predefined.length > 0 && (
+      {/* Word sets the user has added words from */}
+      {addedWordSets.length > 0 && (
         <>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            {t('dictionary.collections.predefined')}
+            {t('dictionary.collections.fromWordSets')}
           </Typography>
           <Grid container spacing={2} sx={{ mb: 4 }}>
-            {predefined.map((c) => (
+            {addedWordSets.map((c) => (
               <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Card
-                  variant="outlined"
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
-                >
-                  <CardContent>
-                    <Typography variant="h6">{c.name}</Typography>
+                <Card variant="outlined">
+                  <CardContent
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Typography variant="h6">{c.name}</Typography>
+                      <Chip
+                        label={t('dictionary.collections.wordSet')}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </Box>
                     {c.description && (
                       <Typography variant="body2" color="text.secondary">
                         {c.description}
@@ -113,7 +121,7 @@ export function CollectionsPage() {
         </>
       )}
 
-      {/* Personal Collections */}
+      {/* Personal collections */}
       <Typography variant="h6" sx={{ mb: 2 }}>
         {t('dictionary.collections.personal')}
       </Typography>

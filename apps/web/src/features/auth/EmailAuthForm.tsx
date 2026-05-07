@@ -1,102 +1,103 @@
-import { useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
-import { Box, TextField, Link } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 
-import { apiClient } from '../../api/client';
-import type { UserProfile } from '../../store/auth.slice';
+import { authClient } from '../../lib/auth-client';
 
 type AuthMode = 'login' | 'register';
 
 interface EmailAuthFormProps {
+  mode: AuthMode;
   loading: boolean;
   setLoading: (loading: boolean) => void;
-  onSuccess: (data: {
-    accessToken: string;
-    refreshToken: string;
-    user: UserProfile;
-    isNewUser: boolean;
-  }) => void;
+  onSuccess: () => void;
   onError: (message: string) => void;
+  formData: { name: string; email: string; password: string };
+  setFormData: (data: { name: string; email: string; password: string }) => void;
 }
 
-export function EmailAuthForm({ loading, setLoading, onSuccess, onError }: EmailAuthFormProps) {
+export function EmailAuthForm({
+  mode,
+  loading,
+  setLoading,
+  onSuccess,
+  onError,
+  formData,
+  setFormData,
+}: EmailAuthFormProps) {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<AuthMode>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     onError('');
     try {
-      const endpoint = mode === 'register' ? '/auth/register' : '/auth/login';
-      const body = mode === 'register' ? { email, password, name } : { email, password };
-      const { data } = await apiClient.post(endpoint, body);
-      onSuccess(data);
-    } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError.response?.data?.message ||
-        (mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed'));
-      onError(message);
+      if (mode === 'register') {
+        const result = await authClient.signUp.email({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+        });
+        if (result.error) {
+          onError(result.error.message || t('auth.registrationFailed'));
+          return;
+        }
+      } else {
+        const result = await authClient.signIn.email({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (result.error) {
+          onError(result.error.message || t('auth.loginFailed'));
+          return;
+        }
+      }
+      onSuccess();
+    } catch {
+      onError(mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-      >
-        {mode === 'register' && (
-          <TextField
-            label={t('auth.name')}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            fullWidth
-          />
-        )}
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+    >
+      {mode === 'register' && (
         <TextField
-          label={t('auth.email')}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          label={t('auth.name')}
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
           fullWidth
+          disabled={loading}
         />
-        <TextField
-          label={t('auth.password')}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          inputProps={{ minLength: 8 }}
-          fullWidth
-        />
-        <LoadingButton type="submit" variant="contained" size="large" loading={loading} fullWidth>
-          {mode === 'register' ? t('auth.register') : t('auth.login')}
-        </LoadingButton>
-      </Box>
-
-      <Box sx={{ mt: 2 }}>
-        <Link
-          component="button"
-          variant="body2"
-          onClick={() => {
-            setMode(mode === 'login' ? 'register' : 'login');
-            onError('');
-          }}
-        >
-          {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
-        </Link>
-      </Box>
-    </>
+      )}
+      <TextField
+        label={t('auth.email')}
+        type="email"
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        required
+        fullWidth
+        disabled={loading}
+      />
+      <TextField
+        label={t('auth.password')}
+        type="password"
+        value={formData.password}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        required
+        inputProps={{ minLength: 8 }}
+        fullWidth
+        disabled={loading}
+      />
+      <LoadingButton type="submit" variant="contained" size="large" loading={loading} fullWidth>
+        {mode === 'register' ? t('auth.register') : t('auth.login')}
+      </LoadingButton>
+    </Box>
   );
 }

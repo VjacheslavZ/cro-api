@@ -1,6 +1,9 @@
 ---
 name: modern-best-practice-react-components
-description: Build clean, modern React components that apply common best practices and avoid common pitfalls like unnecessary pitfalls like unnecessary re-renders, prop drilling, and state management issues.
+description: Build clean, modern React components that apply common best practices and avoid common pitfalls like unnecessary re-renders, prop drilling, and state management issues. Auto-loads when editing React component files in web and admin apps.
+paths:
+  - "apps/web/src/features/**/*.tsx"
+  - "apps/admin/src/features/**/*.tsx"
 ---
 
 # Writing react components
@@ -171,16 +174,5 @@ Avoid using context for:
 
 * Components should depend on abstractions (callbacks like `onCreated`, `onSubmit`) not concrete implementations
 * Parent components pass behavior down; child components don't reach up for context they don't own
-
-## 15. Checklist
-
-* [ ] Component is small
-* [ ] Single responsibility respected
-* [ ] No unnecessary state
-* [ ] No unnecessary effects
-* [ ] Hooks extracted
-* [ ] Performance considered
-* [ ] Accessible
-* [ ] Tested
 
 ---

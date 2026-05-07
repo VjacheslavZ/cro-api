@@ -1,20 +1,35 @@
+/**
+ * @module TypeTheAnswer
+ * @description Tab content for managing Type the Answer exercise items within a topic. Fetches
+ * items via ['type-the-answer-items', topicId] from GET /admin/topics/:id/type-the-answer-items.
+ * saveMutation handles both add (POST /admin/type-the-answer-items) and edit
+ * (PATCH /admin/type-the-answer-items/:id). Uses useTablePagination for client-side pagination.
+ * Inline form is toggled by the "Add Item" button; editing a row pre-populates the form via
+ * AddExerciseQuestion's useEffect reset.
+ * @usedBy ExercisePage
+ */
 import { useState } from 'react';
-import { CircularProgress, Alert, Box, Button } from '@mui/material';
+import { Alert, Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client.ts';
+import { QueryState } from '../../../shared/components/QueryState';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
 import {
   AddExerciseQuestion,
-  type SingularPluralFormData,
-  type SingularPluralItem,
+  type TypeTheAnswerFormData,
+  type TypeTheAnswerItem,
 } from './AddExerciseQuestion.tsx';
 import { ContentTable } from './ContentTable.tsx';
 
+/**
+ * Renders the Type the Answer item list with inline add/edit form for a given topic.
+ * @param topicId - The topic whose Type the Answer items are being managed.
+ */
 export function TypeTheAnswer({ topicId }: { topicId: string }) {
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<SingularPluralItem | null>(null);
+  const [editing, setEditing] = useState<TypeTheAnswerItem | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   const queryKey = ['type-the-answer-items', topicId];
@@ -23,11 +38,10 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
     data: items,
     isLoading,
     error,
-  } = useQuery<SingularPluralItem[]>({
+  } = useQuery<TypeTheAnswerItem[]>({
     queryKey,
     queryFn: async () => {
-      // TODO rename /singular-plural-items path to type-the-answer
-      const { data } = await apiClient.get(`/admin/topics/${topicId}/singular-plural-items`);
+      const { data } = await apiClient.get(`/admin/topics/${topicId}/type-the-answer-items`);
       return data;
     },
   });
@@ -37,13 +51,11 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
   const [serverError, setServerError] = useState<string | null>(null);
 
   const saveMutation = useMutation({
-    mutationFn: async (data: SingularPluralFormData) => {
+    mutationFn: async (data: TypeTheAnswerFormData) => {
       if (editing) {
-        // TODO rename /singular-plural-items path to type-the-answer
-        await apiClient.patch(`/admin/singular-plural-items/${editing.id}`, data);
+        await apiClient.patch(`/admin/type-the-answer-items/${editing.id}`, data);
       } else {
-        // TODO rename /singular-plural-items path to type-the-answer
-        await apiClient.post('/admin/singular-plural-items', { ...data, topicId });
+        await apiClient.post('/admin/type-the-answer-items', { ...data, topicId });
       }
     },
     onSuccess: () => {
@@ -68,21 +80,15 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      // TODO rename /singular-plural-items path to type-the-answer
-      await apiClient.delete(`/admin/singular-plural-items/${id}`);
+      await apiClient.delete(`/admin/type-the-answer-items/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
     },
   });
-  // showing progress and error are duplicated in neighboring components
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  if (error) return <Alert severity="error">Failed to load items</Alert>;
+
+  const queryState = QueryState({ isLoading, error, errorMessage: 'Failed to load items' });
+  if (queryState) return queryState;
 
   return (
     <Box>

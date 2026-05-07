@@ -6,13 +6,11 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
-  Alert,
-  Box,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '../../api/client';
+import { QueryState } from '../../shared/components/QueryState';
 
 interface Admin {
   id: string;
@@ -33,17 +31,8 @@ export function AdminsTab() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return <Alert severity="error">An error occurred</Alert>;
-  }
+  const queryState = QueryState({ isLoading, error });
+  if (queryState) return queryState;
 
   return (
     <TableContainer component={Paper}>

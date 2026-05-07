@@ -1,3 +1,9 @@
+/**
+ * @module ExerciseRulesDialog
+ * @description Modal dialog that renders the rich-text HTML grammar rules for an exercise topic.
+ * Opened non-blocking from SessionPage via the "Show Rules" button when a topic has rules.
+ * @usedBy SessionPage
+ */
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Box, Button } from '@mui/material';
 
@@ -7,6 +13,12 @@ interface ExerciseRulesDialogProps {
   rulesHtml: string;
 }
 
+/**
+ * Displays grammar rules HTML in a non-blocking MUI Dialog.
+ * @param props.open - Whether the dialog is visible
+ * @param props.onClose - Called when user closes the dialog; session continues uninterrupted
+ * @param props.rulesHtml - Raw HTML string authored in the admin's Tiptap rich-text editor
+ */
 export function ExerciseRulesDialog({ open, onClose, rulesHtml }: ExerciseRulesDialogProps) {
   const { t } = useTranslation();
 

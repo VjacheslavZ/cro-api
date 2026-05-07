@@ -16,6 +16,7 @@ import { Settings, Logout } from '@mui/icons-material';
 
 import { useAppSelector, useAppDispatch } from '../../store';
 import { clearAuth } from '../../store/auth.slice';
+import { authClient } from '../../lib/auth-client';
 
 export function UserMenu() {
   const { t } = useTranslation();
@@ -26,17 +27,29 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const handleLogout = () => {
+  const initials = user.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleLogout = async () => {
     setAnchor(null);
+    await authClient.signOut();
     dispatch(clearAuth());
     navigate('/login', { replace: true });
   };
 
   return (
     <>
-      <IconButton onClick={(e) => setAnchor(e.currentTarget)} sx={{ ml: 1 }}>
-        <Avatar src={user.avatarUrl ?? undefined} alt={user.name}>
-          {user.name.charAt(0)}
+      <IconButton onClick={(e) => setAnchor(e.currentTarget)} sx={{ ml: 0.5 }}>
+        <Avatar
+          src={user.avatarUrl ?? undefined}
+          alt={user.name}
+          sx={{ width: 32, height: 32, fontSize: '0.875rem', bgcolor: '#2563eb' }}
+        >
+          {initials}
         </Avatar>
       </IconButton>
 
@@ -46,30 +59,16 @@ export function UserMenu() {
         onClose={() => setAnchor(null)}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        slotProps={{ paper: { sx: { minWidth: 192 } } }}
       >
-        <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle1" fontWeight={600}>
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
             {user.name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary">
             {user.email}
           </Typography>
         </Box>
-        <Divider />
-        <MenuItem disabled>
-          <ListItemText primary={t('header.role')} secondary={user.role} />
-        </MenuItem>
-        <MenuItem disabled>
-          <ListItemText primary={t('header.xp')} secondary={user.xpTotal} />
-        </MenuItem>
-        <MenuItem disabled>
-          <ListItemText primary={t('header.streak')} secondary={user.currentStreak} />
-        </MenuItem>
-        {user.nativeLanguage && (
-          <MenuItem disabled>
-            <ListItemText primary={t('header.nativeLanguage')} secondary={user.nativeLanguage} />
-          </MenuItem>
-        )}
         <Divider />
         <MenuItem
           onClick={() => {
@@ -82,9 +81,10 @@ export function UserMenu() {
           </ListItemIcon>
           <ListItemText>{t('header.settings')}</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleLogout}>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
           <ListItemIcon>
-            <Logout fontSize="small" />
+            <Logout fontSize="small" sx={{ color: 'error.main' }} />
           </ListItemIcon>
           <ListItemText>{t('header.logout')}</ListItemText>
         </MenuItem>

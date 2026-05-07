@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "DictionaryCollection" ADD COLUMN "nameRu" TEXT NOT NULL DEFAULT '',
+ADD COLUMN "nameUk" TEXT NOT NULL DEFAULT '',
+ADD COLUMN "nameEn" TEXT NOT NULL DEFAULT '';

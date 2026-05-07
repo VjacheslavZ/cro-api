@@ -102,7 +102,7 @@ async function seedContent() {
     {
       topic: 'Food',
       baseForm: 'kruh',
-      pluralForm: 'kruhovi',
+      answer: 'kruhovi',
       translationRu: 'хлеб',
       translationUk: 'хліб',
       translationEn: 'bread',
@@ -112,7 +112,7 @@ async function seedContent() {
     {
       topic: 'Animals',
       baseForm: 'pas',
-      pluralForm: 'psi',
+      answer: 'psi',
       translationRu: 'собака',
       translationUk: 'собака',
       translationEn: 'dog',
@@ -122,15 +122,15 @@ async function seedContent() {
 
   for (const item of singularPluralData) {
     const topicId = topicRecords[item.topic].id;
-    const existing = await prisma.singularPluralItem.findFirst({
+    const existing = await prisma.typeTheAnswerItem.findFirst({
       where: { topicId, baseForm: item.baseForm },
     });
     if (!existing) {
-      await prisma.singularPluralItem.create({
+      await prisma.typeTheAnswerItem.create({
         data: {
           topicId,
           baseForm: item.baseForm,
-          pluralForm: item.pluralForm,
+          answer: item.answer,
           translationRu: item.translationRu,
           translationUk: item.translationUk,
           translationEn: item.translationEn,

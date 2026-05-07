@@ -1,3 +1,10 @@
+/**
+ * @module SessionResultsPage
+ * @description Results screen shown after a grammar exercise session completes.
+ * Displays score, XP earned, and streak count. Reads results from router location state
+ * (set by SessionPage on finish). Offers "Continue" (back to topic) and "Back to Exercises".
+ * @usedBy AppRouter (/exercises/results/:sessionId)
+ */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container, Typography, Button, Card, CardContent, Box } from '@mui/material';
@@ -12,6 +19,10 @@ interface ResultsLocationState {
   exerciseType?: string;
 }
 
+/**
+ * Renders the post-session results screen.
+ * Redirects to /exercises if location state is missing (e.g. direct URL access).
+ */
 export function SessionResultsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
