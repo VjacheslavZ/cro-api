@@ -1,15 +1,28 @@
-import { Stack, TextField } from '@mui/material';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { CircularProgress, InputAdornment, Stack, TextField } from '@mui/material';
+import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
 
 import type { BuildSentenceFormData } from './schema';
 
 interface Props {
   register: UseFormRegister<BuildSentenceFormData>;
+  watch: UseFormWatch<BuildSentenceFormData>;
   errors: FieldErrors<BuildSentenceFormData>;
   onSentenceBlur: () => void;
+  isCheckingDuplicate?: boolean;
 }
 
-export function SentenceFields({ register, errors, onSentenceBlur }: Props) {
+export function SentenceFields({
+  register,
+  watch,
+  errors,
+  onSentenceBlur,
+  isCheckingDuplicate,
+}: Props) {
+  const sentenceHr = watch('sentenceHr');
+  const translationRu = watch('translationRu');
+  const translationUk = watch('translationUk');
+  const translationEn = watch('translationEn');
+
   return (
     <>
       <Stack direction="row" spacing={1} sx={{ mb: 1.5 }}>
@@ -19,6 +32,18 @@ export function SentenceFields({ register, errors, onSentenceBlur }: Props) {
           size="small"
           fullWidth
           placeholder="Katerina gleda kazališne predstave."
+          slotProps={{
+            inputLabel: { shrink: !!sentenceHr },
+            input: isCheckingDuplicate
+              ? {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CircularProgress size={14} />
+                    </InputAdornment>
+                  ),
+                }
+              : undefined,
+          }}
           error={!!errors.sentenceHr}
           helperText={errors.sentenceHr?.message ?? 'Press Tab/click away to split into words'}
           onBlur={onSentenceBlur}
@@ -38,6 +63,7 @@ export function SentenceFields({ register, errors, onSentenceBlur }: Props) {
           label="Translation (RU)"
           size="small"
           fullWidth
+          slotProps={{ inputLabel: { shrink: !!translationRu } }}
           error={!!errors.translationRu}
           helperText={errors.translationRu?.message}
         />
@@ -46,6 +72,9 @@ export function SentenceFields({ register, errors, onSentenceBlur }: Props) {
           label="Translation (UK)"
           size="small"
           fullWidth
+          slotProps={{
+            inputLabel: { shrink: !!translationUk },
+          }}
           error={!!errors.translationUk}
           helperText={errors.translationUk?.message}
         />
@@ -54,6 +83,9 @@ export function SentenceFields({ register, errors, onSentenceBlur }: Props) {
           label="Translation (EN)"
           size="small"
           fullWidth
+          slotProps={{
+            inputLabel: { shrink: !!translationEn },
+          }}
           error={!!errors.translationEn}
           helperText={errors.translationEn?.message}
         />

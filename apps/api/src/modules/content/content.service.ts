@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ExerciseType } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -14,6 +19,7 @@ import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
 import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
 import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
 import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
+import { LlmGenerateDto } from './dto/llm-generate.dto';
 
 @Injectable()
 export class ContentService {
@@ -234,8 +240,29 @@ export class ContentService {
     return this.prisma.buildSentenceItem.findMany({
       where: { topicId },
       include: { words: { orderBy: { position: 'asc' } } },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async checkBuildSentenceDuplicate(
+    topicId: string,
+    sentence: string,
+    excludeId?: string,
+  ): Promise<{ exists: boolean }> {
+    const items = await this.prisma.buildSentenceItem.findMany({
+      where: { topicId },
+      include: { words: { orderBy: { position: 'asc' } } },
+    });
+    const normalized = sentence.trim().toLowerCase();
+    for (const item of items) {
+      if (excludeId && item.id === excludeId) continue;
+      const itemSentence = item.words
+        .map((w) => w.wordHr)
+        .join(' ')
+        .toLowerCase();
+      if (itemSentence === normalized) return { exists: true };
+    }
+    return { exists: false };
   }
 
   async createBuildSentenceItem(dto: CreateBuildSentenceItemDto) {
@@ -423,5 +450,27 @@ export class ContentService {
 
   private async invalidateItemsCache(topicId: string, exerciseType: ExerciseType) {
     await this.cache.invalidate(`content:topic:${topicId}:items:${exerciseType}`);
+  }
+
+  // --- LLM proxy ---
+
+  async llmGenerate(dto: LlmGenerateDto): Promise<{ response: string }> {
+    const ollamaUrl = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+    const ollamaModel = process.env.OLLAMA_MODEL ?? 'translategemma:12b';
+    const res = await fetch(`${ollamaUrl}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: dto.model ?? ollamaModel,
+        format: 'json',
+        stream: false,
+        prompt: dto.prompt,
+        options: dto.options ?? { temperature: 1, top_p: 0.9, repeat_penalty: 1.2 },
+      }),
+    });
+    if (!res.ok) {
+      throw new InternalServerErrorException(`LLM error ${res.status}`);
+    }
+    return res.json() as Promise<{ response: string }>;
   }
 }

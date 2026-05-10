@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
-import type { BuildSentenceItemData } from './AddBuildSentenceItem.tsx';
+import type { BuildSentenceItemData } from './AddBuildSentenceItem/AddBuildSentenceItem.tsx';
 
 interface BuildSentenceTableProps {
   items: BuildSentenceItemData[];
@@ -39,6 +39,7 @@ export function ContentTable({
             <TableCell>EN</TableCell>
             <TableCell>Words</TableCell>
             <TableCell>Order</TableCell>
+            <TableCell>Created</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -76,6 +77,15 @@ export function ContentTable({
                   </Box>
                 </TableCell>
                 <TableCell>{item.sortOrder}</TableCell>
+                <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {new Date(item.createdAt).toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </Typography>
+                </TableCell>
                 <TableCell>
                   <IconButton size="small" onClick={() => onEdit(item)}>
                     <EditIcon />

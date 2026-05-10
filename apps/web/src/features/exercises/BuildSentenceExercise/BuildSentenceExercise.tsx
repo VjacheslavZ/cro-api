@@ -7,7 +7,7 @@
  *   above it; auto-speech of the correct sentence; user presses Next to advance.
  * @usedBy SessionPage
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, Typography } from '@mui/material';
 import type { BuildSentenceItem } from '@cro/shared';
@@ -34,7 +34,10 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
   const { speak } = useSpeech();
   const user = useAppSelector((state) => state.auth.user);
 
-  const sortedWords = [...item.words].sort((a, b) => a.position - b.position);
+  const sortedWords = useMemo(
+    () => [...item.words].sort((a, b) => a.position - b.position),
+    [item.words],
+  );
   const correctSentence = sortedWords.map((w) => w.wordHr).join(' ');
 
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
@@ -69,6 +72,11 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
     }
   };
 
+  const handleUndo = () => {
+    if (phase !== 'selecting') return;
+    setSelectedWords((prev) => prev.slice(0, -1));
+  };
+
   const handleNext = () => {
     onAnswer({ itemId: item.id, givenAnswer: selectedWords.join(' '), isCorrect: false });
   };
@@ -86,7 +94,12 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
           {translation}
         </Typography>
 
-        <WordProgressRow phase={phase} selectedWords={selectedWords} sortedWords={sortedWords} />
+        <WordProgressRow
+          phase={phase}
+          selectedWords={selectedWords}
+          sortedWords={sortedWords}
+          onUndo={handleUndo}
+        />
 
         {phase === 'selecting' && currentWordIndex < sortedWords.length && (
           <WordOptions

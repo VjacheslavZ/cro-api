@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -27,6 +28,7 @@ import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
 import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
 import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
 import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
+import { LlmGenerateDto } from './dto/llm-generate.dto';
 
 @ApiTags('Admin Content')
 @Controller('admin')
@@ -166,6 +168,16 @@ export class AdminContentController {
     return this.contentService.getBuildSentenceItems(topicId);
   }
 
+  @Get('topics/:topicId/build-sentence-items/check')
+  @ApiOperation({ summary: 'Check if a Croatian sentence already exists in the topic' })
+  async checkBuildSentenceDuplicate(
+    @Param('topicId', ParseUUIDPipe) topicId: string,
+    @Query('sentence') sentence: string,
+    @Query('excludeId') excludeId?: string,
+  ) {
+    return this.contentService.checkBuildSentenceDuplicate(topicId, sentence, excludeId);
+  }
+
   @Post('build-sentence-items')
   @ApiOperation({ summary: 'Create a Build Sentence item' })
   async createBuildSentenceItem(@Body() dto: CreateBuildSentenceItemDto) {
@@ -195,5 +207,13 @@ export class AdminContentController {
     @Body() dto: UpdateBuildSentenceWordDto,
   ) {
     return this.contentService.updateBuildSentenceWord(wordId, dto);
+  }
+
+  // --- LLM proxy ---
+
+  @Post('llm/generate')
+  @ApiOperation({ summary: 'Proxy a generate request to the local Ollama instance' })
+  async llmGenerate(@Body() dto: LlmGenerateDto) {
+    return this.contentService.llmGenerate(dto);
   }
 }

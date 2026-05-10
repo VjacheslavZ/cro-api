@@ -17,7 +17,7 @@ import {
   AddBuildSentenceItem,
   type BuildSentenceFormData,
   type BuildSentenceItemData,
-} from './AddBuildSentenceItem.tsx';
+} from './AddBuildSentenceItem/AddBuildSentenceItem.tsx';
 import { ContentTable } from './ContentTable.tsx';
 
 export function BuildSentenceTab({ topicId }: { topicId: string }) {
@@ -56,8 +56,10 @@ export function BuildSentenceTab({ topicId }: { topicId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['build-sentence-items', topicId] });
-      setEditing(null);
-      setShowForm(false);
+      if (editing) {
+        setEditing(null);
+        setShowForm(false);
+      }
     },
   });
 
@@ -89,9 +91,10 @@ export function BuildSentenceTab({ topicId }: { topicId: string }) {
 
       {showForm && (
         <AddBuildSentenceItem
+          topicId={topicId}
           editing={editing}
           isPending={saveMutation.isPending}
-          onSubmit={(d) => saveMutation.mutate(d)}
+          onSubmit={(d) => saveMutation.mutateAsync(d)}
         />
       )}
 

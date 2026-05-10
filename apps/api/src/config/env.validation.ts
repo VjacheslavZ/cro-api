@@ -14,6 +14,8 @@ export const envSchema = z.object({
   ADMIN_URL: z.string().url().default('http://localhost:5174'),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  OLLAMA_URL: z.string().url().default('http://localhost:11434'),
+  OLLAMA_MODEL: z.string().default('translategemma:12b'),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

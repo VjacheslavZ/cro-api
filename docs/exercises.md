@@ -117,15 +117,15 @@ Updates that type's progress column (+25/−25 per answer). Without `exerciseTyp
 | File | Responsibility |
 |------|----------------|
 | `BuildSentenceExercise/BuildSentenceExercise.tsx` | Phase state machine, handlers, card wrapper |
-| `BuildSentenceExercise/WordProgressRow.tsx` | Built-so-far chips row (blue during selecting; green/red-strikethrough after) |
-| `BuildSentenceExercise/WordOptions.tsx` | Current-slot word counter + 6 option buttons |
+| `BuildSentenceExercise/WordProgressRow.tsx` | Built-so-far chips row (blue during selecting; last chip has × undo button; green/red-strikethrough after) |
+| `BuildSentenceExercise/WordOptions.tsx` | Current-slot word counter + 6 option buttons in a 3-column grid; keyboard shortcuts 1–6 with numbered badge on each button |
 | `BuildSentenceExercise/ResultBanner.tsx` | Correct (green) or incorrect (red + correct sentence + Next) banners |
 
 ### Phase state machine
 
 | Phase | Trigger | UI |
 |-------|---------|-----|
-| `selecting` | Initial | Option buttons shown; built-so-far chips blue |
+| `selecting` | Initial | 3-column grid of option buttons (keys 1–6); built-so-far chips blue; last chip has × undo button |
 | `correct` | All words chosen, all correct | Green alert; auto-advance after 1500 ms; `speak(correctSentence)` fires |
 | `incorrect` | All words chosen, ≥1 wrong | Red alert with correct sentence; Next/Finish button; `speak(correctSentence)` fires |
 

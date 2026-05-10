@@ -1241,9 +1241,9 @@ Used in: Grammar (BUILD_SENTENCE)
 |---------|---------|
 | Instruction | "Build the Croatian sentence:" |
 | Native translation | Full sentence in user's native language shown as the prompt |
-| Built-so-far row | Blue chips for words already selected (during selecting); green/red chips after completion |
+| Built-so-far row | Blue chips for words already selected (during selecting); the **last chip** has an × delete button that undoes the last selection; green/red chips after completion |
 | Word counter | "Word N of M" — shows position of the slot currently being filled |
-| Option buttons | 6 outlined buttons (1 correct + 5 distractors); tapping one fills the current slot and advances to the next |
+| Option buttons | 6 outlined buttons (1 correct + 5 distractors) arranged in a **3-column grid**; each button shows a small numbered badge (1–6); keyboard shortcuts 1–6 select the corresponding option; tapping/pressing fills the current slot and advances to the next |
 
 **After all words are chosen**:
 
@@ -1253,7 +1253,7 @@ Used in: Grammar (BUILD_SENTENCE)
 | Any wrong | Wrong chips turn red with strikethrough; correct word shown above in green; correct sentence spoken aloud; user presses **Next** / **Finish** to advance |
 
 **States**:
-- `selecting`: Option buttons visible; built-so-far shows blue chips
+- `selecting`: Option buttons visible (3-column grid, keys 1–6); built-so-far shows blue chips; last chip has × undo button
 - `correct`: Green success alert + auto-advance timer running
 - `incorrect`: Red alert with correct sentence shown; Next/Finish button visible
 
