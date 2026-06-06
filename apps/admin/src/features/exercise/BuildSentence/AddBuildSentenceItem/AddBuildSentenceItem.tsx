@@ -1,16 +1,23 @@
+/**
+ * @module AddBuildSentenceItem
+ * @description Create/edit form for a single Build-a-Sentence item. Coordinates word-slot
+ * parsing, per-word distractor generation via LLM, sentence translation auto-fill, and
+ * duplicate checking. Resets to the editing item's values whenever the editing prop changes.
+ * @usedBy BuildSentencePage
+ */
 import { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Divider, Paper } from '@mui/material';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { apiClient } from '../../../../api/client.ts';
 import { buildSentenceSchema, defaultValues } from '../schema.ts';
 import type { BuildSentenceFormData, BuildSentenceItemData } from '../schema.ts';
 import { SentenceFields } from '../SentenceFields.tsx';
 import { LLMPromptSection } from '../LLMPromptSection.tsx';
-import type { GeneratedSentenceData } from '../LLMPromptSection.tsx';
 import { useDistractors } from './useDistractors.ts';
 import { useDistractorRegen } from './useDistractorRegen.ts';
+import { useLlmTranslation } from './useLlmTranslation.ts';
+import { useSentenceActions } from './useSentenceActions.ts';
 import { WordSlotsSection } from './WordSlotsSection.tsx';
 
 export type { BuildSentenceFormData, BuildSentenceItemData };
@@ -22,6 +29,13 @@ interface Props {
   onSubmit: (data: BuildSentenceFormData) => Promise<void>;
 }
 
+/**
+ * Create/edit form for a single Build-a-Sentence item.
+ * @param props.topicId - Topic the item belongs to; used for duplicate checks and distractor generation.
+ * @param props.editing - Item being edited; null when creating a new item.
+ * @param props.isPending - Disables submit while the parent mutation is in flight.
+ * @param props.onSubmit - Called with validated form data; parent calls the create/update mutation.
+ */
 export function AddBuildSentenceItem({ topicId, editing, isPending, onSubmit }: Props) {
   const {
     register,
@@ -39,7 +53,7 @@ export function AddBuildSentenceItem({ topicId, editing, isPending, onSubmit }: 
     defaultValues,
   });
 
-  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [debouncedSentence, setDebouncedSentence] = useState('');
 
   const {
     distractorInputs,
@@ -80,54 +94,32 @@ export function AddBuildSentenceItem({ topicId, editing, isPending, onSubmit }: 
   const sentenceHr = watch('sentenceHr');
   const words = useWatch({ control, name: 'words', defaultValue: [] });
 
-  const checkDuplicate = async (sentence: string) => {
-    clearErrors('sentenceHr');
-    setIsCheckingDuplicate(true);
-    try {
-      const params = new URLSearchParams({ sentence });
-      if (editing?.id) params.set('excludeId', editing.id);
-      const { data } = await apiClient.get(
-        `/admin/topics/${topicId}/build-sentence-items/check?${params}`,
-      );
-      if (data.exists) {
-        setError('sentenceHr', { message: 'This sentence already exists in this topic' });
-      }
-    } catch {
-      // ignore check failure — don't block saving
-    } finally {
-      setIsCheckingDuplicate(false);
-    }
-  };
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSentence(sentenceHr), 1000);
+    return () => clearTimeout(id);
+  }, [sentenceHr]);
 
-  const handleSentenceBlur = async () => {
-    const tokens = sentenceHr.trim().split(/\s+/).filter(Boolean);
-    if (tokens.length === 0) return;
-    const currentWords = watch('words');
-    setValue(
-      'words',
-      tokens.map((token, idx) => ({
-        wordHr: token,
-        position: idx,
-        distractors: currentWords.find((w) => w.position === idx)?.distractors ?? [],
-      })),
-      { shouldValidate: true },
-    );
-    setDistractorInputs({});
-    await checkDuplicate(tokens.join(' '));
-  };
+  const { isLlmLoading, skipLlmRef } = useLlmTranslation({
+    debouncedSentence,
+    editing,
+    setValue,
+    clearDistractorInputs,
+    handleRegenerate,
+  });
 
-  const handleGenerate = (data: GeneratedSentenceData) => {
-    reset({
-      sentenceHr: data.sentenceHr,
-      translationRu: data.translationRu,
-      translationUk: data.translationUk,
-      translationEn: data.translationEn,
-      sortOrder: 0,
-      words: data.words,
-    });
-    clearDistractorInputs();
-    void checkDuplicate(data.sentenceHr);
-  };
+  const { isCheckingDuplicate, handleSentenceBlur, handleGenerate } = useSentenceActions({
+    topicId,
+    editing,
+    watch,
+    setValue,
+    reset,
+    setError,
+    clearErrors,
+    setDistractorInputs,
+    clearDistractorInputs,
+    skipLlmRef,
+    handleRegenerate,
+  });
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
@@ -150,6 +142,7 @@ export function AddBuildSentenceItem({ topicId, editing, isPending, onSubmit }: 
           errors={errors}
           onSentenceBlur={handleSentenceBlur}
           isCheckingDuplicate={isCheckingDuplicate}
+          isLlmLoading={isLlmLoading}
         />
 
         <WordSlotsSection

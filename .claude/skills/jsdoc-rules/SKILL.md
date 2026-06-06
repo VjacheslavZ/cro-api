@@ -7,6 +7,8 @@ paths:
   - "apps/web/src/api/**/*.ts"
   - "apps/web/src/store/**/*.ts"
   - "apps/admin/src/api/**/*.ts"
+  - "apps/admin/src/features/**/*.tsx"
+  - "apps/admin/src/features/**/*.ts"
   - "apps/*/src/shared/lib/**/*.ts"
 ---
 
@@ -138,6 +140,25 @@ export interface UserProfile {
  */
 export enum NativeLanguage {
 ```
+
+### React Component
+
+```tsx
+/**
+ * Brief description of what this component renders or orchestrates.
+ * @param props.editing - Item being edited; null when creating.
+ * @param props.isPending - Disables submit while parent mutation is in flight.
+ * @param props.onSubmit - Called with validated form data.
+ */
+export function MyForm({ editing, isPending, onSubmit }: Props) {
+```
+
+- File-level `@module/@description/@usedBy` block is required when the component owns API calls, coordinates custom hooks, or has non-obvious state behavior
+- `@param props.X` — one line per prop; describe the intent, not the type
+- Skip `@param` entirely for purely presentational components with self-documenting props
+- Skip the function-level block for components with a single obvious prop
+
+---
 
 ### Utility Function
 

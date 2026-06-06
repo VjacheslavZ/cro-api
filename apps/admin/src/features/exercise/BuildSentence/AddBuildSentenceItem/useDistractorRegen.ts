@@ -4,8 +4,16 @@ import type { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import type { BuildSentenceFormData } from '../schema.ts';
 import { apiClient } from '../../../../api/client.ts';
 
-const DEFAULT_REGEN_PROMPT =
-  'Generate exactly 5 Croatian words similar to the given word without duplicates.\nRules:\n- Same part of speech (verb→verbs, noun→nouns, etc.)\n- Similar meaning OR commonly confused alternatives\n- Do NOT include the original word\n- No duplicates\nReturn ONLY a valid JSON array of 5 strings: {words: ["word1","word2","word3","word4","word5"]}';
+const DEFAULT_REGEN_PROMPT = `
+  Generate exactly 5 Croatian words similar to the given string without duplicates.
+  Rules: 
+    - for personal pronouns use: ja, ti, on, ona, ono, mi, vi, oni, one
+    - if string is 'ona' use: ja, ti, on, ono, oni, one
+    - Same part of speech (verb→verbs, noun→nouns, etc.)
+    - Similar meaning OR commonly confused alternatives
+    - Do NOT include the original word
+    - No duplicates
+    Return ONLY a valid JSON array of 5 strings: {words: ["word1","word2","word3","word4","word5"]}`;
 
 export function useDistractorRegen(
   topicId: string,
@@ -30,8 +38,8 @@ export function useDistractorRegen(
     setRegeneratingPositions((prev) => new Set(prev).add(position));
     try {
       const { data: raw } = await apiClient.post<{ response: string }>('/admin/llm/generate', {
-        prompt: `Word: "${wordHr}"\n\n${regenPromptRef.current}`,
-        options: { temperature: 1, top_p: 0.9, repeat_penalty: 1.5 },
+        prompt: `String: "${wordHr}"\n\n${regenPromptRef.current}`,
+        // options: { temperature: 1, top_p: 0.9, repeat_penalty: 1.5 },
       });
       const parsed: unknown = JSON.parse(raw.response);
 

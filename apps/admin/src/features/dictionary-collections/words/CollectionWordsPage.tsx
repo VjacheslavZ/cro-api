@@ -29,6 +29,7 @@ export function CollectionWordsPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<PredefinedWordItem | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const queryKey = ['admin-collection-words', collectionId];
@@ -60,7 +61,7 @@ export function CollectionWordsPage() {
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: ['admin-dictionary-collections'] });
       setEditing(null);
-      setShowForm(false);
+      setFormKey((k) => k + 1);
     },
     onError: (err: unknown) => {
       if (
@@ -123,6 +124,7 @@ export function CollectionWordsPage() {
 
       {showForm && (
         <AddWordForm
+          key={formKey}
           editing={editing}
           isPending={saveMutation.isPending}
           onSubmit={(d) => saveMutation.mutate(d)}

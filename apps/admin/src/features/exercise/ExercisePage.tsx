@@ -100,7 +100,6 @@ export function ExercisePage() {
 
   const toggleTypeMutation = useMutation({
     mutationFn: async ({ exerciseType, enabled }: { exerciseType: string; enabled: boolean }) => {
-      console.log('exerciseType', exerciseType);
       await apiClient.patch(`/admin/topics/${topicId}/exercise-types`, {
         configs: [{ exerciseType, enabled }],
       });

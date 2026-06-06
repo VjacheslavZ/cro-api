@@ -13,45 +13,27 @@ import { AutoAwesome, ExpandLess, ExpandMore } from '@mui/icons-material';
 
 import { apiClient } from '../../../api/client.ts';
 
-const FIXED_KEY = 'bsa_fixed_prompt';
+export const FIXED_KEY = 'bsa_fixed_prompt';
 
 // Generate a DIFFERENT sentence every time. Avoid repeating previous outputs.
-const DEFAULT_FIXED_PROMPT = `
-  TRANSLATIONS:
+export const DEFAULT_FIXED_PROMPT = `
   Provide correct translations to:
   - Russian
   - Ukrainian
   - English
-    
-  DISTRACTORS RULES:
-  - For EACH word, generate EXACTLY 5 distractors
-  - Distractors MUST be similar to the word:
-    - Same part of speech (pronoun, verb, noun, etc.)
-    - Similar meaning OR commonly confused alternatives
-  - Examples:
-    - "ja" → ["ti","on","mi","vi","oni"]
-    - "hoćeš" → ["želiš","moraš","trebaš","planiraš","pokušavaš"]
-  - Do NOT include the original word
-  - Do NOT use random or unrelated words
-  - No duplicates
-  
+
   FORMAT RULES (STRICT):
   - Return ONLY valid JSON
   - NO explanations
   - NO extra text
   - ALL fields are required
-  - Do NOT skip anything
-  
+
   OUTPUT FORMAT:
   {
     "sentence": "...",
     "translationRu": "...",
     "translationUk": "...",
-    "translationEn": "...",
-    "distractors": [
-      { "word": ["...", "...", "...", "...", "..."] },
-      { "word": ["...", "...", "...", "...", "..."] }
-    ]
+    "translationEn": "..."
   }
 `;
 
@@ -63,12 +45,11 @@ export interface GeneratedSentenceData {
   words: { wordHr: string; position: number; distractors: string[] }[];
 }
 
-interface LLMRawResponse {
+export interface LLMRawResponse {
   sentence: string;
   translationRu: string;
   translationUk: string;
   translationEn: string;
-  distractors: Record<string, string[]>[];
 }
 
 interface Props {
@@ -119,7 +100,7 @@ export function LLMPromptSection({ topicId, onGenerate }: Props) {
         words: tokens.map((wordHr, idx) => ({
           wordHr,
           position: idx,
-          distractors: (Object.values(data.distractors[idx] ?? {})[0] ?? []).slice(0, 5),
+          distractors: [],
         })),
       });
     } catch (err) {

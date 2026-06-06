@@ -8,13 +8,15 @@
  * AddExerciseQuestion's useEffect reset.
  * @usedBy ExercisePage
  */
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client.ts';
 import { QueryState } from '../../../shared/components/QueryState';
+import { ExerciseSearchField } from '../../../shared/components/ExerciseSearchField.tsx';
+import { useExerciseSearch } from '../../../shared/hooks/useExerciseSearch.ts';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
 import {
   AddExerciseQuestion,
@@ -22,6 +24,14 @@ import {
   type TypeTheAnswerItem,
 } from './AddExerciseQuestion.tsx';
 import { ContentTable } from './ContentTable.tsx';
+
+const getSearchText = (item: TypeTheAnswerItem) => [
+  item.baseForm,
+  item.answer,
+  item.translationRu,
+  item.translationUk,
+  item.translationEn,
+];
 
 /**
  * Renders the Type the Answer item list with inline add/edit form for a given topic.
@@ -31,6 +41,7 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<TypeTheAnswerItem | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const queryKey = ['type-the-answer-items', topicId];
 
@@ -46,9 +57,9 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
     },
   });
 
-  const { paginatedItems, Pagination } = useTablePagination(items);
-
-  const [serverError, setServerError] = useState<string | null>(null);
+  const getSearchTextCb = useCallback(getSearchText, []);
+  const { search, setSearch, filteredItems } = useExerciseSearch(items, getSearchTextCb);
+  const { paginatedItems, Pagination } = useTablePagination(filteredItems);
 
   const saveMutation = useMutation({
     mutationFn: async (data: TypeTheAnswerFormData) => {
@@ -92,17 +103,23 @@ export function TypeTheAnswer({ topicId }: { topicId: string }) {
 
   return (
     <Box>
-      <Button
-        startIcon={<AddIcon />}
-        variant="outlined"
-        sx={{ mb: 2 }}
-        onClick={() => {
-          setEditing(null);
-          setShowForm(!showForm);
-        }}
-      >
-        {showForm ? 'Cancel' : 'Add Item'}
-      </Button>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+        <Button
+          startIcon={<AddIcon />}
+          variant="outlined"
+          onClick={() => {
+            setEditing(null);
+            setShowForm(!showForm);
+          }}
+        >
+          {showForm ? 'Cancel' : 'Add Item'}
+        </Button>
+        <ExerciseSearchField
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by word, answer (HR, RU, UK, EN)…"
+        />
+      </Box>
 
       {serverError && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setServerError(null)}>

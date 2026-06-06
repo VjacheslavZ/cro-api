@@ -9,6 +9,7 @@ interface Props {
   errors: FieldErrors<BuildSentenceFormData>;
   onSentenceBlur: () => void;
   isCheckingDuplicate?: boolean;
+  isLlmLoading?: boolean;
 }
 
 export function SentenceFields({
@@ -17,6 +18,7 @@ export function SentenceFields({
   errors,
   onSentenceBlur,
   isCheckingDuplicate,
+  isLlmLoading,
 }: Props) {
   const sentenceHr = watch('sentenceHr');
   const translationRu = watch('translationRu');
@@ -34,15 +36,16 @@ export function SentenceFields({
           placeholder="Katerina gleda kazališne predstave."
           slotProps={{
             inputLabel: { shrink: !!sentenceHr },
-            input: isCheckingDuplicate
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <CircularProgress size={14} />
-                    </InputAdornment>
-                  ),
-                }
-              : undefined,
+            input:
+              isCheckingDuplicate || isLlmLoading
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <CircularProgress size={14} />
+                      </InputAdornment>
+                    ),
+                  }
+                : undefined,
           }}
           error={!!errors.sentenceHr}
           helperText={errors.sentenceHr?.message ?? 'Press Tab/click away to split into words'}
