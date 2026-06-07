@@ -9,7 +9,7 @@ Each exercise type lives in a self-contained folder under `apps/web/src/features
 | `LetterPickExercise` | `onAnswer(answer)` | Once, on "Next" button click after the word is fully assembled |
 | `TextInputExercise` | `onAnswer(answer)` | Once, after the user submits and sees the result |
 | `MatchingExercise` | `onComplete(answers[])` | Once, when all word–translation pairs are matched |
-| `BuildSentenceExercise` | `onAnswer(answer)` | Once, when the sentence is fully assembled: auto-fires after 1.5 s on correct; fires on user pressing Next on incorrect |
+| `BuildSentenceExercise` | `onAnswer(answer)` | Once, only on correct assembly (auto-fires after 1.5 s); incorrect resets to retry — `onAnswer` is never called with `isCorrect: false` |
 
 ### Critical gotcha — `dispatch(fetchMe())` unmounts the session page
 
@@ -127,7 +127,7 @@ Updates that type's progress column (+25/−25 per answer). Without `exerciseTyp
 |-------|---------|-----|
 | `selecting` | Initial | 3-column grid of option buttons (keys 1–6); built-so-far chips blue; last chip has × undo button |
 | `correct` | All words chosen, all correct | Green alert; auto-advance after 1500 ms; `speak(correctSentence)` fires |
-| `incorrect` | All words chosen, ≥1 wrong | Red alert with correct sentence; Next/Finish button; `speak(correctSentence)` fires |
+| `incorrect` | All words chosen, ≥1 wrong | Red alert with correct sentence; **Try Again** button resets state to `selecting`; `speak(correctSentence)` fires; `onAnswer` is never called — user must retry until correct |
 
 ### Options generation (server-side, `ContentService.getBuildSentenceItemsWithOptions`)
 

@@ -4,18 +4,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { NativeLanguage } from '@cro/shared';
 import { DICTIONARY_WORDS_PER_PAGE } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { EnvConfig } from '../../config/env.validation';
 import { AddWordDto } from './dto/add-word.dto';
 import { UpdateWordDto } from './dto/update-word.dto';
 import { GetWordsQueryDto } from './dto/get-words-query.dto';
 
 @Injectable()
 export class DictionaryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService<EnvConfig>,
+  ) {}
 
   async getWords(userId: string, query: GetWordsQueryDto) {
     const limit = query.limit ?? DICTIONARY_WORDS_PER_PAGE;
@@ -313,6 +318,109 @@ export class DictionaryService {
       translation: s.translation,
       count: s._count.translation,
     }));
+  }
+
+  async getAiTranslation(
+    wordHr: string,
+    language: NativeLanguage,
+  ): Promise<{ translations: string[]; sentences: { hr: string; translation: string }[] }> {
+    const langLabel = { RU: 'Russian', UK: 'Ukrainian', EN: 'English' }[language];
+    const prompt = [
+      'You are a translation assistant.',
+      `Translate the following Croatian word or short phrase to ${langLabel}.`,
+      'If the word has multiple distinct meanings, include all of them.',
+      'Also provide 2-3 short Croatian example sentences (3-6 words each) that use the word in context.',
+      `For each sentence include its translation to ${langLabel}.`,
+      'Respond with a JSON object with exactly two keys:',
+      '  "translations": array of strings — one string per meaning',
+      '  "sentences": array of objects, each with keys "hr" (Croatian sentence) and "translation" (its translation)',
+      'Do not add any explanation, commentary, or additional keys.',
+      `Croatian word: ${wordHr}`,
+    ].join('\n');
+
+    const ollamaUrl = this.config.get('OLLAMA_URL');
+    const ollamaModel = this.config.get('OLLAMA_MODEL');
+    try {
+      const res = await fetch(`${ollamaUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: ollamaModel, format: 'json', stream: false, prompt }),
+      });
+      if (!res.ok) return { translations: [], sentences: [] };
+      const body = (await res.json()) as { response?: string };
+      const parsed = JSON.parse(body.response ?? '') as {
+        translations?: unknown;
+        sentences?: unknown;
+      };
+
+      const toStringArray = (val: unknown): string[] =>
+        Array.isArray(val)
+          ? (val as unknown[])
+              .filter((x): x is string => typeof x === 'string')
+              .map((x) => x.trim())
+              .filter(Boolean)
+          : [];
+
+      const toSentenceArray = (val: unknown): { hr: string; translation: string }[] => {
+        if (!Array.isArray(val)) return [];
+        return (val as unknown[])
+          .filter(
+            (x): x is { hr: unknown; translation: unknown } =>
+              typeof x === 'object' && x !== null && 'hr' in x && 'translation' in x,
+          )
+          .map((x) => ({ hr: String(x.hr).trim(), translation: String(x.translation).trim() }))
+          .filter((x) => x.hr && x.translation);
+      };
+
+      return {
+        translations: toStringArray(parsed.translations),
+        sentences: toSentenceArray(parsed.sentences),
+      };
+    } catch {
+      return { translations: [], sentences: [] };
+    }
+  }
+
+  async getAiTranslationAdmin(
+    wordHr: string,
+  ): Promise<{ translationRu: string; translationUk: string; translationEn: string }> {
+    const empty = { translationRu: '', translationUk: '', translationEn: '' };
+    const prompt = [
+      'You are a translation assistant.',
+      'Translate the following Croatian word or short phrase to Russian, Ukrainian, and English.',
+      'If the word has multiple distinct meanings, list all of them separated by commas.',
+      'Respond with a JSON object with exactly three keys:',
+      '  "translationRu": translation in Russian',
+      '  "translationUk": translation in Ukrainian',
+      '  "translationEn": translation in English',
+      'Do not add any explanation, commentary, or additional keys.',
+      `Croatian word: ${wordHr}`,
+    ].join('\n');
+
+    const ollamaUrl = this.config.get('OLLAMA_URL');
+    const ollamaModel = this.config.get('OLLAMA_MODEL');
+    try {
+      const res = await fetch(`${ollamaUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: ollamaModel, format: 'json', stream: false, prompt }),
+      });
+      if (!res.ok) return empty;
+      const body = (await res.json()) as { response?: string };
+      const parsed = JSON.parse(body.response ?? '') as {
+        translationRu?: unknown;
+        translationUk?: unknown;
+        translationEn?: unknown;
+      };
+      const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+      return {
+        translationRu: str(parsed.translationRu),
+        translationUk: str(parsed.translationUk),
+        translationEn: str(parsed.translationEn),
+      };
+    } catch {
+      return empty;
+    }
   }
 
   async addSet(

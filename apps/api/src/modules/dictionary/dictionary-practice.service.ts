@@ -216,7 +216,7 @@ export class DictionaryPracticeService {
 
         const currentValue = (existing?.[column] as unknown as number) ?? 0;
         // const delta = answer.isCorrect ? 25 : -25;
-        const delta = answer.isCorrect ? 35 : 0;
+        const delta = answer.isCorrect ? 50 : 0;
         const newValue = Math.min(100, Math.max(0, currentValue + delta));
 
         await this.prisma.dictionaryWordProgress.upsert({

@@ -31,6 +31,7 @@ import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { AddSetDto } from './dto/add-set.dto';
 import { StartPracticeDto } from './dto/start-practice.dto';
 import { FinishPracticeDto } from './dto/finish-practice.dto';
+import { GetAiTranslationQueryDto } from './dto/get-ai-translation-query.dto';
 
 @ApiTags('Dictionary')
 @ApiBearerAuth()
@@ -132,6 +133,23 @@ export class DictionaryController {
     });
     if (!dbUser.nativeLanguage) return [];
     return this.dictionaryService.getSuggestions(word, dbUser.nativeLanguage as NativeLanguage);
+  }
+
+  @Get('ai-translation')
+  @ApiOperation({ summary: 'Get AI-generated translation suggestion for a Croatian word' })
+  async getAiTranslation(
+    @CurrentUser() user: UserPayload,
+    @Query() query: GetAiTranslationQueryDto,
+  ) {
+    const dbUser = await this.prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { nativeLanguage: true },
+    });
+    if (!dbUser.nativeLanguage) return { translations: [], sentences: [] };
+    return this.dictionaryService.getAiTranslation(
+      query.word,
+      dbUser.nativeLanguage as NativeLanguage,
+    );
   }
 
   // --- Collections ---
