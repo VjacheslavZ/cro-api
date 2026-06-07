@@ -165,7 +165,6 @@ export function SessionPage() {
               key={currentItem.id}
               item={currentItem as ExerciseItem & { type: 'BUILD_SENTENCE' }}
               onAnswer={handleAnswer}
-              isLast={currentIndex + 1 >= items.length}
             />
           )}
         </Box>

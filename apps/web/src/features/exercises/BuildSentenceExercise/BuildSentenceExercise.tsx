@@ -4,7 +4,7 @@
  * options to construct the Croatian translation. After the last word is chosen:
  * - All correct → green banner + auto-speech + auto-advance after 1.5s.
  * - Any errors → each wrong slot shows the selected word crossed out with the correct word
- *   above it; auto-speech of the correct sentence; user presses Next to advance.
+ *   above it; auto-speech of the correct sentence; user presses Try Again to retry from scratch.
  * @usedBy SessionPage
  */
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -22,14 +22,13 @@ import { ResultBanner } from './ResultBanner';
 interface BuildSentenceExerciseProps {
   item: BuildSentenceItem;
   onAnswer: (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => void;
-  isLast: boolean;
 }
 
 type Phase = 'selecting' | 'correct' | 'incorrect';
 
 const AUTO_ADVANCE_DELAY = 1500;
 
-export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceExerciseProps) {
+export function BuildSentenceExercise({ item, onAnswer }: BuildSentenceExerciseProps) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const user = useAppSelector((state) => state.auth.user);
@@ -77,8 +76,9 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
     setSelectedWords((prev) => prev.slice(0, -1));
   };
 
-  const handleNext = () => {
-    onAnswer({ itemId: item.id, givenAnswer: selectedWords.join(' '), isCorrect: false });
+  const handleRetry = () => {
+    setSelectedWords([]);
+    setPhase('selecting');
   };
 
   const currentWordIndex = selectedWords.length;
@@ -111,12 +111,7 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
         )}
 
         {phase !== 'selecting' && (
-          <ResultBanner
-            phase={phase}
-            correctSentence={correctSentence}
-            isLast={isLast}
-            onNext={handleNext}
-          />
+          <ResultBanner phase={phase} correctSentence={correctSentence} onRetry={handleRetry} />
         )}
       </CardContent>
     </Card>

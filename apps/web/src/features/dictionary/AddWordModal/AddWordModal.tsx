@@ -9,8 +9,8 @@ import {
   Button,
   Box,
   Chip,
-  Typography,
   Alert,
+  Typography,
   FormControl,
   InputLabel,
   Select,
@@ -19,7 +19,11 @@ import {
 } from '@mui/material';
 import type { DictionaryCollection } from '@cro/shared';
 
-import { useAddWord, useTranslationSuggestions } from '../../../api/dictionary.ts';
+import {
+  useAddWord,
+  useTranslationSuggestions,
+  useAiTranslation,
+} from '../../../api/dictionary.ts';
 
 /**
  * Modal dialog for adding a new word to the user's personal dictionary.
@@ -54,6 +58,7 @@ export function AddWordModal({
 }: AddWordModalProps) {
   const { t } = useTranslation();
   const [wordHr, setWordHr] = useState(initialWord);
+  const [debouncedWord, setDebouncedWord] = useState(initialWord);
   const [translation, setTranslation] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [error, setError] = useState('');
@@ -61,11 +66,21 @@ export function AddWordModal({
   const translationRef = useRef<HTMLInputElement>(null);
 
   const addWord = useAddWord();
-  const { data: suggestions, isLoading: suggestionsLoading } = useTranslationSuggestions(wordHr);
+  const { data: suggestions, isLoading: suggestionsLoading } =
+    useTranslationSuggestions(debouncedWord);
+  const { data: aiData, isFetching: aiLoading } = useAiTranslation(debouncedWord);
+  const aiTranslations = aiData?.translations ?? [];
+  const aiSentences = aiData?.sentences ?? [];
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedWord(wordHr), 2000);
+    return () => clearTimeout(id);
+  }, [wordHr]);
 
   useEffect(() => {
     if (open) {
       setWordHr(initialWord);
+      setDebouncedWord(initialWord);
       setTranslation('');
       setCollectionId('');
       setError('');
@@ -123,16 +138,22 @@ export function AddWordModal({
           autoFocus={!initialWord}
         />
 
+        <TextField
+          fullWidth
+          label={t('dictionary.addWordModal.translationLabel')}
+          value={translation}
+          onChange={(e) => setTranslation(e.target.value)}
+          inputRef={translationRef}
+          onKeyDown={handleKeyDown}
+          sx={{ mb: 1 }}
+        />
+
         {wordHr.length >= 2 && (
           <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              {t('dictionary.addWordModal.suggestions')}
-            </Typography>
-            {suggestionsLoading ? (
-              <CircularProgress size={20} />
-            ) : suggestions && suggestions.length > 0 ? (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {suggestions.map((s) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5 }}>
+              {suggestionsLoading && <CircularProgress size={20} />}
+              {!suggestionsLoading &&
+                suggestions?.map((s) => (
                   <Chip
                     key={s.translation}
                     label={`${s.translation} (${s.count})`}
@@ -142,24 +163,34 @@ export function AddWordModal({
                     size="small"
                   />
                 ))}
+              {aiLoading && <CircularProgress size={14} />}
+              {!aiLoading &&
+                aiTranslations.map((tr) => (
+                  <Chip
+                    key={tr}
+                    label={tr}
+                    onClick={() => setTranslation(tr)}
+                    color={translation === tr ? 'primary' : 'default'}
+                    variant={translation === tr ? 'filled' : 'outlined'}
+                    size="small"
+                  />
+                ))}
+            </Box>
+
+            {!aiLoading && aiSentences.length > 0 && (
+              <Box sx={{ mt: 1 }}>
+                {aiSentences.map((s) => (
+                  <Box key={s.hr} sx={{ mb: 0.5 }} display="flex">
+                    <Typography variant="body2">{s.hr} - </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {s.translation}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                {t('dictionary.addWordModal.noSuggestions')}
-              </Typography>
             )}
           </Box>
         )}
-
-        <TextField
-          fullWidth
-          label={t('dictionary.addWordModal.translationLabel')}
-          value={translation}
-          onChange={(e) => setTranslation(e.target.value)}
-          inputRef={translationRef}
-          onKeyDown={handleKeyDown}
-          sx={{ mb: 2 }}
-        />
 
         {collections.length > 0 && (
           <FormControl fullWidth>
@@ -185,6 +216,7 @@ export function AddWordModal({
           </Alert>
         )}
       </DialogContent>
+
       <DialogActions>
         <Button onClick={onClose}>{t('dictionary.addWordModal.cancel')}</Button>
         <Button

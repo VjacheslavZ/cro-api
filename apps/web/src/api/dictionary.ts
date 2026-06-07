@@ -166,6 +166,18 @@ export function useTranslationSuggestions(word: string) {
   });
 }
 
+export function useAiTranslation(word: string) {
+  return useQuery<{ translations: string[]; sentences: { hr: string; translation: string }[] }>({
+    queryKey: ['dictionary-ai-translation', word],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/dictionary/ai-translation', { params: { word } });
+      return data;
+    },
+    enabled: word.length >= 2,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // --- Collections ---
 
 export function useDictionaryCollections() {

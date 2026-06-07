@@ -30,7 +30,7 @@ export function WordSlotsSection({
   regeneratingPositions,
 }: Props) {
   if (words.length === 0) return null;
-  console.log('words', words);
+
   return (
     <Box sx={{ mb: 1.5 }}>
       <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>

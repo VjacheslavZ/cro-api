@@ -154,6 +154,7 @@
       "wordOf": "Word {{current}} of {{total}}",
       "correct": "Correct!",
       "incorrect": "Almost! Here is the correct sentence:",
+      "tryAgain": "Try Again",
       "next": "Next",
       "finish": "Finish"
     },
@@ -233,7 +234,6 @@
       "translationLabel": "Translation",
       "collectionLabel": "Collection (optional)",
       "suggestions": "Suggestions from other users",
-      "noSuggestions": "No suggestions found",
       "add": "Add",
       "cancel": "Cancel",
       "duplicate": "This word is already in your dictionary"

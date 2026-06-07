@@ -43,7 +43,12 @@ export function WordOptions({ currentWordIndex, totalWords, options, onOptionCli
             variant="outlined"
             size="small"
             onClick={() => onOptionClick(option)}
-            sx={{ textTransform: 'none', fontWeight: 500, gap: 0.75 }}
+            sx={{
+              fontWeight: 500,
+              gap: 0.75,
+              fontSize: 18,
+              textTransform: 'lowercase',
+            }}
           >
             <Box
               component="span"
