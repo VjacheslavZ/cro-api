@@ -406,6 +406,40 @@ model DictionaryPracticeAnswer {
   session DictionaryPracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
+enum LessonItemType {
+  EXERCISE_TOPIC
+  DICTIONARY_COLLECTION
+}
+
+model Lesson {
+  id            String       @id @default(uuid())
+  titleHr       String
+  titleRu       String
+  titleUk       String
+  titleEn       String
+  descriptionHr String?      @db.Text
+  descriptionRu String?      @db.Text
+  descriptionUk String?      @db.Text
+  descriptionEn String?      @db.Text
+  sortOrder     Int          @default(0)
+  isActive      Boolean      @default(true)
+  items         LessonItem[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model LessonItem {
+  id        String         @id @default(uuid())
+  lessonId  String
+  lesson    Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  itemType  LessonItemType
+  itemId    String
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@index([lessonId])
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime

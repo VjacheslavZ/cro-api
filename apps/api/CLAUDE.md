@@ -123,6 +123,16 @@ DictionaryPracticeSession
 
 DictionaryPracticeAnswer
   sessionId, wordId, givenAnswer, isCorrect
+
+Lesson
+  id, title, description (nullable), sortOrder, isActive
+  createdAt, updatedAt
+
+LessonItem
+  id, lessonId (FK to Lesson, onDelete: Cascade)
+  itemType (EXERCISE_TOPIC | DICTIONARY_COLLECTION)
+  itemId (String, no FK — polymorphic)
+  sortOrder
 ```
 
 ---
@@ -144,6 +154,7 @@ DictionaryPracticeAnswer
 | `AnalyticsModule`     | aggregations for admin (registrations, subscriptions)          |
 | `AdminModule`         | `AdminGuard` + admin-only endpoints, admin user management (add new admins) |
 | `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), predefined word sets, bulk add-set, shared translation suggestions, practice sessions (Type the Answer) |
+| `LessonsModule`       | admin CRUD for lessons + lesson items (topics/collections); public read for active lessons |
 
 ---
 
@@ -226,6 +237,21 @@ POST /admin/dictionary-collections/:id/words     # add predefined word to collec
 PATCH  /admin/dictionary-collections/words/:wordId  # update predefined word
 DELETE /admin/dictionary-collections/words/:wordId  # delete predefined word
 ```
+
+### Lessons (admin endpoints protected by AdminGuard; public endpoint by BetterAuthGuard)
+
+```
+GET    /admin/lessons                       # list all lessons (incl. inactive)
+POST   /admin/lessons                       # create lesson { title, description?, sortOrder?, isActive? }
+PATCH  /admin/lessons/:id                   # update lesson (partial)
+DELETE /admin/lessons/:id                   # delete lesson (cascades to items)
+POST   /admin/lessons/:id/items             # add item { itemType: EXERCISE_TOPIC|DICTIONARY_COLLECTION, itemId, sortOrder? }
+DELETE /admin/lessons/:id/items/:itemId     # remove item from lesson
+
+GET    /lessons                             # list active lessons with resolved item names (student-facing)
+```
+
+Lesson items use a polymorphic `itemId` (no FK) referencing either `ExerciseTopic.id` or `DictionaryCollection.id`. Item names are resolved server-side in a batched `Promise.all` query (no N+1).
 
 ### Dictionary (protected by JwtAuthGuard)
 
