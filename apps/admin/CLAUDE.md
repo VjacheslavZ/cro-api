@@ -103,6 +103,14 @@ All features live in `src/features/`:
 | `exercise/` | Exercise item tabs per topic (Type the Answer, Flashcards, Fill in the Blank) |
 | `admins/` | Admin user list, add-admin form |
 | `dictionary-collections/` | Predefined dictionary collection CRUD + word management |
+| `lessons/` | Lesson CRUD + lesson item management (`LessonsPage`, `LessonsTable`, `CreateLessonForm`) |
+
+### Lessons management
+
+- **Route**: `/lessons` — two-tab layout (list + create/edit), same pattern as Topics
+- **Create/Edit form**: `title`, `description` (multiline), `sortOrder`, `isActive`
+- **Items section** (edit mode only): list of current items with remove button; two `<Select>` dropdowns to add an Exercise Topic or Dictionary Collection; items are added one at a time via `POST /admin/lessons/:id/items`; populated by `GET /admin/topics` and `GET /admin/dictionary-collections`
+- **API**: `GET|POST /admin/lessons`, `PATCH|DELETE /admin/lessons/:id`, `POST /admin/lessons/:id/items`, `DELETE /admin/lessons/:id/items/:itemId`
 
 Shared components (RichTextEditor, etc.) live in `src/shared/components/`.
 

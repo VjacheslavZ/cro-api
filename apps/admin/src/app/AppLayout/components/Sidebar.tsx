@@ -12,6 +12,7 @@ import {
   MenuBook as MenuBookIcon,
   People as PeopleIcon,
   Quiz as TopicsIcon,
+  School as SchoolIcon,
   Shuffle as ShuffleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +34,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Topics', path: '/topics', icon: <TopicsIcon /> },
+  { label: 'Lessons', path: '/lessons', icon: <SchoolIcon /> },
   { label: 'Dictionary', path: '/dictionary-collections', icon: <MenuBookIcon /> },
   { label: 'Distractor Sets', path: '/distractor-sets', icon: <ShuffleIcon /> },
   { label: 'Admins', path: '/admins', icon: <PeopleIcon /> },
