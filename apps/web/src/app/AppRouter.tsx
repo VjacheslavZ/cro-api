@@ -26,6 +26,7 @@ import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWor
 import { LearnWordsResultsPage } from '../features/exercises/LearnWords/LearnWordsResultsPage';
 import { SpeedQuizPage } from '../features/exercises/SpeedQuiz/SpeedQuizPage';
 import { HomePage } from '../features/home/HomePage';
+import { LessonsPage } from '../features/lessons/LessonsPage';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
@@ -252,6 +253,16 @@ export function AppRouter() {
                   <PrivateRoute>
                     <LanguageGuard>
                       <DictionaryPracticeResultsPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/lessons"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <LessonsPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

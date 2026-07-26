@@ -54,3 +54,36 @@ export function getRulesHtml(item: RulesItem, lang: string | null): string | nul
 export function normalizeAnswer(input: string): string {
   return input.trim().toLowerCase().normalize('NFC');
 }
+
+interface LessonLike {
+  titleHr: string;
+  titleRu: string;
+  titleUk: string;
+  titleEn: string;
+  descriptionHr: string | null;
+  descriptionRu: string | null;
+  descriptionUk: string | null;
+  descriptionEn: string | null;
+}
+
+export function getLessonTitle(lesson: LessonLike, lang: string | null): string {
+  switch (lang) {
+    case 'RU':
+      return lesson.titleRu || lesson.titleEn;
+    case 'UK':
+      return lesson.titleUk || lesson.titleEn;
+    default:
+      return lesson.titleEn || lesson.titleHr;
+  }
+}
+
+export function getLessonDescription(lesson: LessonLike, lang: string | null): string | null {
+  switch (lang) {
+    case 'RU':
+      return lesson.descriptionRu ?? lesson.descriptionEn;
+    case 'UK':
+      return lesson.descriptionUk ?? lesson.descriptionEn;
+    default:
+      return lesson.descriptionEn ?? lesson.descriptionHr;
+  }
+}

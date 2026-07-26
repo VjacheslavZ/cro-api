@@ -67,7 +67,7 @@ Two slices in `src/store/`:
 
 **Coding patterns**: See `.claude/skills/web-query-patterns/SKILL.md` — auto-loads when editing `src/api/` files. Covers `useQuery`, `useMutation`, `useInfiniteQuery`, response typing, and query key conventions.
 
-API files by domain: `src/api/auth.ts`, `src/api/content.ts`, `src/api/exercises.ts`, `src/api/dictionary.ts`.
+API files by domain: `src/api/auth.ts`, `src/api/content.ts`, `src/api/exercises.ts`, `src/api/dictionary.ts`, `src/api/lessons.ts`.
 
 ---
 
@@ -98,6 +98,7 @@ Defined in `src/app/AppRouter.tsx`. Route guards:
 | `/dictionary/collections/:collectionId` | `CollectionPreviewPage` | |
 | `/dictionary/practice/:sessionId` | `DictionaryPracticePage` | |
 | `/dictionary/practice/results/:sessionId` | `DictionaryPracticeResultsPage` | |
+| `/lessons` | `LessonsPage` | Lesson list with item chips |
 | `/settings` | `SettingsPage` | |
 
 ---

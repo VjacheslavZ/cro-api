@@ -41,6 +41,11 @@
     "languageSubtitle": "This will determine how translations and explanations are shown throughout the app",
     "changeLanguageLater": "You can change this later in your settings"
   },
+  "lessons": {
+    "subtitle": "Structured learning paths combining grammar exercises and vocabulary",
+    "empty": "No lessons available yet.",
+    "noItems": "No items"
+  },
   "languages": {
     "russian": "Русский",
     "ukrainian": "Українська",
@@ -55,7 +60,8 @@
     "myDictionary": "My dictionary",
     "wordSets": "Recommended Word Sets",
     "collections": "Collections",
-    "profile": "Profile"
+    "profile": "Profile",
+    "lessons": "Lessons"
   },
   "header": {
     "settings": "Settings",
