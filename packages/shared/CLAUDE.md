@@ -60,6 +60,20 @@ Every user has a personal dictionary page at `/dictionary/my`, accessible via th
 
 ---
 
+## Lessons
+
+Lessons are structured learning paths composed of existing content.
+
+| Type | Interface | Description |
+|------|-----------|-------------|
+| `Lesson` | `{ id, title, description, sortOrder, isActive, items, createdAt }` | Top-level lesson entity |
+| `LessonItem` | `{ id, lessonId, itemType, itemId, itemName, sortOrder }` | Item reference within a lesson |
+| `LessonItemType` | `EXERCISE_TOPIC \| DICTIONARY_COLLECTION` | Enum distinguishing item kinds |
+
+`itemName` is resolved server-side: `ExerciseTopic.nameEn` for topics, `DictionaryCollection.nameEn` for collections.
+
+---
+
 ## Payment Architecture
 
 ### Currency Detection

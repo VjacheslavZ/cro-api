@@ -276,3 +276,35 @@ export interface FinishDictionaryPracticeRequest {
   exerciseType?: VocabularyExerciseType;
   speedQuizOutcomes?: SpeedQuizOutcome[];
 }
+
+// --- Lesson types ---
+
+export enum LessonItemType {
+  EXERCISE_TOPIC = 'EXERCISE_TOPIC',
+  DICTIONARY_COLLECTION = 'DICTIONARY_COLLECTION',
+}
+
+export interface LessonItem {
+  id: string;
+  lessonId: string;
+  itemType: LessonItemType;
+  itemId: string;
+  itemName: string;
+  sortOrder: number;
+}
+
+export interface Lesson {
+  id: string;
+  titleHr: string;
+  titleRu: string;
+  titleUk: string;
+  titleEn: string;
+  descriptionHr: string | null;
+  descriptionRu: string | null;
+  descriptionUk: string | null;
+  descriptionEn: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  items: LessonItem[];
+  createdAt: string;
+}
