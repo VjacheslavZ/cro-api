@@ -11,6 +11,7 @@ import { DICTIONARY_WORDS_PER_PAGE } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { EnvConfig } from '../../config/env.validation';
+import { DictionaryReviewService } from './dictionary-review.service';
 import { AddWordDto } from './dto/add-word.dto';
 import { UpdateWordDto } from './dto/update-word.dto';
 import { GetWordsQueryDto } from './dto/get-words-query.dto';
@@ -20,6 +21,7 @@ export class DictionaryService {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService<EnvConfig>,
+    private reviewService: DictionaryReviewService,
   ) {}
 
   async getWords(userId: string, query: GetWordsQueryDto) {
@@ -265,6 +267,8 @@ export class DictionaryService {
         matchingPercent: 100,
       },
     });
+
+    await this.reviewService.seedIfLearned(userId, wordId);
   }
 
   async deleteWord(userId: string, wordId: string) {

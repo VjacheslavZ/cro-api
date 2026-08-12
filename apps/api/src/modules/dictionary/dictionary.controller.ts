@@ -21,6 +21,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { DictionaryService } from './dictionary.service';
 import { DictionaryCollectionsService } from './dictionary-collections.service';
 import { DictionaryPracticeService } from './dictionary-practice.service';
+import { DictionaryReviewService } from './dictionary-review.service';
 import { AddWordDto } from './dto/add-word.dto';
 import { UpdateWordDto } from './dto/update-word.dto';
 import { GetWordsQueryDto } from './dto/get-words-query.dto';
@@ -31,6 +32,8 @@ import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { AddSetDto } from './dto/add-set.dto';
 import { StartPracticeDto } from './dto/start-practice.dto';
 import { FinishPracticeDto } from './dto/finish-practice.dto';
+import { StartReviewDto } from './dto/start-review.dto';
+import { FinishReviewDto } from './dto/finish-review.dto';
 import { GetAiTranslationQueryDto } from './dto/get-ai-translation-query.dto';
 
 @ApiTags('Dictionary')
@@ -42,6 +45,7 @@ export class DictionaryController {
     private dictionaryService: DictionaryService,
     private collectionsService: DictionaryCollectionsService,
     private practiceService: DictionaryPracticeService,
+    private reviewService: DictionaryReviewService,
     private prisma: PrismaService,
   ) {}
 
@@ -227,5 +231,30 @@ export class DictionaryController {
     @Body() dto: FinishPracticeDto,
   ) {
     return this.practiceService.finishSession(user.id, id, dto);
+  }
+
+  // --- Revision (FSRS) ---
+
+  @Get('review/due-count')
+  @ApiOperation({ summary: 'Get count of words due for FSRS revision' })
+  async getReviewDueCount(@CurrentUser() user: UserPayload) {
+    const dueCount = await this.reviewService.getDueCount(user.id);
+    return { dueCount };
+  }
+
+  @Post('review/sessions')
+  @ApiOperation({ summary: 'Start an FSRS revision session' })
+  async startReview(@CurrentUser() user: UserPayload, @Body() dto: StartReviewDto) {
+    return this.reviewService.startSession(user.id, dto);
+  }
+
+  @Post('review/sessions/:id/finish')
+  @ApiOperation({ summary: 'Finish an FSRS revision session' })
+  async finishReview(
+    @CurrentUser() user: UserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: FinishReviewDto,
+  ) {
+    return this.reviewService.finishSession(user.id, id, dto);
   }
 }

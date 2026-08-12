@@ -20,6 +20,8 @@ import { WordSetsPage } from '../features/dictionary/WordSetsPage';
 import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
 import { DictionaryPracticePage } from '../features/dictionary/DictionaryPractice/DictionaryPracticePage.tsx';
 import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPractice/DictionaryPracticeResultsPage.tsx';
+import { DictionaryReviewPage } from '../features/dictionary/Review/DictionaryReviewPage.tsx';
+import { DictionaryReviewResultsPage } from '../features/dictionary/Review/DictionaryReviewResultsPage.tsx';
 import { LearnWordsSetupPage } from '../features/exercises/LearnWords/LearnWordsSetupPage';
 import { LearnWordsPreviewPage } from '../features/exercises/LearnWords/LearnWordsPreviewPage';
 import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWordsSessionPage';
@@ -253,6 +255,26 @@ export function AppRouter() {
                   <PrivateRoute>
                     <LanguageGuard>
                       <DictionaryPracticeResultsPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dictionary/review/:sessionId"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <DictionaryReviewPage />
+                    </LanguageGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dictionary/review/results/:sessionId"
+                element={
+                  <PrivateRoute>
+                    <LanguageGuard>
+                      <DictionaryReviewResultsPage />
                     </LanguageGuard>
                   </PrivateRoute>
                 }

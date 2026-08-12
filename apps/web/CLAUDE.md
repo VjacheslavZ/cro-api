@@ -98,6 +98,8 @@ Defined in `src/app/AppRouter.tsx`. Route guards:
 | `/dictionary/collections/:collectionId` | `CollectionPreviewPage` | |
 | `/dictionary/practice/:sessionId` | `DictionaryPracticePage` | |
 | `/dictionary/practice/results/:sessionId` | `DictionaryPracticeResultsPage` | |
+| `/dictionary/review/:sessionId` | `DictionaryReviewPage` | FSRS revision session |
+| `/dictionary/review/results/:sessionId` | `DictionaryReviewResultsPage` | |
 | `/lessons` | `LessonsPage` | Lesson list with item chips |
 | `/settings` | `SettingsPage` | |
 

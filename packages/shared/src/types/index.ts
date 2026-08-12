@@ -277,6 +277,58 @@ export interface FinishDictionaryPracticeRequest {
   speedQuizOutcomes?: SpeedQuizOutcome[];
 }
 
+// --- Dictionary Revision (FSRS-6) types ---
+
+export enum FsrsRating {
+  AGAIN = 1,
+  HARD = 2,
+  GOOD = 3,
+  EASY = 4,
+}
+
+/** Predicted interval in whole days for each rating, formatted client-side (i18n pluralization). */
+export interface DictionaryReviewInterval {
+  again: number;
+  hard: number;
+  good: number;
+  easy: number;
+}
+
+export interface DictionaryReviewItem {
+  wordId: string;
+  wordHr: string;
+  translation: string;
+  intervals: DictionaryReviewInterval;
+}
+
+export interface DictionaryReviewSessionResponse {
+  sessionId: string;
+  items: DictionaryReviewItem[];
+  totalQuestions: number;
+}
+
+export interface StartDictionaryReviewRequest {
+  count?: number;
+}
+
+export interface FinishDictionaryReviewRequest {
+  answers: { wordId: string; rating: FsrsRating }[];
+}
+
+export interface FinishDictionaryReviewResponse {
+  sessionId: string;
+  correctAnswers: number;
+  totalQuestions: number;
+  xpEarned: number;
+  newXpTotal: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface DictionaryReviewDueCountResponse {
+  dueCount: number;
+}
+
 // --- Lesson types ---
 
 export enum LessonItemType {

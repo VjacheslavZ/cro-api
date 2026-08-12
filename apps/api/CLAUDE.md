@@ -124,6 +124,22 @@ DictionaryPracticeSession
 DictionaryPracticeAnswer
   sessionId, wordId, givenAnswer, isCorrect
 
+DictionaryWordReview            <- FSRS-6 spaced-repetition card, seeded when a word becomes fully learned
+  userId, wordId (unique FK to UserDictionaryWord, onDelete: Cascade)
+  due, stability, difficulty, elapsedDays, scheduledDays, reps, lapses
+  state (FsrsCardState: NEW|LEARNING|REVIEW|RELEARNING)
+  lastReview (nullable)
+  @@unique([userId, wordId]) <- via unique wordId
+  @@index([userId, due])    <- for fetching due cards
+
+DictionaryReviewSession
+  userId, status (IN_PROGRESS|COMPLETED|ABANDONED)
+  totalQuestions, correctAnswers, xpEarned
+  createdAt, completedAt
+
+DictionaryReviewAnswer
+  sessionId, wordId, rating (1=Again 2=Hard 3=Good 4=Easy)
+
 Lesson
   id, title, description (nullable), sortOrder, isActive
   createdAt, updatedAt
@@ -269,6 +285,9 @@ DELETE /dictionary/collections/:id          # delete personal collection
 POST   /dictionary/collections/:id/add-set  # bulk-add predefined words to user's dictionary
 POST   /dictionary/practice/sessions        # start practice session
 POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
+GET    /dictionary/review/due-count         # count of words due for FSRS revision
+POST   /dictionary/review/sessions          # start an FSRS revision session
+POST   /dictionary/review/sessions/:id/finish  # apply ratings, reschedule cards, award XP
 ```
 
 ### Dictionary — Design Notes
@@ -280,6 +299,7 @@ POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
 - **Practice sessions** use separate models from `ExerciseSession` (not tied to ExerciseTopic/ExerciseType)
 - **Progress %** = `correctAttempts / totalAttempts * 100`, computed on the fly (not stored)
 - **Collection deletion** sets words' `collectionId` to null — words are preserved, not deleted
+- **FSRS revision** (`DictionaryReviewService`, using `ts-fsrs`): a word is seeded into the review pool the moment it becomes fully learned (all 4 drill percents at 100). Scheduler uses `generatorParameters({ request_retention: 0.9, enable_short_term: false })` — day-granularity only, no minute-level learning steps. `startSession` previews all 4 rating outcomes per due card via `scheduler.repeat()`; `finishSession` applies the chosen rating via `scheduler.next()` and persists the updated card. `Hard`/`Good`/`Easy` count as correct for XP/streak purposes, `Again` counts as incorrect. With `enable_short_term: false`, `FsrsCardState.LEARNING`/`RELEARNING` are never actually reached — every rating keeps the card in `REVIEW` (or `NEW` before its first review); a lapse only increments `lapses` and shortens the next interval (verified against the real scheduler).
 
 ---
 

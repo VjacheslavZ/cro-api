@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Alert, Chip } from '@mui/material';
 import {
   Translate,
   TextFields,
@@ -16,10 +16,12 @@ import {
   HearingOutlined,
   School,
   Timer,
+  Autorenew,
   ArrowForward,
 } from '@mui/icons-material';
 
-import { useStartDictionaryPractice } from '../../api/dictionary';
+import { useStartDictionaryPractice, useDictionaryReviewDueCount } from '../../api/dictionary';
+import { useLaunchDictionaryReview } from '../../shared/hooks/useLaunchDictionaryReview.ts';
 
 type ExerciseDirection = 'word-to-translate' | 'translate-to-word' | 'letter-pick' | 'matching';
 
@@ -45,6 +47,12 @@ export function VocabularyPage() {
   const [searchParams] = useSearchParams();
   const collectionId = searchParams.get('collectionId');
   const startPractice = useStartDictionaryPractice();
+  const { data: reviewDueCount } = useDictionaryReviewDueCount();
+  const {
+    launch: handleStartReview,
+    loading: reviewLoading,
+    error: reviewError,
+  } = useLaunchDictionaryReview('/exercises/vocabulary');
   const [pendingDirection, setPendingDirection] = useState<ExerciseDirection | null>(null);
   const [speedQuizLoading, setSpeedQuizLoading] = useState(false);
   const [speedQuizError, setSpeedQuizError] = useState(false);
@@ -138,6 +146,11 @@ export function VocabularyPage() {
         {speedQuizError && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             {t('exercises.speedQuiz.notEnoughWords')}
+          </Alert>
+        )}
+        {reviewError && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {t('dictionary.review.noWordsDue')}
           </Alert>
         )}
 
@@ -234,6 +247,63 @@ export function VocabularyPage() {
               </Typography>
             </Box>
             <ArrowForward sx={{ color: '#d97706', flexShrink: 0 }} />
+          </Box>
+
+          {/* Featured: Revision (FSRS) */}
+          <Box
+            onClick={() => !reviewLoading && handleStartReview()}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 3,
+              p: 3,
+              border: '2px solid #99f6e4',
+              borderRadius: 2,
+              bgcolor: '#f0fdfa',
+              cursor: reviewLoading ? 'default' : 'pointer',
+              opacity: reviewLoading ? 0.7 : 1,
+              transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+              '&:hover': reviewLoading
+                ? {}
+                : { boxShadow: '0 4px 16px rgba(0,0,0,0.12)', borderColor: '#5eead4' },
+            }}
+          >
+            <Box
+              sx={{
+                flexShrink: 0,
+                width: 64,
+                height: 64,
+                bgcolor: '#ccfbf1',
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {reviewLoading ? (
+                <CircularProgress size={32} sx={{ color: '#0d9488' }} />
+              ) : (
+                <Autorenew sx={{ fontSize: 32, color: '#0d9488' }} />
+              )}
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 0.25 }}>
+                  {t('exercises.vocabulary.revision')}
+                </Typography>
+                {!!reviewDueCount && (
+                  <Chip
+                    label={reviewDueCount}
+                    size="small"
+                    sx={{ bgcolor: '#0d9488', color: 'white', fontWeight: 700 }}
+                  />
+                )}
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                {t('exercises.vocabulary.revisionDesc')}
+              </Typography>
+            </Box>
+            <ArrowForward sx={{ color: '#0d9488', flexShrink: 0 }} />
           </Box>
 
           {/* Section label */}

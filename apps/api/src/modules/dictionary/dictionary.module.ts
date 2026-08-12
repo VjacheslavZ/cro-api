@@ -8,10 +8,16 @@ import { AdminDictionaryController } from './admin-dictionary.controller';
 import { DictionaryService } from './dictionary.service';
 import { DictionaryCollectionsService } from './dictionary-collections.service';
 import { DictionaryPracticeService } from './dictionary-practice.service';
+import { DictionaryReviewService } from './dictionary-review.service';
 
 @Module({
   imports: [AuthModule, AdminAuthModule, GamificationModule],
   controllers: [DictionaryController, AdminDictionaryController],
-  providers: [DictionaryService, DictionaryCollectionsService, DictionaryPracticeService],
+  providers: [
+    DictionaryService,
+    DictionaryCollectionsService,
+    DictionaryPracticeService,
+    DictionaryReviewService,
+  ],
 })
 export class DictionaryModule {}
