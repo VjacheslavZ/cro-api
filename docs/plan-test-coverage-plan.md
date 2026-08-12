@@ -24,10 +24,10 @@
 **Affects:** backend
 **Tasks:**
 
-- [ ] Add `admin.service.spec.ts`
-- [ ] Add `content.service.spec.ts` and `content-cache.service.spec.ts`
-- [ ] Add specs for `dictionary.service.ts`, `dictionary-collections.service.ts`, `dictionary-practice.service.ts`, `dictionary-review.service.ts`
-- [ ] Add `users.service.spec.ts` and `lessons.service.spec.ts`
+- [x] Add `admin.service.spec.ts`
+- [x] Add `content.service.spec.ts` and `content-cache.service.spec.ts`
+- [x] Add specs for `dictionary.service.ts`, `dictionary-collections.service.ts`, `dictionary-practice.service.ts`, `dictionary-review.service.ts`
+- [x] Add `users.service.spec.ts` and `lessons.service.spec.ts`
 
 **Done when:** `apps/api` line coverage for `src/modules/**` is at or above 70%.
 
