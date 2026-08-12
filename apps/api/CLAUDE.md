@@ -8,11 +8,13 @@
 User
   id, email, name, avatarUrl, role (STUDENT|ADMIN)
   nativeLanguage (RU|UK|EN)
-  googleId, appleId
+  passwordHash, googleId, appleId, emailVerified
   xpTotal, currentStreak, longestStreak, lastPracticeDate
   expoPushToken
   isBlocked
   createdAt, updatedAt
+
+Session / Account / Verification  <- managed by better-auth (student sessions, OAuth accounts, email verification)
 
 SubscriptionPlan             <- configured via admin panel
   name, intervalMonths (1|12)
@@ -157,7 +159,7 @@ LessonItem
 
 | Module                | Responsibility                                                 |
 | --------------------- | -------------------------------------------------------------- |
-| `AuthModule`          | Google OAuth2 + Apple, email/password (admins), JWT (access 15m + refresh 30d in Redis) |
+| `AuthModule`          | better-auth (students: Google OAuth2 + email/password, session cookies, 30-day expiry); separate `AdminAuthModule` for admins (email/password + bcrypt, JWT access 15m + refresh 30d in Redis) |
 | `UsersModule`         | profile, language, push token, account deletion (GDPR)         |
 | `ContentModule`       | CRUD for topics + per-type exercise items (write — admin only) |
 | `ExercisesModule`     | sessions, results processing                                   |
@@ -178,11 +180,14 @@ LessonItem
 
 ### Auth
 
+Handled by `better-auth`, mounted directly on Express at `/api/auth/*` (bypasses Nest's global pipes/guards — see `apps/api/src/main.ts` + `apps/api/src/auth.ts`). Session cookie based; protected Nest routes use `BetterAuthGuard`.
+
 ```
-POST /auth/google
-POST /auth/apple
-POST /auth/refresh
-POST /auth/logout
+POST /api/auth/sign-in/social       # Google OAuth2
+POST /api/auth/sign-in/email        # email/password
+POST /api/auth/sign-up/email
+GET  /api/auth/session
+POST /api/auth/sign-out
 ```
 
 ### Admin Auth
@@ -269,7 +274,7 @@ GET    /lessons                             # list active lessons with resolved 
 
 Lesson items use a polymorphic `itemId` (no FK) referencing either `ExerciseTopic.id` or `DictionaryCollection.id`. Item names are resolved server-side in a batched `Promise.all` query (no N+1).
 
-### Dictionary (protected by JwtAuthGuard)
+### Dictionary (protected by BetterAuthGuard)
 
 ```
 GET    /dictionary/words                    # paginated (cursor-based), supports ?search, ?collectionId

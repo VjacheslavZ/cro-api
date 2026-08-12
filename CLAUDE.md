@@ -28,7 +28,7 @@ An application for learning Croatian grammar through interactive exercises. Targ
 | State              | Redux Toolkit + TanStack Query            |
 | Forms              | React Hook Form + Zod                     |
 | i18n               | i18next + react-i18next (cro-web + cro-mobile only; cro-admin uses English only) |
-| Auth (Students)    | Passport.js (Google OAuth2 + Apple) + JWT |
+| Auth (Students)    | better-auth (Google OAuth2) + session cookies |
 | Auth (Admin)       | Email/password (bcrypt) + JWT             |
 | Auth (Mobile)      | expo-auth-session + expo-web-browser + expo-crypto + expo-apple-authentication |
 | Web Payments       | Stripe (Checkout + Customer Portal)       |
@@ -196,8 +196,8 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 | `@nestjs/throttler`                                         | rate-limiting                                       |
 | `helmet`                                                    | security headers                                    |
 | `bcrypt`                                                    | password hashing for admin accounts                 |
-| `passport-google-oauth20` + `passport-apple`                | OAuth strategies                                    |
-| `@nestjs/jwt`                                               | JWT tokens                                          |
+| `better-auth`                                                | student auth (Google OAuth2 + session cookies)       |
+| `@nestjs/jwt`                                               | JWT tokens (admin auth)                             |
 | `stripe` (Node SDK)                                         | Stripe API                                          |
 | `@stripe/stripe-js` + `@stripe/react-stripe-js`             | Stripe frontend                                     |
 | `react-native-purchases`                                    | RevenueCat mobile SDK                               |
