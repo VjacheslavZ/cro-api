@@ -25,9 +25,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "dev": "tsc -p tsconfig.build.json --watch"
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "TS_NODE_PROJECT=tsconfig.build.json node -r ts-node/register --test src/**/*.test.ts",
+    "test:coverage": "TS_NODE_PROJECT=tsconfig.build.json node --experimental-test-coverage --test-coverage-include=\"src/**/*.ts\" --test-coverage-exclude=\"src/**/*.test.ts\" -r ts-node/register --test src/**/*.test.ts"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

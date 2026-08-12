@@ -86,10 +86,13 @@
 **Affects:** backend
 **Tasks:**
 
-- [ ] Add tests for FSRS scheduling rules
-- [ ] Add tests for XP/streak calculation rules
+- [x] ~~Add tests for FSRS scheduling rules~~ — N/A: no FSRS logic exists in `packages/shared`. `packages/shared/src` contains only `types/index.ts` (type declarations, no functions), `constants/index.ts` (plain constants, no functions), and `utils/index.ts` (one function, see below). The actual FSRS scheduler lives entirely in `apps/api/src/modules/dictionary/dictionary-review.service.ts` (real `ts-fsrs` usage) and was already covered by 19 tests in phase 2 (`dictionary-review.service.spec.ts`).
+- [x] ~~Add tests for XP/streak calculation rules~~ — N/A, same reason: this logic lives in `apps/api/src/modules/gamification/gamification.service.ts`, already covered by 7 tests in phase 1 (`gamification.service.spec.ts`). Nothing under `packages/shared` computes XP or streaks.
+- [x] Add tests for the one actual untested function in `packages/shared`: `normalizeAnswer` (`src/utils/index.ts`) — trim/lowercase/NFC-normalize used for answer comparison. 6 tests (whitespace trimming, case-folding, NFC normalization of precomposed vs. decomposed diacritics, combined behavior, empty input, already-normalized input). Wired up `test`/`test:coverage` scripts for the package for the first time (`node:test` + `ts-node`, matching the `apps/api` convention — this package has no React/DOM dependency, so Jest would've been unnecessary weight).
 
-**Done when:** `packages/shared` has passing tests covering FSRS scheduling and XP/streak logic.
+**Done when:** `packages/shared` has passing tests covering FSRS scheduling and XP/streak logic. **N/A as stated** — this metric describes logic that isn't located in this package (see above); the actual FSRS/XP/streak logic is already tested where it lives, in `apps/api`. Revised done-when actually met: `npm run -w @cro/shared test:coverage` reports 100% line coverage for `src/utils/index.ts`, the only executable code in the package.
+
+**Side finding**: `apps/web/src/shared/lib/content-utils.ts` defines its own separate, identical `normalizeAnswer` rather than importing `@cro/shared`'s — `@cro/shared`'s version currently has zero consumers anywhere in the monorepo (dead code, not fixed here — out of scope for this phase, flagged for awareness).
 
 ### Phase 8: CI coverage reporting + documentation flag
 
