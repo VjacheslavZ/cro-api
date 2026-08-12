@@ -37,9 +37,9 @@
 **Affects:** frontend
 **Tasks:**
 
-- [ ] Add Jest + React Testing Library config and dependencies to `apps/web`
-- [ ] Add `test` and `test:coverage` scripts to `apps/web/package.json`
-- [ ] Add the first exercise-component test as the tracer
+- [x] Add Jest + React Testing Library config and dependencies to `apps/web`
+- [x] Add `test` and `test:coverage` scripts to `apps/web/package.json`
+- [x] Add the first exercise-component test as the tracer
 
 **Done when:** `npm run -w cro-web test` runs and passes with at least one test.
 
