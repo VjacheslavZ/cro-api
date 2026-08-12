@@ -14,6 +14,7 @@ Key file: `src/types/index.ts`
 | **Flashcards**        | `frontText` shown -> tap "I knew it" / "I didn't know" (FlashcardItem)        | `KNOWN` -> isCorrect=true; `UNKNOWN` -> isCorrect=false |
 | **Fill-in-the-blank** | `sentenceHr` with `{{BLANK}}` placeholder (FillInBlankItem)                   | Client-side comparison with `blankAnswer` |
 | **Dictionary Practice** | Croatian word (`wordHr`) shown -> user types translation (UserDictionaryWord) | trim + lowercase + NFC normalization, client-side comparison with `translation` |
+| **Revision (FSRS)** | Croatian word shown -> tap to reveal translation -> self-report recall via Again/Hard/Good/Easy (DictionaryWordReview) | FSRS-6 scheduler (`ts-fsrs`) computes next `due` date, `stability`, `difficulty` per rating |
 
 ### Exercise Rules
 
@@ -57,6 +58,32 @@ Every user has a personal dictionary page at `/dictionary/my`, accessible via th
 - `POST /dictionary/practice/sessions` creates a session, prioritizing words with lowest progress or never-practiced
 - `POST /dictionary/practice/sessions/:id/finish` submits results, updates `DictionaryWordProgress`, awards XP via `GamificationModule`
 - Reuses existing `TextInputExercise` component on web
+
+### Dictionary Revision (FSRS-6)
+
+Long-term retention for words the user has already learned, using the FSRS-6 spaced-repetition algorithm via the `ts-fsrs` package.
+
+- **Seeding**: the moment a word's `isLearned` flips true (all 4 drill percents on `DictionaryWordProgress` reach 100%, via `DictionaryPracticeService.finishSession`'s Learn Words branch, or via the manual `PATCH /dictionary/words/:id/learned` shortcut), `DictionaryReviewService.seedIfLearned` creates a `DictionaryWordReview` card (`createEmptyCard()`, state `NEW`, due immediately). No separate opt-in action.
+- **Scheduler config**: `generatorParameters({ request_retention: 0.9, enable_short_term: false })` — short-term (minute-level) learning steps are disabled, so every interval is computed in whole days. This fits a session-based web app with no push-notification loop back into the same session.
+- **Card state**: `DictionaryWordReview` stores `due`, `stability`, `difficulty`, `elapsedDays`, `scheduledDays`, `reps`, `lapses`, `state` (`FsrsCardState`: NEW/LEARNING/REVIEW/RELEARNING), `lastReview` — one row per `UserDictionaryWord` (1:1). With `enable_short_term: false`, only `NEW` and `REVIEW` are ever actually reached — every rating (including "Again") keeps the card in `REVIEW`, only `lapses` increments and the interval shortens. `LEARNING`/`RELEARNING` exist in the enum but are unreachable under this config.
+- **Session flow**: `POST /dictionary/review/sessions` fetches due cards (`due <= now`, ordered by `due` asc) and returns each with a preview of all 4 rating outcomes (`scheduler.repeat(card, now)`) as `intervals: { again, hard, good, easy }` (day counts, formatted client-side for i18n). `POST /dictionary/review/sessions/:id/finish` applies each rating via `scheduler.next(card, now, rating)` and persists the updated card.
+- **XP/streak**: `Hard`/`Good`/`Easy` count as correct, `Again` counts as incorrect — feeds `GamificationService.awardXpAndUpdateStreak` unchanged.
+- **Due count badge**: `GET /dictionary/review/due-count` powers the "Revision" entry point badge on the web Vocabulary page; the card is hidden entirely when the count is 0.
+- Not implemented (deliberately out of scope for MVP): example sentences on the review card, a per-review audit log for future FSRS parameter optimization, push/reminder notifications for due cards, admin-configurable FSRS parameters.
+
+---
+
+## Lessons
+
+Lessons are structured learning paths composed of existing content.
+
+| Type | Interface | Description |
+|------|-----------|-------------|
+| `Lesson` | `{ id, title, description, sortOrder, isActive, items, createdAt }` | Top-level lesson entity |
+| `LessonItem` | `{ id, lessonId, itemType, itemId, itemName, sortOrder }` | Item reference within a lesson |
+| `LessonItemType` | `EXERCISE_TOPIC \| DICTIONARY_COLLECTION` | Enum distinguishing item kinds |
+
+`itemName` is resolved server-side: `ExerciseTopic.nameEn` for topics, `DictionaryCollection.nameEn` for collections.
 
 ---
 

@@ -118,22 +118,18 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
                   bgcolor: isMatched
                     ? 'success.light'
                     : isSelected
-                      ? 'primary.light'
+                      ? 'lightGreen'
                       : 'background.paper',
                   borderColor: isMatched ? 'success.main' : isSelected ? 'primary.main' : 'divider',
                   borderWidth: isSelected ? 2 : 1,
                   transition: 'background-color 0.15s, border-color 0.15s',
                   '&:hover': {
-                    bgcolor: isMatched
-                      ? 'success.light'
-                      : isSelected
-                        ? 'primary.light'
-                        : 'action.hover',
+                    bgcolor: isMatched ? 'slightGreen' : isSelected ? 'lightGreen' : 'lightGreen',
                   },
                 }}
               >
                 {isMatched ? (
-                  <CheckCircle color="success" fontSize="small" sx={{ flexShrink: 0 }} />
+                  <CheckCircle fontSize="small" sx={{ flexShrink: 0, color: '#0d3110' }} />
                 ) : (
                   <VolumeUp
                     fontSize="small"
@@ -142,7 +138,7 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
                 )}
                 <Typography
                   variant="body1"
-                  color={isMatched ? 'success.dark' : isSelected ? 'primary.main' : 'text.primary'}
+                  color={isMatched ? '#0d3110' : isSelected ? 'primary.main' : 'text.primary'}
                   noWrap
                 >
                   {isMatched ? item.wordHr : '*************'}
@@ -186,7 +182,7 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
               >
                 <Typography
                   variant="body1"
-                  color={isMatched ? 'success.dark' : isFlashWrong ? 'error.main' : 'text.primary'}
+                  color={isMatched ? '#0d3110' : isFlashWrong ? 'error.main' : 'text.primary'}
                   noWrap
                 >
                   {option.translation}

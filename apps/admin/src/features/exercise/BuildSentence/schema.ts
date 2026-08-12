@@ -30,6 +30,7 @@ export interface BuildSentenceItemData {
   translationUk: string;
   translationEn: string;
   sortOrder: number;
+  createdAt: string;
   words: BuildSentenceWord[];
 }
 

@@ -9,9 +9,19 @@
  */
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Tab, Tabs, Typography, Button, Switch, FormControlLabel, Stack } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Tab,
+  Tabs,
+  Typography,
+  Button,
+  Switch,
+  FormControlLabel,
+  Stack,
+} from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExerciseType } from '@cro/shared';
 
 import { apiClient } from '../../api/client';
@@ -29,10 +39,30 @@ interface TopicDetail {
 }
 
 const EXERCISE_TABS = [
-  { type: ExerciseType.TYPE_THE_ANSWER, label: 'Type the Answer' },
-  { type: ExerciseType.FLASHCARDS, label: 'Flashcards' },
-  { type: ExerciseType.FILL_IN_BLANK, label: 'Fill in Blank' },
-  { type: ExerciseType.BUILD_SENTENCE, label: 'Build a Sentence' },
+  {
+    type: ExerciseType.TYPE_THE_ANSWER,
+    label: 'Type the Answer',
+    queryKey: 'type-the-answer-items',
+    endpoint: 'type-the-answer-items',
+  },
+  {
+    type: ExerciseType.FLASHCARDS,
+    label: 'Flashcards',
+    queryKey: 'flashcard-items',
+    endpoint: 'flashcard-items',
+  },
+  {
+    type: ExerciseType.FILL_IN_BLANK,
+    label: 'Fill in Blank',
+    queryKey: 'fill-in-blank-items',
+    endpoint: 'fill-in-blank-items',
+  },
+  {
+    type: ExerciseType.BUILD_SENTENCE,
+    label: 'Build a Sentence',
+    queryKey: 'build-sentence-items',
+    endpoint: 'build-sentence-items',
+  },
 ];
 
 /**
@@ -57,9 +87,19 @@ export function ExercisePage() {
     enabled: !!topicId,
   });
 
+  const itemCountResults = useQueries({
+    queries: EXERCISE_TABS.map((et) => ({
+      queryKey: [et.queryKey, topicId],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`/admin/topics/${topicId}/${et.endpoint}`);
+        return data as unknown[];
+      },
+      enabled: !!topicId,
+    })),
+  });
+
   const toggleTypeMutation = useMutation({
     mutationFn: async ({ exerciseType, enabled }: { exerciseType: string; enabled: boolean }) => {
-      console.log('exerciseType', exerciseType);
       await apiClient.patch(`/admin/topics/${topicId}/exercise-types`, {
         configs: [{ exerciseType, enabled }],
       });
@@ -110,9 +150,22 @@ export function ExercisePage() {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-          {EXERCISE_TABS.map((et) => (
-            <Tab key={et.type} label={et.label} />
-          ))}
+          {EXERCISE_TABS.map((et, idx) => {
+            const count = itemCountResults[idx].data?.length;
+            return (
+              <Tab
+                key={et.type}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {et.label}
+                    {count !== undefined && (
+                      <Chip label={count} size="small" sx={{ height: 18, fontSize: 11 }} />
+                    )}
+                  </Box>
+                }
+              />
+            );
+          })}
         </Tabs>
       </Box>
 

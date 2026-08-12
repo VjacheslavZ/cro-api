@@ -4,7 +4,7 @@
 
 | Feature | Doc |
 |---------|-----|
-| Exercises — component contracts, Learn Words, AuthGuard gotcha | [docs/exercises.md](docs/exercises.md) |
+| Exercises — component contracts, Learn Words, AuthGuard gotcha, Dictionary Revision (FSRS) | [docs/exercises.md](docs/exercises.md) |
 
 ---
 

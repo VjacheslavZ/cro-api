@@ -14,7 +14,10 @@
     "buildVocabBtn": "My Dictionary",
     "wordSetsTitle": "Word Sets",
     "wordSetsDesc": "Explore curated word collections for common topics and situations",
-    "wordSetsBtn": "Browse Sets"
+    "wordSetsBtn": "Browse Sets",
+    "revisionTitle": "Revision",
+    "revisionDesc": "Review learned words with spaced repetition, timed to when you're about to forget them.",
+    "revisionBtn": "Start Revision"
   },
   "auth": {
     "welcome": "Welcome to Croatian Grammar",
@@ -41,6 +44,11 @@
     "languageSubtitle": "This will determine how translations and explanations are shown throughout the app",
     "changeLanguageLater": "You can change this later in your settings"
   },
+  "lessons": {
+    "subtitle": "Structured learning paths combining grammar exercises and vocabulary",
+    "empty": "No lessons available yet.",
+    "noItems": "No items"
+  },
   "languages": {
     "russian": "Русский",
     "ukrainian": "Українська",
@@ -55,7 +63,8 @@
     "myDictionary": "My dictionary",
     "wordSets": "Recommended Word Sets",
     "collections": "Collections",
-    "profile": "Profile"
+    "profile": "Profile",
+    "lessons": "Lessons"
   },
   "header": {
     "settings": "Settings",
@@ -95,6 +104,8 @@
       "learnWordsDesc": "A guided session through all 4 exercise types for selected words.",
       "speedQuiz": "Speed Quiz",
       "speedQuizDesc": "Test your learned words under time pressure. 5 seconds per question!",
+      "revision": "Revision",
+      "revisionDesc": "Review learned words with spaced repetition, timed to when you're about to forget them.",
       "practiceModesLabel": "Practice modes"
     },
     "speedQuiz": {
@@ -154,6 +165,7 @@
       "wordOf": "Word {{current}} of {{total}}",
       "correct": "Correct!",
       "incorrect": "Almost! Here is the correct sentence:",
+      "tryAgain": "Try Again",
       "next": "Next",
       "finish": "Finish"
     },
@@ -233,7 +245,6 @@
       "translationLabel": "Translation",
       "collectionLabel": "Collection (optional)",
       "suggestions": "Suggestions from other users",
-      "noSuggestions": "No suggestions found",
       "add": "Add",
       "cancel": "Cancel",
       "duplicate": "This word is already in your dictionary"
@@ -282,6 +293,21 @@
       "back": "Go Back",
       "backToDictionary": "Back to Dictionary",
       "practiceAgain": "Practice Again"
+    },
+    "review": {
+      "title": "Revision",
+      "instruction": "Do you remember this word?",
+      "tapToReveal": "Tap to reveal the translation",
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy",
+      "intervalMinute": "< 1 min",
+      "intervalDay_one": "{{count}} day",
+      "intervalDay_other": "{{count}} days",
+      "noWordsDue": "No words are due for review right now. Check back later!",
+      "results": "Revision Complete!",
+      "back": "Go Back"
     },
     "wordSets": {
       "title": "Recommended Word Sets",

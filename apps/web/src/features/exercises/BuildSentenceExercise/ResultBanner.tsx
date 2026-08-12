@@ -1,15 +1,14 @@
 import { Alert, Button, Typography } from '@mui/material';
-import { CheckCircle, ArrowForward } from '@mui/icons-material';
+import { CheckCircle, Replay } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
   phase: 'correct' | 'incorrect';
   correctSentence: string;
-  isLast: boolean;
-  onNext: () => void;
+  onRetry: () => void;
 }
 
-export function ResultBanner({ phase, correctSentence, isLast, onNext }: Props) {
+export function ResultBanner({ phase, correctSentence, onRetry }: Props) {
   const { t } = useTranslation();
 
   if (phase === 'correct') {
@@ -28,8 +27,8 @@ export function ResultBanner({ phase, correctSentence, isLast, onNext }: Props) 
           {correctSentence}
         </Typography>
       </Alert>
-      <Button variant="contained" endIcon={<ArrowForward />} onClick={onNext} sx={{ mt: 1 }}>
-        {isLast ? t('exercises.buildSentence.finish') : t('exercises.buildSentence.next')}
+      <Button variant="contained" startIcon={<Replay />} onClick={onRetry} sx={{ mt: 1 }}>
+        {t('exercises.buildSentence.tryAgain')}
       </Button>
     </>
   );

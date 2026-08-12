@@ -823,7 +823,7 @@ When one or more checkboxes are checked, a batch action bar appears:
 
 #### Add Word Modal
 
-Triggered by "Add Word" button or Enter in search with no match.
+Triggered by "Add Word" button or Enter in search with no match. When pre-filled from the search bar, the translation field receives focus immediately.
 
 ```
 ┌──────────────────────────────────────┐
@@ -833,7 +833,8 @@ Triggered by "Add Word" button or Enter in search with no match.
 │  [kuća                          ]    │
 │                                      │
 │  Translation suggestions:            │
-│  [house] [home] [building]           │
+│  [house (3)] [home (1)]              │
+│  ◌ [kuća (AI)]                       │
 │                                      │
 │  Translation                         │
 │  [house                         ]    │
@@ -847,12 +848,15 @@ Triggered by "Add Word" button or Enter in search with no match.
 
 | Element | Details |
 |---------|---------|
-| Croatian word field | Text input; triggers translation suggestions after 2+ characters |
-| Suggestion chips | Clickable — tap to populate translation field; show how many users use each translation |
-| Translation field | Free text; can be filled from suggestion or typed manually |
+| Croatian word field | Text input; triggers community suggestions immediately (≥ 2 chars) |
+| Community suggestion chips | Clickable — tap to populate translation field; show how many users use each translation |
+| AI suggestion chip | Appears 2 seconds after the user stops typing (debounced); labelled `translation (AI)`; calls `GET /dictionary/ai-translation` on the backend which uses Ollama (`translategemma:12b`); absent if Ollama is unavailable or the word is invalid |
+| Translation field | Free text; can be filled from any suggestion chip or typed manually |
 | Collection dropdown | Optional; defaults to "None" |
 | Add Word button | Submits; disabled while loading |
 | Duplicate error | Inline error below form if word already exists in dictionary |
+
+**Prompt injection protection**: the `word` query parameter is validated server-side with a regex that allows only Unicode letters, hyphens and spaces (max 50 chars). Requests with special characters or HTML are rejected with 422 before reaching the LLM. The prompt is constructed entirely on the server; the user-supplied word appears only as clearly-labelled data, never as instructions.
 
 #### Edit Word Modal
 
@@ -1241,21 +1245,21 @@ Used in: Grammar (BUILD_SENTENCE)
 |---------|---------|
 | Instruction | "Build the Croatian sentence:" |
 | Native translation | Full sentence in user's native language shown as the prompt |
-| Built-so-far row | Blue chips for words already selected (during selecting); green/red chips after completion |
+| Built-so-far row | Blue chips for words already selected (during selecting); the **last chip** has an × delete button that undoes the last selection; green/red chips after completion |
 | Word counter | "Word N of M" — shows position of the slot currently being filled |
-| Option buttons | 6 outlined buttons (1 correct + 5 distractors); tapping one fills the current slot and advances to the next |
+| Option buttons | 6 outlined buttons (1 correct + 5 distractors) arranged in a **3-column grid**; each button shows a small numbered badge (1–6); keyboard shortcuts 1–6 select the corresponding option; tapping/pressing fills the current slot and advances to the next |
 
 **After all words are chosen**:
 
 | Outcome | Behaviour |
 |---------|-----------|
 | All correct | Built-so-far chips turn green; correct sentence spoken aloud; auto-advance after 1.5 s |
-| Any wrong | Wrong chips turn red with strikethrough; correct word shown above in green; correct sentence spoken aloud; user presses **Next** / **Finish** to advance |
+| Any wrong | Wrong chips turn red with strikethrough; correct sentence spoken aloud; red alert shows the correct sentence; user presses **Try Again** to retry the same sentence from scratch |
 
 **States**:
-- `selecting`: Option buttons visible; built-so-far shows blue chips
+- `selecting`: Option buttons visible (3-column grid, keys 1–6); built-so-far shows blue chips; last chip has × undo button
 - `correct`: Green success alert + auto-advance timer running
-- `incorrect`: Red alert with correct sentence shown; Next/Finish button visible
+- `incorrect`: Red alert with correct sentence; **Try Again** button resets to `selecting` — sentence repeats until answered correctly
 
 ---
 

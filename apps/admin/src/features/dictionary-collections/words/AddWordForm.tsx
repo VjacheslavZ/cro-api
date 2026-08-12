@@ -7,11 +7,13 @@
  * parent to switch between create and edit mode without unmounting this component.
  * @usedBy CollectionWordsPage
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, TextField, Stack, Paper } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
+import { useAdminAiTranslation } from '../../../api/dictionary';
 
 const schema = z.object({
   wordHr: z.string().min(1, 'Required').max(100),
@@ -59,11 +61,30 @@ export function AddWordForm({ editing, isPending, onSubmit }: AddWordFormProps) 
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<PredefinedWordFormData>({
     resolver: zodResolver(schema) as never,
     defaultValues,
   });
+
+  const wordHr = watch('wordHr');
+  const [debouncedWord, setDebouncedWord] = useState('');
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedWord(wordHr), 2000);
+    return () => clearTimeout(id);
+  }, [wordHr]);
+
+  const { data: aiData, isFetching: aiLoading } = useAdminAiTranslation(debouncedWord);
+
+  useEffect(() => {
+    if (!aiData) return;
+    if (aiData.translationRu) setValue('translationRu', aiData.translationRu);
+    if (aiData.translationUk) setValue('translationUk', aiData.translationUk);
+    if (aiData.translationEn) setValue('translationEn', aiData.translationEn);
+  }, [aiData, setValue]);
 
   useEffect(() => {
     reset(editing ?? defaultValues);
@@ -88,25 +109,32 @@ export function AddWordForm({ editing, isPending, onSubmit }: AddWordFormProps) 
             sx={{ width: 80 }}
           />
         </Stack>
-        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+        <Stack direction="column" spacing={1} sx={{ mb: 1 }} alignItems="center">
           <TextField
             {...register('translationRu')}
             label="Translation (RU)"
             size="small"
+            fullWidth
             error={!!errors.translationRu}
+            InputLabelProps={{ shrink: !!watch('translationRu') || undefined }}
           />
           <TextField
+            fullWidth
             {...register('translationUk')}
             label="Translation (UK)"
             size="small"
             error={!!errors.translationUk}
+            InputLabelProps={{ shrink: !!watch('translationUk') || undefined }}
           />
           <TextField
             {...register('translationEn')}
             label="Translation (EN)"
             size="small"
+            fullWidth
             error={!!errors.translationEn}
+            InputLabelProps={{ shrink: !!watch('translationEn') || undefined }}
           />
+          {aiLoading && <CircularProgress size={16} />}
         </Stack>
         <Button type="submit" variant="contained" size="small" disabled={isPending}>
           {isPending ? <CircularProgress size={20} /> : editing ? 'Update' : 'Create'}

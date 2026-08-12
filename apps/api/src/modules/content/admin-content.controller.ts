@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -27,6 +28,9 @@ import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
 import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
 import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
 import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
+import { LlmGenerateDto } from './dto/llm-generate.dto';
+import { CreateDistractorSetDto } from './dto/create-distractor-set.dto';
+import { UpdateDistractorSetDto } from './dto/update-distractor-set.dto';
 
 @ApiTags('Admin Content')
 @Controller('admin')
@@ -166,6 +170,16 @@ export class AdminContentController {
     return this.contentService.getBuildSentenceItems(topicId);
   }
 
+  @Get('topics/:topicId/build-sentence-items/check')
+  @ApiOperation({ summary: 'Check if a Croatian sentence already exists in the topic' })
+  async checkBuildSentenceDuplicate(
+    @Param('topicId', ParseUUIDPipe) topicId: string,
+    @Query('sentence') sentence: string,
+    @Query('excludeId') excludeId?: string,
+  ) {
+    return this.contentService.checkBuildSentenceDuplicate(topicId, sentence, excludeId);
+  }
+
   @Post('build-sentence-items')
   @ApiOperation({ summary: 'Create a Build Sentence item' })
   async createBuildSentenceItem(@Body() dto: CreateBuildSentenceItemDto) {
@@ -195,5 +209,43 @@ export class AdminContentController {
     @Body() dto: UpdateBuildSentenceWordDto,
   ) {
     return this.contentService.updateBuildSentenceWord(wordId, dto);
+  }
+
+  // --- Distractor Sets ---
+
+  @Get('distractor-sets')
+  @ApiOperation({ summary: 'List all distractor sets' })
+  async listDistractorSets() {
+    return this.contentService.listDistractorSets();
+  }
+
+  @Post('distractor-sets')
+  @ApiOperation({ summary: 'Create a distractor set' })
+  async createDistractorSet(@Body() dto: CreateDistractorSetDto) {
+    return this.contentService.createDistractorSet(dto);
+  }
+
+  @Patch('distractor-sets/:id')
+  @ApiOperation({ summary: 'Update a distractor set' })
+  async updateDistractorSet(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateDistractorSetDto,
+  ) {
+    return this.contentService.updateDistractorSet(id, dto);
+  }
+
+  @Delete('distractor-sets/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a distractor set' })
+  async deleteDistractorSet(@Param('id', ParseUUIDPipe) id: string) {
+    await this.contentService.deleteDistractorSet(id);
+  }
+
+  // --- LLM proxy ---
+
+  @Post('llm/generate')
+  @ApiOperation({ summary: 'Proxy a generate request to the local Ollama instance' })
+  async llmGenerate(@Body() dto: LlmGenerateDto) {
+    return this.contentService.llmGenerate(dto);
   }
 }

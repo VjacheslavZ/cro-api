@@ -6,17 +6,20 @@ import {
   LocalFireDepartment as FlameIcon,
   Star as StarIcon,
 } from '@mui/icons-material';
-import { Box, Container, Typography, Grid, Card, CardContent, Button } from '@mui/material';
+import { Box, Container, Typography, Grid, Card, CardContent, Button, Chip } from '@mui/material';
 
 import { useAppSelector } from '../../store';
 import { useTopics } from '../../api/content';
-import { useDictionaryLearnedWordCount } from '../../api/dictionary';
+import { useDictionaryLearnedWordCount, useDictionaryReviewDueCount } from '../../api/dictionary';
+import { useLaunchDictionaryReview } from '../../shared/hooks/useLaunchDictionaryReview.ts';
 
 export function HomePage() {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);
   const { data: topics } = useTopics();
   const { data: wordCount } = useDictionaryLearnedWordCount();
+  const { data: reviewDueCount } = useDictionaryReviewDueCount();
+  const { launch: launchReview, loading: reviewLoading } = useLaunchDictionaryReview('/');
 
   const stats = [
     {
@@ -49,27 +52,45 @@ export function HomePage() {
     },
   ];
 
-  const actions = [
+  const actions: {
+    title: string;
+    description: string;
+    btnLabel: string;
+    href?: string;
+    onClick?: () => void;
+    variant: 'contained' | 'outlined';
+    badge?: number;
+    loading?: boolean;
+  }[] = [
     {
       title: t('home.practiceGrammarTitle'),
       description: t('home.practiceGrammarDesc'),
       btnLabel: t('home.practiceGrammarBtn'),
       href: '/exercises/grammar',
-      variant: 'contained' as const,
+      variant: 'contained',
     },
     {
       title: t('home.buildVocabTitle'),
       description: t('home.buildVocabDesc'),
       btnLabel: t('home.buildVocabBtn'),
       href: '/dictionary/my',
-      variant: 'outlined' as const,
+      variant: 'outlined',
     },
     {
       title: t('home.wordSetsTitle'),
       description: t('home.wordSetsDesc'),
       btnLabel: t('home.wordSetsBtn'),
       href: '/dictionary/recommended-word-sets',
-      variant: 'outlined' as const,
+      variant: 'outlined',
+    },
+    {
+      title: t('home.revisionTitle'),
+      description: t('home.revisionDesc'),
+      btnLabel: t('home.revisionBtn'),
+      onClick: launchReview,
+      variant: 'outlined',
+      badge: reviewDueCount,
+      loading: reviewLoading,
     },
   ];
 
@@ -144,21 +165,42 @@ export function HomePage() {
               }}
             >
               <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  {action.title}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {action.title}
+                  </Typography>
+                  {!!action.badge && (
+                    <Chip
+                      label={action.badge}
+                      size="small"
+                      sx={{ bgcolor: '#0d9488', color: 'white', fontWeight: 700 }}
+                    />
+                  )}
+                </Box>
                 <Typography variant="body2" sx={{ color: '#6b7280', mb: 3, flex: 1 }}>
                   {action.description}
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to={action.href}
-                  variant={action.variant}
-                  size="large"
-                  fullWidth
-                >
-                  {action.btnLabel}
-                </Button>
+                {action.onClick ? (
+                  <Button
+                    onClick={action.onClick}
+                    variant={action.variant}
+                    size="large"
+                    fullWidth
+                    disabled={action.loading}
+                  >
+                    {action.btnLabel}
+                  </Button>
+                ) : (
+                  <Button
+                    component={RouterLink}
+                    to={action.href!}
+                    variant={action.variant}
+                    size="large"
+                    fullWidth
+                  >
+                    {action.btnLabel}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Grid>

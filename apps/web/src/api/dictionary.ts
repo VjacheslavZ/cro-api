@@ -10,6 +10,11 @@ import type {
   FinishDictionaryPracticeRequest,
   AddSetResponse,
   PredefinedDictionaryWord,
+  DictionaryReviewSessionResponse,
+  FinishDictionaryReviewRequest,
+  FinishDictionaryReviewResponse,
+  StartDictionaryReviewRequest,
+  DictionaryReviewDueCountResponse,
 } from '@cro/shared';
 
 import { apiClient } from './client';
@@ -166,6 +171,18 @@ export function useTranslationSuggestions(word: string) {
   });
 }
 
+export function useAiTranslation(word: string) {
+  return useQuery<{ translations: string[]; sentences: { hr: string; translation: string }[] }>({
+    queryKey: ['dictionary-ai-translation', word],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/dictionary/ai-translation', { params: { word } });
+      return data;
+    },
+    enabled: word.length >= 2,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // --- Collections ---
 
 export function useDictionaryCollections() {
@@ -272,6 +289,50 @@ export function useFinishDictionaryPractice() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
       queryClient.removeQueries({ queryKey: ['learn-words-preview'] });
+    },
+  });
+}
+
+// --- Revision (FSRS) ---
+
+export function useDictionaryReviewDueCount() {
+  return useQuery<number>({
+    queryKey: ['dictionary-review-due-count'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<DictionaryReviewDueCountResponse>(
+        '/dictionary/review/due-count',
+      );
+      return data.dueCount;
+    },
+  });
+}
+
+export function useStartDictionaryReview() {
+  return useMutation({
+    mutationFn: async (params: StartDictionaryReviewRequest) => {
+      const { data } = await apiClient.post<DictionaryReviewSessionResponse>(
+        '/dictionary/review/sessions',
+        params,
+      );
+      return data;
+    },
+  });
+}
+
+export function useFinishDictionaryReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { sessionId: string } & FinishDictionaryReviewRequest) => {
+      const { sessionId, ...body } = params;
+      const { data } = await apiClient.post<FinishDictionaryReviewResponse>(
+        `/dictionary/review/sessions/${sessionId}/finish`,
+        body,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dictionary-review-due-count'] });
+      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
     },
   });
 }

@@ -8,11 +8,13 @@
 User
   id, email, name, avatarUrl, role (STUDENT|ADMIN)
   nativeLanguage (RU|UK|EN)
-  googleId, appleId
+  passwordHash, googleId, appleId, emailVerified
   xpTotal, currentStreak, longestStreak, lastPracticeDate
   expoPushToken
   isBlocked
   createdAt, updatedAt
+
+Session / Account / Verification  <- managed by better-auth (student sessions, OAuth accounts, email verification)
 
 SubscriptionPlan             <- configured via admin panel
   name, intervalMonths (1|12)
@@ -123,6 +125,32 @@ DictionaryPracticeSession
 
 DictionaryPracticeAnswer
   sessionId, wordId, givenAnswer, isCorrect
+
+DictionaryWordReview            <- FSRS-6 spaced-repetition card, seeded when a word becomes fully learned
+  userId, wordId (unique FK to UserDictionaryWord, onDelete: Cascade)
+  due, stability, difficulty, elapsedDays, scheduledDays, reps, lapses
+  state (FsrsCardState: NEW|LEARNING|REVIEW|RELEARNING)
+  lastReview (nullable)
+  @@unique([userId, wordId]) <- via unique wordId
+  @@index([userId, due])    <- for fetching due cards
+
+DictionaryReviewSession
+  userId, status (IN_PROGRESS|COMPLETED|ABANDONED)
+  totalQuestions, correctAnswers, xpEarned
+  createdAt, completedAt
+
+DictionaryReviewAnswer
+  sessionId, wordId, rating (1=Again 2=Hard 3=Good 4=Easy)
+
+Lesson
+  id, title, description (nullable), sortOrder, isActive
+  createdAt, updatedAt
+
+LessonItem
+  id, lessonId (FK to Lesson, onDelete: Cascade)
+  itemType (EXERCISE_TOPIC | DICTIONARY_COLLECTION)
+  itemId (String, no FK — polymorphic)
+  sortOrder
 ```
 
 ---
@@ -131,7 +159,7 @@ DictionaryPracticeAnswer
 
 | Module                | Responsibility                                                 |
 | --------------------- | -------------------------------------------------------------- |
-| `AuthModule`          | Google OAuth2 + Apple, email/password (admins), JWT (access 15m + refresh 30d in Redis) |
+| `AuthModule`          | better-auth (students: Google OAuth2 + email/password, session cookies, 30-day expiry); separate `AdminAuthModule` for admins (email/password + bcrypt, JWT access 15m + refresh 30d in Redis) |
 | `UsersModule`         | profile, language, push token, account deletion (GDPR)         |
 | `ContentModule`       | CRUD for topics + per-type exercise items (write — admin only) |
 | `ExercisesModule`     | sessions, results processing                                   |
@@ -144,6 +172,7 @@ DictionaryPracticeAnswer
 | `AnalyticsModule`     | aggregations for admin (registrations, subscriptions)          |
 | `AdminModule`         | `AdminGuard` + admin-only endpoints, admin user management (add new admins) |
 | `DictionaryModule`    | personal dictionary CRUD, collections (user + admin), predefined word sets, bulk add-set, shared translation suggestions, practice sessions (Type the Answer) |
+| `LessonsModule`       | admin CRUD for lessons + lesson items (topics/collections); public read for active lessons |
 
 ---
 
@@ -151,11 +180,14 @@ DictionaryPracticeAnswer
 
 ### Auth
 
+Handled by `better-auth`, mounted directly on Express at `/api/auth/*` (bypasses Nest's global pipes/guards — see `apps/api/src/main.ts` + `apps/api/src/auth.ts`). Session cookie based; protected Nest routes use `BetterAuthGuard`.
+
 ```
-POST /auth/google
-POST /auth/apple
-POST /auth/refresh
-POST /auth/logout
+POST /api/auth/sign-in/social       # Google OAuth2
+POST /api/auth/sign-in/email        # email/password
+POST /api/auth/sign-up/email
+GET  /api/auth/session
+POST /api/auth/sign-out
 ```
 
 ### Admin Auth
@@ -227,7 +259,22 @@ PATCH  /admin/dictionary-collections/words/:wordId  # update predefined word
 DELETE /admin/dictionary-collections/words/:wordId  # delete predefined word
 ```
 
-### Dictionary (protected by JwtAuthGuard)
+### Lessons (admin endpoints protected by AdminGuard; public endpoint by BetterAuthGuard)
+
+```
+GET    /admin/lessons                       # list all lessons (incl. inactive)
+POST   /admin/lessons                       # create lesson { title, description?, sortOrder?, isActive? }
+PATCH  /admin/lessons/:id                   # update lesson (partial)
+DELETE /admin/lessons/:id                   # delete lesson (cascades to items)
+POST   /admin/lessons/:id/items             # add item { itemType: EXERCISE_TOPIC|DICTIONARY_COLLECTION, itemId, sortOrder? }
+DELETE /admin/lessons/:id/items/:itemId     # remove item from lesson
+
+GET    /lessons                             # list active lessons with resolved item names (student-facing)
+```
+
+Lesson items use a polymorphic `itemId` (no FK) referencing either `ExerciseTopic.id` or `DictionaryCollection.id`. Item names are resolved server-side in a batched `Promise.all` query (no N+1).
+
+### Dictionary (protected by BetterAuthGuard)
 
 ```
 GET    /dictionary/words                    # paginated (cursor-based), supports ?search, ?collectionId
@@ -243,6 +290,9 @@ DELETE /dictionary/collections/:id          # delete personal collection
 POST   /dictionary/collections/:id/add-set  # bulk-add predefined words to user's dictionary
 POST   /dictionary/practice/sessions        # start practice session
 POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
+GET    /dictionary/review/due-count         # count of words due for FSRS revision
+POST   /dictionary/review/sessions          # start an FSRS revision session
+POST   /dictionary/review/sessions/:id/finish  # apply ratings, reschedule cards, award XP
 ```
 
 ### Dictionary — Design Notes
@@ -254,6 +304,7 @@ POST   /dictionary/practice/sessions/:id/finish  # submit results, award XP
 - **Practice sessions** use separate models from `ExerciseSession` (not tied to ExerciseTopic/ExerciseType)
 - **Progress %** = `correctAttempts / totalAttempts * 100`, computed on the fly (not stored)
 - **Collection deletion** sets words' `collectionId` to null — words are preserved, not deleted
+- **FSRS revision** (`DictionaryReviewService`, using `ts-fsrs`): a word is seeded into the review pool the moment it becomes fully learned (all 4 drill percents at 100). Scheduler uses `generatorParameters({ request_retention: 0.9, enable_short_term: false })` — day-granularity only, no minute-level learning steps. `startSession` previews all 4 rating outcomes per due card via `scheduler.repeat()`; `finishSession` applies the chosen rating via `scheduler.next()` and persists the updated card. `Hard`/`Good`/`Easy` count as correct for XP/streak purposes, `Again` counts as incorrect. With `enable_short_term: false`, `FsrsCardState.LEARNING`/`RELEARNING` are never actually reached — every rating keeps the card in `REVIEW` (or `NEW` before its first review); a lapse only increments `lapses` and shortens the next interval (verified against the real scheduler).
 
 ---
 

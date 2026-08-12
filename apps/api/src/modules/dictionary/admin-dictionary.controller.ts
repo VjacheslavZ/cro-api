@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -16,17 +17,28 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AdminGuard } from '../admin-auth/guards/admin.guard';
 import { CurrentAdmin, AdminPayload } from '../../common/decorators/current-admin.decorator';
 import { DictionaryCollectionsService } from './dictionary-collections.service';
+import { DictionaryService } from './dictionary.service';
 import { AdminCreateCollectionDto } from './dto/admin-create-collection.dto';
 import { AdminUpdateCollectionDto } from './dto/admin-update-collection.dto';
 import { CreatePredefinedWordDto } from './dto/create-predefined-word.dto';
 import { UpdatePredefinedWordDto } from './dto/update-predefined-word.dto';
+import { GetAiTranslationQueryDto } from './dto/get-ai-translation-query.dto';
 
 @ApiTags('Admin Dictionary')
 @Controller('admin/dictionary-collections')
 @UseGuards(AdminGuard)
 @ApiBearerAuth()
 export class AdminDictionaryController {
-  constructor(private collectionsService: DictionaryCollectionsService) {}
+  constructor(
+    private collectionsService: DictionaryCollectionsService,
+    private dictionaryService: DictionaryService,
+  ) {}
+
+  @Get('ai-translation')
+  @ApiOperation({ summary: 'Get AI translations for a Croatian word in all 3 languages' })
+  async getAiTranslation(@Query() query: GetAiTranslationQueryDto) {
+    return this.dictionaryService.getAiTranslationAdmin(query.word);
+  }
 
   @Get()
   @ApiOperation({ summary: 'List all predefined collections' })

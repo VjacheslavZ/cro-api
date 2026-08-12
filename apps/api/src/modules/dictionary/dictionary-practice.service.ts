@@ -3,6 +3,7 @@ import { SessionStatus, DICTIONARY_PRACTICE_ITEMS } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
+import { DictionaryReviewService } from './dictionary-review.service';
 import { StartPracticeDto } from './dto/start-practice.dto';
 import { FinishPracticeDto } from './dto/finish-practice.dto';
 
@@ -27,6 +28,7 @@ export class DictionaryPracticeService {
   constructor(
     private prisma: PrismaService,
     private gamificationService: GamificationService,
+    private reviewService: DictionaryReviewService,
   ) {}
 
   async startSession(userId: string, dto: StartPracticeDto) {
@@ -216,7 +218,7 @@ export class DictionaryPracticeService {
 
         const currentValue = (existing?.[column] as unknown as number) ?? 0;
         // const delta = answer.isCorrect ? 25 : -25;
-        const delta = answer.isCorrect ? 35 : 0;
+        const delta = answer.isCorrect ? 50 : 0;
         const newValue = Math.min(100, Math.max(0, currentValue + delta));
 
         await this.prisma.dictionaryWordProgress.upsert({
@@ -229,6 +231,8 @@ export class DictionaryPracticeService {
           },
           update: { [column]: newValue, lastPracticedAt: new Date() },
         });
+
+        await this.reviewService.seedIfLearned(userId, answer.wordId);
       }
     } else {
       // Legacy flow: update totalAttempts / correctAttempts

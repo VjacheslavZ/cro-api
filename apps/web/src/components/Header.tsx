@@ -1,6 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
 import { Star, LocalFireDepartment } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from '../store';
 import { LanguageMenu } from './header/LanguageMenu';
@@ -9,6 +10,7 @@ import { ExercisesMenu } from './header/ExercisesMenu';
 import { UserMenu } from './header/UserMenu';
 
 export function Header() {
+  const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);
   const isAuthenticated = Boolean(user);
 
@@ -44,6 +46,14 @@ export function Header() {
             <Box>
               <ExercisesMenu />
               <DictionaryMenu />
+              <Button
+                component={RouterLink}
+                to="/lessons"
+                color="inherit"
+                sx={{ color: 'text.primary' }}
+              >
+                {t('nav.lessons')}
+              </Button>
             </Box>
             {/* XP pill */}
             <Box display="flex">

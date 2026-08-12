@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ExerciseType } from '@cro/shared';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -14,6 +19,9 @@ import { UpdateFillInBlankItemDto } from './dto/update-fill-in-blank-item.dto';
 import { CreateBuildSentenceItemDto } from './dto/create-build-sentence-item.dto';
 import { UpdateBuildSentenceItemDto } from './dto/update-build-sentence-item.dto';
 import { UpdateBuildSentenceWordDto } from './dto/update-build-sentence-word.dto';
+import { LlmGenerateDto } from './dto/llm-generate.dto';
+import { CreateDistractorSetDto } from './dto/create-distractor-set.dto';
+import { UpdateDistractorSetDto } from './dto/update-distractor-set.dto';
 
 @Injectable()
 export class ContentService {
@@ -234,8 +242,29 @@ export class ContentService {
     return this.prisma.buildSentenceItem.findMany({
       where: { topicId },
       include: { words: { orderBy: { position: 'asc' } } },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async checkBuildSentenceDuplicate(
+    topicId: string,
+    sentence: string,
+    excludeId?: string,
+  ): Promise<{ exists: boolean }> {
+    const items = await this.prisma.buildSentenceItem.findMany({
+      where: { topicId },
+      include: { words: { orderBy: { position: 'asc' } } },
+    });
+    const normalized = sentence.trim().toLowerCase();
+    for (const item of items) {
+      if (excludeId && item.id === excludeId) continue;
+      const itemSentence = item.words
+        .map((w) => w.wordHr)
+        .join(' ')
+        .toLowerCase();
+      if (itemSentence === normalized) return { exists: true };
+    }
+    return { exists: false };
   }
 
   async createBuildSentenceItem(dto: CreateBuildSentenceItemDto) {
@@ -375,11 +404,14 @@ export class ContentService {
   private async getBuildSentenceItemsWithOptions(
     itemIds: string[],
   ): Promise<Record<string, unknown>[]> {
-    const items = await this.prisma.buildSentenceItem.findMany({
-      where: { id: { in: itemIds } },
-      include: { words: { orderBy: { position: 'asc' } } },
-      orderBy: { sortOrder: 'asc' },
-    });
+    const [items, distractorSets] = await Promise.all([
+      this.prisma.buildSentenceItem.findMany({
+        where: { id: { in: itemIds } },
+        include: { words: { orderBy: { position: 'asc' } } },
+        orderBy: { sortOrder: 'asc' },
+      }),
+      this.prisma.distractorSet.findMany(),
+    ]);
 
     const allWords = items.flatMap((item) => item.words.map((w) => w.wordHr));
     const uniqueWords = [...new Set(allWords)];
@@ -387,11 +419,19 @@ export class ContentService {
     return items.map((item) => ({
       ...item,
       words: item.words.map((word) => {
-        const pool = [word.wordHr, ...word.distractors];
-        if (pool.length < 6) {
-          const candidates = uniqueWords.filter((w) => !pool.includes(w));
-          this.shuffleArray(candidates);
-          pool.push(...candidates.slice(0, 6 - pool.length));
+        const matchingSet = distractorSets.find((s) => s.words.includes(word.wordHr));
+        let pool: string[];
+        if (matchingSet) {
+          const setOptions = matchingSet.words.filter((w) => w !== word.wordHr);
+          this.shuffleArray(setOptions);
+          pool = [word.wordHr, ...setOptions.slice(0, 5)];
+        } else {
+          pool = [word.wordHr, ...word.distractors];
+          if (pool.length < 6) {
+            const candidates = uniqueWords.filter((w) => !pool.includes(w));
+            this.shuffleArray(candidates);
+            pool.push(...candidates.slice(0, 6 - pool.length));
+          }
         }
         return {
           id: word.id,
@@ -423,5 +463,69 @@ export class ContentService {
 
   private async invalidateItemsCache(topicId: string, exerciseType: ExerciseType) {
     await this.cache.invalidate(`content:topic:${topicId}:items:${exerciseType}`);
+  }
+
+  // --- Distractor Sets ---
+
+  async listDistractorSets() {
+    return this.prisma.distractorSet.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async createDistractorSet(dto: CreateDistractorSetDto) {
+    const existing = await this.prisma.distractorSet.findUnique({ where: { name: dto.name } });
+    if (existing) throw new ConflictException('Distractor set with this name already exists');
+    return this.prisma.distractorSet.create({ data: { name: dto.name, words: dto.words } });
+  }
+
+  async updateDistractorSet(id: string, dto: UpdateDistractorSetDto) {
+    const existing = await this.prisma.distractorSet.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Distractor set not found');
+    if (dto.name && dto.name !== existing.name) {
+      const nameConflict = await this.prisma.distractorSet.findUnique({
+        where: { name: dto.name },
+      });
+      if (nameConflict) throw new ConflictException('Distractor set with this name already exists');
+    }
+    return this.prisma.distractorSet.update({ where: { id }, data: dto });
+  }
+
+  async deleteDistractorSet(id: string) {
+    const existing = await this.prisma.distractorSet.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Distractor set not found');
+    await this.prisma.distractorSet.delete({ where: { id } });
+  }
+
+  // --- LLM proxy ---
+
+  async llmGenerate(dto: LlmGenerateDto): Promise<{ response: string }> {
+    const wordMatch = /^String:\s*"([^"]+)"/.exec(dto.prompt);
+    if (wordMatch) {
+      const wordLower = wordMatch[1].toLowerCase();
+      const sets = await this.prisma.distractorSet.findMany();
+      const matchingSet = sets.find((s) => s.words.some((w) => w.toLowerCase() === wordLower));
+      if (matchingSet) {
+        const pool = matchingSet.words.filter((w) => w.toLowerCase() !== wordLower);
+        this.shuffleArray(pool);
+        return { response: JSON.stringify({ words: pool.slice(0, 5) }) };
+      }
+    }
+
+    const ollamaUrl = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+    const ollamaModel = process.env.OLLAMA_MODEL ?? 'translategemma:12b';
+    const res = await fetch(`${ollamaUrl}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: dto.model ?? ollamaModel,
+        format: 'json',
+        stream: false,
+        prompt: dto.prompt,
+        options: dto.options ?? { temperature: 1, top_p: 0.9, repeat_penalty: 1.2 },
+      }),
+    });
+    if (!res.ok) {
+      throw new InternalServerErrorException(`LLM error ${res.status}`);
+    }
+    return res.json() as Promise<{ response: string }>;
   }
 }

@@ -7,6 +7,8 @@ import { TopicsPage } from '../features/topics/TopicsPage';
 import { ExercisePage } from '../features/exercise/ExercisePage.tsx';
 import { DictionaryCollectionsPage } from '../features/dictionary-collections/DictionaryCollectionsPage';
 import { CollectionWordsPage } from '../features/dictionary-collections/words/CollectionWordsPage';
+import { DistractorSetsPage } from '../features/distractor-sets/DistractorSetsPage';
+import { LessonsPage } from '../features/lessons/LessonsPage.tsx';
 import { AppLayout } from './AppLayout/AppLayout.tsx';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -54,6 +56,8 @@ export function AppRouter() {
             element={<CollectionWordsPage />}
           />
           <Route path="/admins" element={<AdminsPage />} />
+          <Route path="/distractor-sets" element={<DistractorSetsPage />} />
+          <Route path="/lessons" element={<LessonsPage />} />
           <Route path="/" element={<Navigate to="/topics" replace />} />
         </Route>
       </Routes>

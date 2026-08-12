@@ -5,20 +5,33 @@
  * Each item stores the Croatian sentence split into words with per-word distractors.
  * @usedBy ExercisePage
  */
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Box, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client.ts';
 import { QueryState } from '../../../shared/components/QueryState';
+import { ExerciseSearchField } from '../../../shared/components/ExerciseSearchField.tsx';
+import { useExerciseSearch } from '../../../shared/hooks/useExerciseSearch.ts';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination.tsx';
 import {
   AddBuildSentenceItem,
   type BuildSentenceFormData,
   type BuildSentenceItemData,
-} from './AddBuildSentenceItem.tsx';
+} from './AddBuildSentenceItem/AddBuildSentenceItem.tsx';
 import { ContentTable } from './ContentTable.tsx';
+
+const getBuildSentenceSearchText = (item: BuildSentenceItemData) => [
+  item.words
+    .slice()
+    .sort((a, b) => a.position - b.position)
+    .map((w) => w.wordHr)
+    .join(' '),
+  item.translationRu,
+  item.translationUk,
+  item.translationEn,
+];
 
 export function BuildSentenceTab({ topicId }: { topicId: string }) {
   const queryClient = useQueryClient();
@@ -37,7 +50,9 @@ export function BuildSentenceTab({ topicId }: { topicId: string }) {
     },
   });
 
-  const { paginatedItems, Pagination } = useTablePagination(items);
+  const getSearchText = useCallback(getBuildSentenceSearchText, []);
+  const { search, setSearch, filteredItems } = useExerciseSearch(items, getSearchText);
+  const { paginatedItems, Pagination } = useTablePagination(filteredItems);
 
   const saveMutation = useMutation({
     mutationFn: async (data: BuildSentenceFormData) => {
@@ -56,8 +71,10 @@ export function BuildSentenceTab({ topicId }: { topicId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['build-sentence-items', topicId] });
-      setEditing(null);
-      setShowForm(false);
+      if (editing) {
+        setEditing(null);
+        setShowForm(false);
+      }
     },
   });
 
@@ -75,23 +92,30 @@ export function BuildSentenceTab({ topicId }: { topicId: string }) {
 
   return (
     <Box>
-      <Button
-        startIcon={<AddIcon />}
-        variant="outlined"
-        sx={{ mb: 2 }}
-        onClick={() => {
-          setEditing(null);
-          setShowForm(!showForm);
-        }}
-      >
-        {showForm ? 'Cancel' : 'Add Item'}
-      </Button>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+        <Button
+          startIcon={<AddIcon />}
+          variant="outlined"
+          onClick={() => {
+            setEditing(null);
+            setShowForm(!showForm);
+          }}
+        >
+          {showForm ? 'Cancel' : 'Add Item'}
+        </Button>
+        <ExerciseSearchField
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by sentence (HR, RU, UK, EN)…"
+        />
+      </Box>
 
       {showForm && (
         <AddBuildSentenceItem
+          topicId={topicId}
           editing={editing}
           isPending={saveMutation.isPending}
-          onSubmit={(d) => saveMutation.mutate(d)}
+          onSubmit={(d) => saveMutation.mutateAsync(d)}
         />
       )}
 

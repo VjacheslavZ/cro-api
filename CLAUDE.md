@@ -28,7 +28,7 @@ An application for learning Croatian grammar through interactive exercises. Targ
 | State              | Redux Toolkit + TanStack Query            |
 | Forms              | React Hook Form + Zod                     |
 | i18n               | i18next + react-i18next (cro-web + cro-mobile only; cro-admin uses English only) |
-| Auth (Students)    | Passport.js (Google OAuth2 + Apple) + JWT |
+| Auth (Students)    | better-auth (Google OAuth2) + session cookies |
 | Auth (Admin)       | Email/password (bcrypt) + JWT             |
 | Auth (Mobile)      | expo-auth-session + expo-web-browser + expo-crypto + expo-apple-authentication |
 | Web Payments       | Stripe (Checkout + Customer Portal)       |
@@ -118,24 +118,7 @@ Mobile app will be added as `apps/mobile/` in Phase 3.
 
 ## Pre-commit Hooks
 
-Single `.husky/pre-commit` at the monorepo root runs `lint-staged`. Lint-staged config in root `package.json` routes files to the correct app's ESLint config:
-
-```bash
-# .husky/pre-commit -> npx lint-staged
-
-# Root package.json lint-staged config:
-apps/api/src/**/*.ts:
-  - eslint --config apps/api/eslint.config.mjs --fix --max-warnings=0
-  - prettier --write
-
-apps/web/src/**/*.{ts,tsx}:
-  - eslint --config apps/web/eslint.config.mjs --fix --max-warnings=0
-  - prettier --write
-
-apps/admin/src/**/*.{ts,tsx}:
-  - eslint --config apps/admin/eslint.config.mjs --fix --max-warnings=0
-  - prettier --write
-```
+Single `.husky/pre-commit` at the monorepo root runs `lint-staged`. The `lint-staged` config in root `package.json` routes each app's staged files to that app's own `eslint.config.mjs` + Prettier (api / web / admin, each with `--fix --max-warnings=0`) — see `package.json` for the exact glob-to-command mapping.
 
 Commitlint enforces Conventional Commits via `.husky/commit-msg` → `npx commitlint --edit`.
 
@@ -183,7 +166,7 @@ Priorities:
 | Mobile dev  | Expo Go (scan QR code)                        |
 | Local dev   | Docker Compose (postgres:5434 + redis:6379)   |
 
-### EAS Mobile CI/CD
+### EAS Mobile CI/CD (planned — Phase 3, `apps/mobile` not yet created)
 
 ```json
 // eas.json
@@ -213,8 +196,8 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 | `@nestjs/throttler`                                         | rate-limiting                                       |
 | `helmet`                                                    | security headers                                    |
 | `bcrypt`                                                    | password hashing for admin accounts                 |
-| `passport-google-oauth20` + `passport-apple`                | OAuth strategies                                    |
-| `@nestjs/jwt`                                               | JWT tokens                                          |
+| `better-auth`                                                | student auth (Google OAuth2 + session cookies)       |
+| `@nestjs/jwt`                                               | JWT tokens (admin auth)                             |
 | `stripe` (Node SDK)                                         | Stripe API                                          |
 | `@stripe/stripe-js` + `@stripe/react-stripe-js`             | Stripe frontend                                     |
 | `react-native-purchases`                                    | RevenueCat mobile SDK                               |
@@ -239,7 +222,7 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 6. Open paywall -> create a Stripe Checkout session -> complete test payment -> confirm status changed to ACTIVE
 7. Log in to admin panel with default credentials (see `apps/admin/CLAUDE.md`) -> land on admin dashboard
 8. Add a new admin account via "Add Admin" form -> log out -> log in with the new account -> confirm access works
-9. Admin: create a topic -> add items (all 3 types) -> enable exercise types -> confirm items appear in the student app
+9. Admin: create a topic -> add items (all 4 exercise types, including Build a Sentence) -> enable exercise types -> confirm items appear in the student app
 10. Admin: change subscription price -> confirm new price is displayed in the app
 11. `npm test` at monorepo root -> all tests pass (via Turbo)
 12. `npm run lint` and `npm run typecheck` at monorepo root -> no errors (via Turbo)
@@ -248,6 +231,8 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 15. Create a personal collection -> assign words to it -> verify collection filter works on My Dictionary page
 16. Start dictionary practice -> answer all items -> verify progress % updates in the word list
 17. Admin: create a predefined dictionary collection -> verify it appears for all users on Collections page
+18. Admin: create a lesson with lesson items -> confirm it appears on the student Lessons page
+19. Start a dictionary review session -> answer items -> confirm FSRS scheduling updates the words' due dates
 
 ---
 

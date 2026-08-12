@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev":"turbo run dev",
+    "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=cro-api",
     "dev:web": "turbo run dev --filter=cro-web",
     "dev:admin": "turbo run dev --filter=cro-admin",
@@ -17,7 +17,8 @@
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "prisma:generate": "npm run -w cro-api prisma:generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check-deps": "npm audit; npm outdated; exit 0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",

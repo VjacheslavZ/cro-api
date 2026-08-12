@@ -78,6 +78,18 @@ Admin manages content as flat **ExerciseTopic** entities. Each topic can have mu
 - **Create/Edit form**: `name`, `description` (optional), `sortOrder`
 - Admin-created collections have `isPublic: true` and are visible to all users as predefined collections
 
+#### Word management (`/dictionary-collections/:collectionId/words`)
+
+Clicking a collection opens its word list. An **Add Word** button toggles the inline `AddWordForm` above the table.
+
+**`AddWordForm` behaviour**:
+- Fields: `wordHr`, `sortOrder`, `translationRu`, `translationUk`, `translationEn`
+- **AI auto-population**: after the admin stops typing in `wordHr` for 2 seconds, `GET /admin/dictionary-collections/ai-translation?word=X` is called. The response auto-fills all three translation fields via react-hook-form `setValue`. A `CircularProgress` spinner appears next to the translation fields while the request is in flight.
+- **Label float fix**: translation fields use `InputLabelProps={{ shrink: !!value || undefined }}` so MUI labels float correctly after programmatic `setValue` (MUI doesn't detect value changes from `setValue` without this).
+- **After submit**: the form stays visible and resets to blank create mode (all fields cleared). The parent remounts `AddWordForm` via a `key` increment on each successful mutation — this resets both form fields and the AI debounce timer.
+- **Edit mode**: clicking a row's edit action pre-populates the form; on successful update the form resets back to create mode.
+- **Prompt injection protection**: `word` is validated server-side with `@Matches(/^[\p{L}\-\s]+$/u)` + `@MaxLength(50)` — requests with special characters are rejected with 422 before reaching the LLM.
+
 ---
 
 ## Feature Modules
@@ -91,6 +103,14 @@ All features live in `src/features/`:
 | `exercise/` | Exercise item tabs per topic (Type the Answer, Flashcards, Fill in the Blank) |
 | `admins/` | Admin user list, add-admin form |
 | `dictionary-collections/` | Predefined dictionary collection CRUD + word management |
+| `lessons/` | Lesson CRUD + lesson item management (`LessonsPage`, `LessonsTable`, `CreateLessonForm`) |
+
+### Lessons management
+
+- **Route**: `/lessons` — two-tab layout (list + create/edit), same pattern as Topics
+- **Create/Edit form**: `title`, `description` (multiline), `sortOrder`, `isActive`
+- **Items section** (edit mode only): list of current items with remove button; two `<Select>` dropdowns to add an Exercise Topic or Dictionary Collection; items are added one at a time via `POST /admin/lessons/:id/items`; populated by `GET /admin/topics` and `GET /admin/dictionary-collections`
+- **API**: `GET|POST /admin/lessons`, `PATCH|DELETE /admin/lessons/:id`, `POST /admin/lessons/:id/items`, `DELETE /admin/lessons/:id/items/:itemId`
 
 Shared components (RichTextEditor, etc.) live in `src/shared/components/`.
 

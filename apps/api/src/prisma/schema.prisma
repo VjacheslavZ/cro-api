@@ -80,6 +80,8 @@ model User {
   dictionaryProgress    DictionaryWordProgress[]
   dictionaryCollections DictionaryCollection[]  @relation("UserDictionaryCollections")
   dictionarySessions    DictionaryPracticeSession[]
+  dictionaryWordReviews    DictionaryWordReview[]
+  dictionaryReviewSessions DictionaryReviewSession[]
 }
 
 model SubscriptionPlan {
@@ -234,6 +236,14 @@ model BuildSentenceWord {
   @@unique([itemId, position])
 }
 
+model DistractorSet {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String   @unique
+  words     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model UserExerciseProgress {
   id                 String        @id @default(uuid())
   userId             String
@@ -350,6 +360,7 @@ model UserDictionaryWord {
   user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   collection DictionaryCollection?  @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   progress   DictionaryWordProgress?
+  review     DictionaryWordReview?
 
   @@unique([userId, wordHr])
   @@index([wordHr, translationLanguage])
@@ -374,6 +385,59 @@ model DictionaryWordProgress {
   @@unique([userId, wordId])
 }
 
+enum FsrsCardState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+model DictionaryWordReview {
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  userId        String
+  wordId        String        @unique
+  due           DateTime
+  stability     Float         @default(0)
+  difficulty    Float         @default(0)
+  elapsedDays   Int           @default(0)
+  scheduledDays Int           @default(0)
+  reps          Int           @default(0)
+  lapses        Int           @default(0)
+  state         FsrsCardState @default(NEW)
+  lastReview    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(dbgenerated("now()")) @updatedAt
+
+  user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word UserDictionaryWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@index([userId, due])
+}
+
+model DictionaryReviewSession {
+  id             String        @id @default(uuid())
+  userId         String
+  status         SessionStatus @default(IN_PROGRESS)
+  totalQuestions Int           @default(0)
+  correctAnswers Int           @default(0)
+  xpEarned       Int           @default(0)
+  createdAt      DateTime      @default(now())
+  completedAt    DateTime?
+
+  user    User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers DictionaryReviewAnswer[]
+}
+
+model DictionaryReviewAnswer {
+  id        String   @id @default(uuid())
+  sessionId String
+  wordId    String
+  rating    Int
+  createdAt DateTime @default(now())
+
+  session DictionaryReviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
 model DictionaryPracticeSession {
   id             String        @id @default(uuid())
   userId         String
@@ -396,6 +460,40 @@ model DictionaryPracticeAnswer {
   isCorrect   Boolean
 
   session DictionaryPracticeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+enum LessonItemType {
+  EXERCISE_TOPIC
+  DICTIONARY_COLLECTION
+}
+
+model Lesson {
+  id            String       @id @default(uuid())
+  titleHr       String
+  titleRu       String
+  titleUk       String
+  titleEn       String
+  descriptionHr String?      @db.Text
+  descriptionRu String?      @db.Text
+  descriptionUk String?      @db.Text
+  descriptionEn String?      @db.Text
+  sortOrder     Int          @default(0)
+  isActive      Boolean      @default(true)
+  items         LessonItem[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model LessonItem {
+  id        String         @id @default(uuid())
+  lessonId  String
+  lesson    Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  itemType  LessonItemType
+  itemId    String
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@index([lessonId])
 }
 
 model Session {

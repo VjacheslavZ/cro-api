@@ -8,9 +8,10 @@ interface Props {
   phase: 'selecting' | 'correct' | 'incorrect';
   selectedWords: string[];
   sortedWords: SortedWord[];
+  onUndo?: () => void;
 }
 
-export function WordProgressRow({ phase, selectedWords, sortedWords }: Props) {
+export function WordProgressRow({ phase, selectedWords, sortedWords, onUndo }: Props) {
   return (
     <Box
       sx={{
@@ -27,7 +28,13 @@ export function WordProgressRow({ phase, selectedWords, sortedWords }: Props) {
     >
       {phase === 'selecting' &&
         selectedWords.map((word, idx) => (
-          <Chip key={idx} label={word} size="small" sx={{ bgcolor: 'primary.50' }} />
+          <Chip
+            key={idx}
+            label={word}
+            size="small"
+            sx={{ bgcolor: 'primary.50' }}
+            onDelete={idx === selectedWords.length - 1 && onUndo ? onUndo : undefined}
+          />
         ))}
 
       {phase !== 'selecting' &&

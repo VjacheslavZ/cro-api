@@ -4,10 +4,10 @@
  * options to construct the Croatian translation. After the last word is chosen:
  * - All correct → green banner + auto-speech + auto-advance after 1.5s.
  * - Any errors → each wrong slot shows the selected word crossed out with the correct word
- *   above it; auto-speech of the correct sentence; user presses Next to advance.
+ *   above it; auto-speech of the correct sentence; user presses Try Again to retry from scratch.
  * @usedBy SessionPage
  */
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, Typography } from '@mui/material';
 import type { BuildSentenceItem } from '@cro/shared';
@@ -22,19 +22,21 @@ import { ResultBanner } from './ResultBanner';
 interface BuildSentenceExerciseProps {
   item: BuildSentenceItem;
   onAnswer: (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => void;
-  isLast: boolean;
 }
 
 type Phase = 'selecting' | 'correct' | 'incorrect';
 
 const AUTO_ADVANCE_DELAY = 1500;
 
-export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceExerciseProps) {
+export function BuildSentenceExercise({ item, onAnswer }: BuildSentenceExerciseProps) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const user = useAppSelector((state) => state.auth.user);
 
-  const sortedWords = [...item.words].sort((a, b) => a.position - b.position);
+  const sortedWords = useMemo(
+    () => [...item.words].sort((a, b) => a.position - b.position),
+    [item.words],
+  );
   const correctSentence = sortedWords.map((w) => w.wordHr).join(' ');
 
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
@@ -69,8 +71,14 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
     }
   };
 
-  const handleNext = () => {
-    onAnswer({ itemId: item.id, givenAnswer: selectedWords.join(' '), isCorrect: false });
+  const handleUndo = () => {
+    if (phase !== 'selecting') return;
+    setSelectedWords((prev) => prev.slice(0, -1));
+  };
+
+  const handleRetry = () => {
+    setSelectedWords([]);
+    setPhase('selecting');
   };
 
   const currentWordIndex = selectedWords.length;
@@ -86,7 +94,12 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
           {translation}
         </Typography>
 
-        <WordProgressRow phase={phase} selectedWords={selectedWords} sortedWords={sortedWords} />
+        <WordProgressRow
+          phase={phase}
+          selectedWords={selectedWords}
+          sortedWords={sortedWords}
+          onUndo={handleUndo}
+        />
 
         {phase === 'selecting' && currentWordIndex < sortedWords.length && (
           <WordOptions
@@ -98,12 +111,7 @@ export function BuildSentenceExercise({ item, onAnswer, isLast }: BuildSentenceE
         )}
 
         {phase !== 'selecting' && (
-          <ResultBanner
-            phase={phase}
-            correctSentence={correctSentence}
-            isLast={isLast}
-            onNext={handleNext}
-          />
+          <ResultBanner phase={phase} correctSentence={correctSentence} onRetry={handleRetry} />
         )}
       </CardContent>
     </Card>
