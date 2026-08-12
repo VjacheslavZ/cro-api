@@ -102,3 +102,16 @@
 - [ ] Note the `apps/api/CLAUDE.md` module-list discrepancy (Payments/Subscriptions/RevenueCat/Notifications/Analytics modules don't exist in code) in the PR description or a follow-up ticket
 
 **Done when:** a CI run on this branch shows coverage output for all four packages, and the documentation discrepancy is recorded.
+
+### Phase 9: Playwright E2E coverage for golden-path flows
+
+**Goal:** Add browser-level end-to-end coverage for the critical user journeys already listed in root `CLAUDE.md`'s "Verification" section, layered on top of (not replacing) the Jest+RTL unit/component coverage from phases 3-6.
+**Affects:** frontend, backend
+**Tasks:**
+
+- [ ] Add Playwright to the monorepo (dependency + config), running against local dev servers for `apps/web` and `apps/admin` plus `apps/api` and Docker Compose Postgres/Redis
+- [ ] Add an E2E test for the student golden path: login → language selection → browse topics → complete an exercise session → XP awarded
+- [ ] Add an E2E test for the admin golden path: admin login → create a topic + items (all exercise types) → item appears in the student app
+- [ ] Add an E2E test for the paywall/checkout flow (Stripe test mode) and a dictionary practice/review session
+
+**Done when:** `npx playwright test` runs the golden-path suite against a local dev stack and all tests pass.
