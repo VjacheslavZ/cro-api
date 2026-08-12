@@ -30,6 +30,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '*.js', '*.mjs', 'vite.config.ts'],
+    ignores: ['dist/', 'node_modules/', 'coverage/', '*.js', '*.mjs', 'vite.config.ts'],
   },
 ];

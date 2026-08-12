@@ -62,9 +62,9 @@
 **Affects:** frontend
 **Tasks:**
 
-- [ ] Add Jest + React Testing Library config and dependencies to `apps/admin`
-- [ ] Add `test` and `test:coverage` scripts to `apps/admin/package.json`
-- [ ] Add the first content-management form test as the tracer
+- [x] Add Jest + React Testing Library config and dependencies to `apps/admin`
+- [x] Add `test` and `test:coverage` scripts to `apps/admin/package.json`
+- [x] Add the first content-management form test as the tracer
 
 **Done when:** `npm run -w cro-admin test` runs and passes with at least one test.
 
