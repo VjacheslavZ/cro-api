@@ -12,6 +12,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "node -r tsconfig-paths/register -r ts-node/register --test src/**/*.spec.ts",
+    "test:coverage": "node -r tsconfig-paths/register -r ts-node/register --experimental-test-coverage --test-coverage-include=\"src/modules/**/*.ts\" --test-coverage-exclude=\"src/**/*.spec.ts\" --test src/**/*.spec.ts",
     "seed": "ts-node src/prisma/seed.ts",
     "backfill:fsrs-reviews": "node -r tsconfig-paths/register -r ts-node/register src/prisma/backfill-fsrs-reviews.ts",
     "prisma:generate": "prisma generate --schema=src/prisma/schema.prisma",

@@ -13,6 +13,9 @@ function createMockPrisma() {
       findUnique: mock.fn() as MockFn,
       update: mock.fn() as MockFn,
     },
+    exerciseTopic: {
+      findUnique: mock.fn(async () => null) as MockFn,
+    },
     sessionAnswer: {
       createMany: mock.fn() as MockFn,
     },
