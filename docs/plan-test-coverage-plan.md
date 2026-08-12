@@ -74,11 +74,11 @@
 **Affects:** frontend
 **Tasks:**
 
-- [ ] Add tests for remaining content-management forms
-- [ ] Add tests for the admin auth flow
-- [ ] Add tests for admins management
+- [x] Add tests for remaining content-management forms (CreateTopicForm — 4 Tiptap `RichTextEditor` instances mocked out to avoid known jsdom/ProseMirror flakiness — DistractorSetForm, CreateLessonForm + LessonItemsSection, AddWordForm (debounced AI-translation autofill), and the 3 per-exercise-type `AddExerciseQuestion` forms — 46 tests across 8 files)
+- [x] Add tests for the admin auth flow (`auth-context.tsx`, `LoginPage.tsx` — 9 tests)
+- [x] Add tests for admins management (`CreateAdminForm`, `AdminsTab`, `AdminsPage` — 12 tests; `CreateAdminTab` skipped, no independent logic beyond a `Paper` wrapper)
 
-**Done when:** `apps/admin` line coverage for `src/features/**` is at or above 60%.
+**Done when:** `apps/admin` line coverage for `src/features/**` is at or above 60%. **Not met: actual is 34.15%.** Same scoping issue as phase 4: this phase's task list only ever named forms + auth + admins management, but the metric spans all of `src/features/**`. Zero-coverage, out-of-scope contributors dragging it down: every `*Table.tsx`/`*Page.tsx` list-and-navigation component (`CollectionsTable`, `TopicsTable`, `DistractorSetsTable`, `LessonsTable`, `WordsTable`, `ContentTable` ×4, `ExercisePage`, `TopicsPage`, `DictionaryCollectionsPage`, `CollectionWordsPage`, `DistractorSetsPage`, `LessonsPage`), and the entire `exercise/BuildSentence/` subtree (1238 lines — an LLM-integration-heavy item editor with 4 custom hooks for distractor regeneration and AI translation, deliberately left out here as a poor fit for RTL unit tests, more suited to Playwright E2E per phase 9). All named tasks are complete and 70 tests pass (all green with the rest of the admin suite); flagged for the user to decide the same way as phase 4: accept as-is, add a follow-up phase for the table/page components, or narrow the coverage target.
 
 ### Phase 7: packages/shared domain logic tests
 
