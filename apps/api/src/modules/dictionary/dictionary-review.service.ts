@@ -222,7 +222,18 @@ export class DictionaryReviewService {
     const now = new Date();
     let correctAnswers = 0;
 
+    // Dedupe by wordId and cap at the session's actual size so a client can't
+    // inflate correctAnswers/XP by repeating (or over-submitting) ratings —
+    // each due word can only be scored once, and never more than were due.
+    const uniqueAnswers = new Map<string, (typeof dto.answers)[number]>();
     for (const answer of dto.answers) {
+      if (!uniqueAnswers.has(answer.wordId)) uniqueAnswers.set(answer.wordId, answer);
+    }
+    const boundedAnswers = Array.from(uniqueAnswers.values()).slice(0, session.totalQuestions);
+
+    const processedAnswers: typeof boundedAnswers = [];
+
+    for (const answer of boundedAnswers) {
       const review = await this.prisma.dictionaryWordReview.findUnique({
         where: { wordId: answer.wordId },
       });
@@ -237,15 +248,18 @@ export class DictionaryReviewService {
       });
 
       if (answer.rating >= FsrsRating.HARD) correctAnswers += 1;
+      processedAnswers.push(answer);
     }
 
-    await this.prisma.dictionaryReviewAnswer.createMany({
-      data: dto.answers.map((a) => ({
-        sessionId,
-        wordId: a.wordId,
-        rating: a.rating,
-      })),
-    });
+    if (processedAnswers.length > 0) {
+      await this.prisma.dictionaryReviewAnswer.createMany({
+        data: processedAnswers.map((a) => ({
+          sessionId,
+          wordId: a.wordId,
+          rating: a.rating,
+        })),
+      });
+    }
 
     const gamification = await this.gamificationService.awardXpAndUpdateStreak(
       userId,

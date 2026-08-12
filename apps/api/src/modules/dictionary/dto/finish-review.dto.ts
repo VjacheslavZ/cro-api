@@ -1,4 +1,4 @@
-import { IsArray, IsUUID, IsIn, ValidateNested } from 'class-validator';
+import { IsArray, IsUUID, IsIn, ValidateNested, ArrayMaxSize } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -15,6 +15,7 @@ class DictionaryReviewAnswerItem {
 export class FinishReviewDto {
   @ApiProperty({ type: [DictionaryReviewAnswerItem] })
   @IsArray()
+  @ArrayMaxSize(50)
   @ValidateNested({ each: true })
   @Type(() => DictionaryReviewAnswerItem)
   answers: DictionaryReviewAnswerItem[];
