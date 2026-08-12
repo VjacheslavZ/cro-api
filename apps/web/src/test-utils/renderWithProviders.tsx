@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { render } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 
 import { authReducer } from '../store/auth.slice';
 import { preferencesReducer } from '../store/preferences.slice';
@@ -17,5 +18,12 @@ export function renderWithProviders(ui: ReactElement, preloadedState?: Partial<R
     preloadedState: preloadedState as RootState | undefined,
   });
 
-  return { store, ...render(<Provider store={store}>{ui}</Provider>) };
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <MemoryRouter>{ui}</MemoryRouter>
+      </Provider>,
+    ),
+  };
 }
