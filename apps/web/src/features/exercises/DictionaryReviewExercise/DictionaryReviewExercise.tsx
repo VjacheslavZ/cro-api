@@ -51,7 +51,10 @@ const RATINGS: {
   },
 ];
 
-function formatInterval(t: (key: string, opts?: object) => string, days: number): string {
+function formatInterval(
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  days: number,
+): string {
   if (days < 1) return t('dictionary.review.intervalMinute');
   return t('dictionary.review.intervalDay', { count: Math.round(days) });
 }

@@ -32,11 +32,12 @@ Establish and reach a baseline of automated test coverage across `apps/api`, `ap
   - `apps/admin`: content-management forms -> admin auth flow -> admins management
 - **`packages/shared`** — add tests for domain logic currently untested (FSRS scheduling rules, XP/streak calculation rules documented in `packages/shared/CLAUDE.md`).
 - **CI coverage reporting** — add a coverage step to the CI pipeline (`.github/workflows/ci.yml`) that runs alongside existing lint/typecheck/test steps and reports line coverage per app.
+- **Playwright E2E tests for golden-path user flows** — layered on top of, not replacing, the Jest+RTL unit/component coverage above. Covers the browser-level journeys already listed in root `CLAUDE.md`'s "Verification" section: student login → language selection → browse topics → complete an exercise session → XP awarded; admin login → create topic + items → item appears in student app; paywall/checkout (Stripe test mode); dictionary practice/review sessions.
 - **Documentation fix** — flag the mismatch in `apps/api/CLAUDE.md`, which lists `PaymentsModule`, `SubscriptionsModule`, `RevenueCatModule`, `NotificationsModule`, `AnalyticsModule` as existing modules, none of which currently exist under `apps/api/src/modules`. This PRD does not resolve the mismatch, but any coverage work must be scoped to modules that actually exist in code, not to the stale doc.
 
 ## Out of scope
 
-- Browser-based E2E testing (Playwright, Cypress, etc.).
+- Replacing Jest+RTL with Playwright Component Testing — Playwright is added as an additional E2E layer, not a substitute for the unit/component tests in this PRD.
 - Mobile app testing — per root `CLAUDE.md`, mobile remains manual testing via Expo Go for the MVP.
 - Load/performance testing.
 - Making CI coverage thresholds a hard merge-blocking gate (this PRD covers non-blocking reporting only; blocking enforcement is a possible future iteration).
@@ -50,6 +51,7 @@ Establish and reach a baseline of automated test coverage across `apps/api`, `ap
 - Frontend tests must use Jest + React Testing Library per root `CLAUDE.md`, and must be added to `apps/web` and `apps/admin` independently (they are currently unconfigured in both).
 - No `jest.config.*` or coverage threshold configuration exists anywhere in the repo today — all of it must be created, not modified.
 - Coverage targets must match the values already committed to in root `CLAUDE.md`: 70% lines (backend services), 60% lines (frontend features).
+- Playwright is not currently a dependency anywhere in the repo and has no existing config — it must run against the local dev stack (`apps/web`/`apps/admin` dev servers + `apps/api` + Docker Compose Postgres/Redis), the same stack described in root `CLAUDE.md`'s local setup.
 
 ## Acceptance criteria
 
@@ -61,3 +63,4 @@ Establish and reach a baseline of automated test coverage across `apps/api`, `ap
 - [ ] `packages/shared` has tests covering FSRS scheduling and XP/streak calculation logic
 - [ ] CI pipeline (`.github/workflows/ci.yml`) runs and reports coverage for all four packages without blocking merges
 - [ ] The `apps/api/CLAUDE.md` module-list discrepancy (non-existent Payments/Subscriptions/RevenueCat/Notifications/Analytics modules) is called out as a known issue in the PR description or a follow-up ticket
+- [ ] A Playwright suite exists and passes for the student golden path (login → language selection → browse topics → complete exercise session → XP awarded) and the admin golden path (login → create topic + items → item visible in student app)

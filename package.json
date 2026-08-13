@@ -41,5 +41,8 @@
       "eslint --config apps/admin/eslint.config.mjs --fix --max-warnings=0",
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.231"
   }
 }

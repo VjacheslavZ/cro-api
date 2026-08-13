@@ -1,0 +1,5 @@
+-- No-op placeholder: this migration folder shipped with no migration.sql, which made it
+-- impossible for `prisma migrate resolve --applied` to mark it as applied (Prisma error
+-- P3017 "migration could not be found"). The schema change this migration's name implies
+-- was already present in the target database's actual schema (verified column-by-column
+-- against schema.prisma), so this file intentionally contains no SQL.
