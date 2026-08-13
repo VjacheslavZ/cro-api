@@ -157,6 +157,8 @@ LessonItem
 
 ## NestJS Modules
 
+> **Doc/code drift (flagged 2026-08-13, test coverage PRD phase 8):** `SubscriptionsModule`, `PaymentsModule`, `RevenueCatModule`, `NotificationsModule`, and `AnalyticsModule` below are not implemented — there is no corresponding directory under `src/modules/`. Only `admin`, `admin-auth`, `auth`, `content`, `dictionary`, `exercises`, `gamification`, `lessons`, `progress`, `users` exist in code today. Not resolved here — this note only records the gap; see `docs/prd-test-coverage-plan.md`.
+
 | Module                | Responsibility                                                 |
 | --------------------- | -------------------------------------------------------------- |
 | `AuthModule`          | better-auth (students: Google OAuth2 + email/password, session cookies, 30-day expiry); separate `AdminAuthModule` for admins (email/password + bcrypt, JWT access 15m + refresh 30d in Redis) |

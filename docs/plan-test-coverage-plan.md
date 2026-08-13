@@ -100,11 +100,11 @@
 **Affects:** backend, frontend
 **Tasks:**
 
-- [ ] Add a non-blocking coverage-reporting step to `.github/workflows/ci.yml` covering `apps/api`, `apps/web`, `apps/admin`, `packages/shared`
-- [ ] Verify the step reports coverage without failing the CI run when thresholds aren't met
-- [ ] Note the `apps/api/CLAUDE.md` module-list discrepancy (Payments/Subscriptions/RevenueCat/Notifications/Analytics modules don't exist in code) in the PR description or a follow-up ticket
+- [x] Add a non-blocking coverage-reporting step to `.github/workflows/ci.yml` covering `apps/api`, `apps/web`, `apps/admin`, `packages/shared` — added a `test:coverage` task to `turbo.json` and swapped the CI workflow's `npx turbo run test` step for `npx turbo run test:coverage`, which runs the same tests plus prints each workspace's coverage table (all four already had `test:coverage` scripts from phases 1-7)
+- [x] Verify the step reports coverage without failing the CI run when thresholds aren't met — none of the four `test:coverage` scripts set a `--test-coverage-lines`/threshold flag, so nothing can fail on a coverage number, only on an actual test failure; confirmed locally via `npx turbo run test:coverage` (exit code 0, all 4 workspaces reported)
+- [x] Note the `apps/api/CLAUDE.md` module-list discrepancy (Payments/Subscriptions/RevenueCat/Notifications/Analytics modules don't exist in code) in the PR description or a follow-up ticket — no PR is open for this branch and there's no ticket tracker wired into this repo, so recorded it as a permanent callout directly above the module table in `apps/api/CLAUDE.md` instead (the more durable option under my control)
 
-**Done when:** a CI run on this branch shows coverage output for all four packages, and the documentation discrepancy is recorded.
+**Done when:** a CI run on this branch shows coverage output for all four packages, and the documentation discrepancy is recorded. Both met — verified locally (no GitHub Actions run available from this session; the workflow YAML was validated with `js-yaml` and the underlying `test:coverage` command was run directly, matching exactly what CI will execute).
 
 ### Phase 9: Playwright E2E coverage for golden-path flows
 
@@ -112,9 +112,9 @@
 **Affects:** frontend, backend
 **Tasks:**
 
-- [ ] Add Playwright to the monorepo (dependency + config), running against local dev servers for `apps/web` and `apps/admin` plus `apps/api` and Docker Compose Postgres/Redis
-- [ ] Add an E2E test for the student golden path: login → language selection → browse topics → complete an exercise session → XP awarded
-- [ ] Add an E2E test for the admin golden path: admin login → create a topic + items (all exercise types) → item appears in the student app
-- [ ] Add an E2E test for the paywall/checkout flow (Stripe test mode) and a dictionary practice/review session
+- [x] Add Playwright to the monorepo (dependency + config), running against local dev servers for `apps/web` and `apps/admin` plus `apps/api` and Docker Compose Postgres/Redis — new `apps/e2e` workspace (`cro-e2e`), `@playwright/test`, `playwright.config.ts` with a 3-entry `webServer` array (api/web/admin) and prerequisites documented in its header comment
+- [x] Add an E2E test for the student golden path: login → language selection → browse topics → complete an exercise session → XP awarded — `tests/student-golden-path.spec.ts` (registers a fresh account via the real UI rather than depending on fixture data, completes a Flashcards session on the seeded "Food" topic, asserts `+N XP` on the results page)
+- [x] Add an E2E test for the admin golden path: admin login → create a topic + items (all exercise types) → item appears in the student app — `tests/admin-golden-path.spec.ts`. **Covers Type the Answer, Flashcards, Fill in the Blank — not Build a Sentence**: its admin form (`AddBuildSentenceItem`) calls a live LLM/Ollama-backed service (`OLLAMA_MODEL` in `apps/api/.env`), a 4th infrastructure dependency beyond Postgres/Redis that's out of scope here, same reasoning as phase 6 excluding `exercise/BuildSentence/` from unit tests
+- [x] ~~Add an E2E test for the paywall/checkout flow (Stripe test mode)~~ — N/A, confirmed again: `apps/api/.env`'s `STRIPE_SECRET_KEY` is empty and there's no Payments module in code at all (see the doc/code drift note added to `apps/api/CLAUDE.md` in phase 8) — and a dictionary practice session instead: `tests/dictionary-practice.spec.ts` (add a word, run a practice session, assert "Practice Complete!"). A dictionary *review* (FSRS) session isn't reachable from a fresh account in one test — a word only enters the review pool after every drill type reaches 100% learned — noted as a follow-up in the spec file rather than attempted here
 
-**Done when:** `npx playwright test` runs the golden-path suite against a local dev stack and all tests pass.
+**Done when:** `npx playwright test` runs the golden-path suite against a local dev stack and all tests pass. **Not run live, by explicit user choice** — the local Docker Postgres container (`cro-api-postgres-1`) is 18 migrations behind and applying them wasn't something to do unilaterally as a side effect of writing tests. What's verified instead: `npx playwright test --list` (3/3 specs discovered, valid syntax, no live browser/server needed), `npm run -w cro-e2e typecheck` (clean), and `npx turbo run typecheck`/`lint` (unaffected — confirmed `cro-e2e`'s test runner is named `e2e`, not `test`, specifically so it doesn't get swept into the existing `turbo run test`/`test:coverage` tasks and break everyone's normal unit-test loop by trying to launch a browser with no dev stack running — this was a real bug caught while wiring it up, not a hypothetical). A live run requires: `npx playwright install --with-deps chromium`, `docker compose up -d`, `npm run -w cro-api prisma:migrate`, `npm run -w cro-api seed`, `npm run dev`, then `npm run -w cro-e2e e2e` — all documented in `apps/e2e/playwright.config.ts`.

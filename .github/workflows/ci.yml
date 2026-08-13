@@ -51,7 +51,11 @@ jobs:
 
       - run: npx turbo run lint typecheck
 
-      - run: npx turbo run test
+      # Runs tests with coverage reporting for apps/api, apps/web, apps/admin, and
+      # packages/shared. No coverage thresholds are enforced anywhere in these scripts,
+      # so this step only fails on actual test failures — coverage numbers are reported
+      # in the log for visibility, never blocking the merge.
+      - run: npx turbo run test:coverage
         env:
           DATABASE_URL: postgresql://cro:cro_dev_password@localhost:5432/cro_grammar?schema=public
           REDIS_URL: redis://localhost:6379
