@@ -1,0 +1,17 @@
+{
+  "name": "cro-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "e2e": "playwright test",
+    "cleanup": "ts-node tests/cleanup.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@prisma/client": "^6.19.2",
+    "@types/node": "^24.13.3",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  }
+}
