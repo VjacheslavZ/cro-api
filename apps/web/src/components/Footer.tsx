@@ -1,8 +1,9 @@
-import { Link as RouterLink } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography, Grid, Link } from '@mui/material';
 
 import { XIcon, YouTubeIcon, FacebookIcon, GooglePlayIcon, AppStoreIcon } from '../assets/icons';
+import { PageContainer } from './PageContainer';
 
 const socialLinks = [
   { href: 'https://x.com', icon: <XIcon />, label: 'X / Twitter' },
@@ -15,132 +16,86 @@ const appLinks = [
   { href: '#', icon: <AppStoreIcon />, label: 'App Store' },
 ];
 
+const iconLinkClass =
+  'flex size-10 items-center justify-center rounded-full bg-neutral-800 text-neutral-300 transition-colors hover:bg-neutral-700 [&_svg]:size-5';
+
+function IconLink({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className={iconLinkClass}
+    >
+      {icon}
+    </a>
+  );
+}
+
 export function Footer() {
   const { t } = useTranslation();
   const year = new Date().getFullYear();
 
+  const companyLinks = [
+    { label: t('footer.aboutUs'), to: '/about' },
+    { label: t('footer.forPartners'), to: '/partners' },
+    { label: t('footer.contacts'), to: '/contacts' },
+  ];
+
   return (
-    <Box component="footer" sx={{ mt: 'auto', bgcolor: 'grey.900', color: 'grey.300' }}>
-      <Container maxWidth="lg" sx={{ py: 2 }}>
-        <Grid container spacing={4}>
+    <footer className="mt-auto bg-neutral-900 text-neutral-300">
+      <PageContainer size="lg" className="py-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-6">
           {/* Branding */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: 'white', mb: 1.5 }}>
-              CroGrammar
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'grey.400', lineHeight: 1.6 }}>
-              {t('footer.tagline')}
-            </Typography>
-          </Grid>
+          <div className="col-span-2">
+            <p className="mb-3 text-lg font-bold text-white">CroGrammar</p>
+            <p className="text-sm leading-relaxed text-neutral-400">{t('footer.tagline')}</p>
+          </div>
 
           {/* Company links */}
-          <Grid size={{ xs: 6, md: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'white', mb: 2 }}>
-              {t('footer.company')}
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {[
-                { label: t('footer.aboutUs'), to: '/about' },
-                { label: t('footer.forPartners'), to: '/partners' },
-                { label: t('footer.contacts'), to: '/contacts' },
-              ].map((link) => (
+          <div>
+            <p className="mb-4 text-sm font-semibold text-white">{t('footer.company')}</p>
+            <div className="flex flex-col gap-2">
+              {companyLinks.map((link) => (
                 <Link
                   key={link.to}
-                  component={RouterLink}
                   to={link.to}
-                  underline="hover"
-                  variant="body2"
-                  sx={{ color: 'grey.400', '&:hover': { color: 'white' } }}
+                  className="text-sm text-neutral-400 hover:text-white hover:underline"
                 >
                   {link.label}
                 </Link>
               ))}
-            </Box>
-          </Grid>
+            </div>
+          </div>
 
           {/* Follow Us */}
-          <Grid size={{ xs: 6, md: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'white', mb: 2 }}>
-              {t('footer.socials')}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+          <div>
+            <p className="mb-4 text-sm font-semibold text-white">{t('footer.socials')}</p>
+            <div className="flex gap-2">
               {socialLinks.map((s) => (
-                <Box
-                  key={s.label}
-                  component="a"
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    bgcolor: 'grey.800',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'grey.300',
-                    transition: 'background-color 0.15s',
-                    '&:hover': { bgcolor: 'grey.700' },
-                    textDecoration: 'none',
-                  }}
-                >
-                  {s.icon}
-                </Box>
+                <IconLink key={s.label} {...s} />
               ))}
-            </Box>
-          </Grid>
+            </div>
+          </div>
 
           {/* Get the App */}
-          <Grid size={{ xs: 12, md: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'white', mb: 2 }}>
-              {t('footer.mobileApps')}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+          <div className="col-span-2">
+            <p className="mb-4 text-sm font-semibold text-white">{t('footer.mobileApps')}</p>
+            <div className="flex gap-2">
               {appLinks.map((a) => (
-                <Box
-                  key={a.label}
-                  component="a"
-                  href={a.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={a.label}
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    bgcolor: 'grey.800',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'grey.300',
-                    transition: 'background-color 0.15s',
-                    '&:hover': { bgcolor: 'grey.700' },
-                    textDecoration: 'none',
-                  }}
-                >
-                  {a.icon}
-                </Box>
+                <IconLink key={a.label} {...a} />
               ))}
-            </Box>
-          </Grid>
-        </Grid>
+            </div>
+          </div>
+        </div>
 
-        <Box
-          sx={{
-            borderTop: '1px solid',
-            borderColor: 'grey.800',
-            mt: 2,
-            pt: 2,
-            textAlign: 'center',
-          }}
-        >
-          <Typography variant="body2" sx={{ color: 'grey.500' }}>
+        <div className="mt-4 border-t border-neutral-800 pt-4 text-center">
+          <p className="text-sm text-neutral-500">
             &copy; {year} CroGrammar. {t('footer.rights')}
-          </Typography>
-        </Box>
-      </Container>
-    </Box>
+          </p>
+        </div>
+      </PageContainer>
+    </footer>
   );
 }

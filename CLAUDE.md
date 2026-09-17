@@ -20,7 +20,8 @@ An application for learning Croatian grammar through interactive exercises. Targ
 | ------------------ | ----------------------------------------- |
 | Monorepo           | Turborepo + npm workspaces                |
 | Shared code        | Local workspace package (`@cro/shared`)   |
-| Web + Admin UI     | React.js + TypeScript + Material UI (MUI) |
+| Web UI             | React.js + TypeScript + Tailwind CSS v4 + shadcn/ui (Base UI) — see ADR-001 |
+| Admin UI           | React.js + TypeScript + Material UI (MUI) |
 | Mobile             | Expo Go (React Native) + Expo Router      |
 | Backend            | NestJS + TypeScript (Node.js 24 LTS)      |
 | Database           | PostgreSQL + Prisma ORM                   |

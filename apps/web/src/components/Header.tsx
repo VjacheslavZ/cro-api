@@ -1,7 +1,8 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
-import { Star, LocalFireDepartment } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import { FlameIcon, StarIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+import { buttonVariants } from '@/components/ui/button';
 
 import { useAppSelector } from '../store';
 import { LanguageMenu } from './header/LanguageMenu';
@@ -15,95 +16,45 @@ export function Header() {
   const isAuthenticated = Boolean(user);
 
   return (
-    <AppBar
-      position="sticky"
-      elevation={0}
-      sx={{
-        bgcolor: 'white',
-        color: 'text.primary',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Typography
-          component={RouterLink}
+    <header className="sticky top-0 z-40 border-b bg-background">
+      <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
+        <Link
           to="/"
-          variant="h6"
-          sx={{
-            fontWeight: 700,
-            color: '#2563eb',
-            textDecoration: 'none',
-            '&:hover': { color: '#1d4ed8' },
-            width: 212,
-          }}
+          className="w-[212px] text-lg font-bold text-primary transition-colors hover:text-primary/80"
         >
           CroGrammar
-        </Typography>
+        </Link>
 
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <>
-            <Box>
+            <nav className="flex items-center gap-1">
               <ExercisesMenu />
               <DictionaryMenu />
-              <Button
-                component={RouterLink}
-                to="/lessons"
-                color="inherit"
-                sx={{ color: 'text.primary' }}
-              >
+              <Link to="/lessons" className={buttonVariants({ variant: 'ghost' })}>
                 {t('nav.lessons')}
-              </Button>
-            </Box>
-            {/* XP pill */}
-            <Box display="flex">
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.75,
-                  px: 1.5,
-                  py: 0.625,
-                  bgcolor: '#fefce8',
-                  color: '#b45309',
-                  border: '1px solid #fde68a',
-                  borderRadius: '999px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  mx: 0.5,
-                }}
-              >
-                <Star sx={{ fontSize: 16, color: '#f59e0b' }} />
+              </Link>
+            </nav>
+
+            <div className="flex items-center">
+              {/* XP pill */}
+              <span className="mx-1 inline-flex items-center gap-1.5 rounded-full border border-xp-border bg-xp-muted px-3 py-1.5 text-sm font-medium text-xp-foreground">
+                <StarIcon className="size-4 text-xp" />
                 {user?.xpTotal ?? 0}
-              </Box>
+              </span>
 
               {/* Streak pill */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.75,
-                  px: 1.5,
-                  py: 0.625,
-                  bgcolor: '#fff7ed',
-                  color: '#c2410c',
-                  border: '1px solid #fed7aa',
-                  borderRadius: '999px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  mx: 0.5,
-                }}
-              >
-                <LocalFireDepartment sx={{ fontSize: 16, color: '#f97316' }} />
+              <span className="mx-1 inline-flex items-center gap-1.5 rounded-full border border-streak-border bg-streak-muted px-3 py-1.5 text-sm font-medium text-streak-foreground">
+                <FlameIcon className="size-4 text-streak" />
                 {user?.currentStreak ?? 0}
-              </Box>
+              </span>
 
               <UserMenu />
-            </Box>
+            </div>
           </>
+        ) : (
+          <LanguageMenu />
         )}
-        {!isAuthenticated && <LanguageMenu />}
-      </Toolbar>
-    </AppBar>
+      </div>
+    </header>
   );
 }
