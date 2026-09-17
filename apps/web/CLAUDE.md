@@ -2,7 +2,7 @@
 
 Vite + React + TypeScript + Tailwind CSS v4 + shadcn/ui (Base UI primitives). i18n via i18next (RU/UK/EN).
 
-**Migration in progress:** the app is moving off Material UI (see `docs/intent/adr-001-web-mui-to-tailwind-shadcn.md`, phases in `docs/plan-web-tailwind-migration.md`). Some feature folders still import `@mui/*`. **Never add new `@mui` imports**; when you touch an MUI screen for a feature, either keep it MUI or migrate the whole page — do not mix both in one page.
+The MUI → Tailwind/shadcn migration (ADR-001, `docs/intent/adr-001-web-mui-to-tailwind-shadcn.md`) is complete: `@mui/*` and `@emotion/*` are not dependencies of this app any more. **Do not add them back** — `apps/admin` is the only app on MUI.
 
 For exercise type definitions, payment architecture, and domain models, see `packages/shared/CLAUDE.md`.
 
@@ -29,7 +29,7 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 
 **Tests**: query by role / label / text. jsdom does not compute Tailwind styles — assert `toHaveClass` or `data-*` attributes, never `toHaveStyle` for class-driven colours. `src/test-utils/jest.setup.ts` shims `Element.prototype.matches` for `:modal` / `:popover-open` (Floating UI probe that is pathologically slow in jsdom).
 
-Full MUI → shadcn mapping table: `docs/plan-web-tailwind-migration.md`.
+Historical MUI → shadcn mapping table (useful when porting admin patterns): `docs/plan-web-tailwind-migration.md`.
 
 ---
 

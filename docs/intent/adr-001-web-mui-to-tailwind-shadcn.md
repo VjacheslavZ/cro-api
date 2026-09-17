@@ -1,6 +1,6 @@
 # ADR-001: Web app — migrate from Material UI to Tailwind CSS + shadcn/ui
 
-- **Status**: Accepted
+- **Status**: Accepted — **implemented** (all 6 phases, 2026-09-17)
 - **Date**: 2026-09-14
 - **Scope**: `apps/web` (`cro-web`) only
 - **Implementation**: phase plan in `docs/plan-web-tailwind-migration.md`. No separate PRD — this ADR already fixes requirements and non-goals.
