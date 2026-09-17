@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { Spinner } from '@/components/Spinner';
+import { useAppSelector, useAppDispatch } from '@/store';
 
 import { authClient } from '../lib/auth-client';
-import { useAppSelector, useAppDispatch } from '../store';
 import { clearAuth } from '../store/auth.slice';
 import { fetchMe } from '../api/auth';
 

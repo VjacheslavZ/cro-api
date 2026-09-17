@@ -3,7 +3,8 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
 
-import { store } from '../store';
+import { store } from '@/store';
+
 import { queryClient } from '../api/query-client';
 import i18n from '../i18n';
 

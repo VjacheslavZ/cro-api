@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+import { ProtectedLayout } from '../guards';
 import { ExercisesPage } from '../../features/exercises/ExercisesPage';
 import { VocabularyPage } from '../../features/exercises/VocabularyPage';
 import { TopicExercisesPage } from '../../features/exercises/TopicExercisesPage/TopicExercisesPage.tsx';
@@ -10,7 +11,6 @@ import { LearnWordsPreviewPage } from '../../features/exercises/LearnWords/Learn
 import { LearnWordsSessionPage } from '../../features/exercises/LearnWords/LearnWordsSessionPage';
 import { LearnWordsResultsPage } from '../../features/exercises/LearnWords/LearnWordsResultsPage';
 import { SpeedQuizPage } from '../../features/exercises/SpeedQuiz/SpeedQuizPage';
-import { ProtectedLayout } from '../guards';
 
 /** Mounted at `/exercises/*` — all paths below are relative to that prefix. */
 export function ExercisesRoutes() {
