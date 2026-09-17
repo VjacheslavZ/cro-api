@@ -13,21 +13,19 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  LinearProgress,
-  Box,
-  Alert,
-  CircularProgress,
-  Chip,
-} from '@mui/material';
+import { cn } from 'cn';
 import type {
   DictionaryPracticeItem,
   DictionaryWord,
   FinishDictionaryPracticeResponse,
   VocabularyExerciseType,
 } from '@cro/shared';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Spinner } from '@/components/Spinner';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 import { useAppDispatch } from '../../../store';
 import { fetchMe } from '../../../api/auth';
@@ -173,48 +171,47 @@ export function LearnWordsSessionPage() {
 
   // Step indicator chips
   const stepIndicator = (
-    <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+    <div className="mb-4 flex flex-wrap gap-2">
       {EXERCISE_ORDER.map((_, i) => (
-        <Chip
+        <Badge
           key={i}
-          label={i + 1}
-          size="small"
-          color={i < step ? 'success' : i === step ? 'primary' : 'default'}
-          variant={i === step ? 'filled' : 'outlined'}
-        />
+          variant={i === step ? 'default' : 'outline'}
+          className={cn(
+            'min-w-6 justify-center tabular-nums',
+            i < step && 'border-success text-success',
+          )}
+        >
+          {i + 1}
+        </Badge>
       ))}
-    </Box>
+    </div>
   );
 
   if (phase === 'loading') {
     return (
-      <Container maxWidth="sm" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Container>
+      <PageContainer size="sm" className="flex justify-center py-8">
+        <Spinner />
+      </PageContainer>
     );
   }
 
   if (items.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
+      <PageContainer size="sm" className="py-8">
+        <ErrorAlert />
+      </PageContainer>
     );
   }
 
   // Matching — bulk completion
   if (exerciseType === 'matching') {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <PageContainer size="md" className="py-8">
         {stepIndicator}
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <p className="mb-4 text-sm text-muted-foreground">
           {t('exercises.learnWords.exerciseStep', { step: step + 1 })}
-        </Typography>
-        {(startSession.isError || finishSession.isError) && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {t('common.error')}
-          </Alert>
-        )}
+        </p>
+        {(startSession.isError || finishSession.isError) && <ErrorAlert className="mb-4" />}
         <MatchingExercise
           items={items}
           onComplete={(answers) =>
@@ -227,7 +224,7 @@ export function LearnWordsSessionPage() {
             )
           }
         />
-      </Container>
+      </PageContainer>
     );
   }
 
@@ -240,27 +237,24 @@ export function LearnWordsSessionPage() {
   const correctAnswer = reverseDirection ? currentItem.wordHr : currentItem.translation;
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <PageContainer size="sm" className="py-8">
       {stepIndicator}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('exercises.learnWords.exerciseStep', { step: step + 1 })}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
+        <span>{t('exercises.learnWords.exerciseStep', { step: step + 1 })}</span>
+        <span>
           {t('exercises.session.progress', { current: currentIndex + 1, total: items.length })}
-        </Typography>
-      </Box>
-      <LinearProgress
-        variant="determinate"
+        </span>
+      </div>
+      <Progress
         value={progress}
-        sx={{ mb: 3, height: 8, borderRadius: 4 }}
+        aria-label={t('exercises.session.progress', {
+          current: currentIndex + 1,
+          total: items.length,
+        })}
+        className="mb-6 **:data-[slot=progress-track]:h-2"
       />
 
-      {(startSession.isError || finishSession.isError) && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+      {(startSession.isError || finishSession.isError) && <ErrorAlert className="mb-4" />}
 
       {exerciseType === 'letter-pick' && (
         <LetterPickExercise
@@ -285,22 +279,20 @@ export function LearnWordsSessionPage() {
           }
           wordToSpeak={currentItem.wordHr}
           prompt={
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
                 {reverseDirection
                   ? t('dictionary.practice.translateInstruction')
                   : t('dictionary.practice.instruction')}
-              </Typography>
-              <Typography variant="h5" sx={{ mt: 1 }}>
-                {prompt}
-              </Typography>
-            </Box>
+              </p>
+              <p className="mt-2 text-2xl">{prompt}</p>
+            </div>
           }
           correctMessage={t('dictionary.practice.correct')}
           incorrectMessage={t('dictionary.practice.incorrect', { answer: correctAnswer })}
           onAnswer={handleAnswer}
         />
       )}
-    </Container>
+    </PageContainer>
   );
 }

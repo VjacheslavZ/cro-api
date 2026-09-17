@@ -7,8 +7,9 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Typography, Button, Card, CardActionArea, Box } from '@mui/material';
 import type { FlashcardItem } from '@cro/shared';
+
+import { Button } from '@/components/ui/button';
 
 import { getTranslation } from '../../../shared/lib/content-utils.ts';
 import { useAppSelector } from '../../../store';
@@ -41,70 +42,50 @@ export function FlashcardExercise({ item, onAnswer, isLast: _isLast }: Flashcard
   };
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        {t('exercises.flashcards.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('exercises.flashcards.instruction')}
-      </Typography>
+    <div>
+      <h2 className="mb-1 text-lg font-medium">{t('exercises.flashcards.title')}</h2>
+      <p className="mb-4 text-sm text-muted-foreground">{t('exercises.flashcards.instruction')}</p>
 
-      <Card
-        variant="outlined"
-        sx={{
-          minHeight: 200,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: 3,
+      <button
+        type="button"
+        onClick={() => {
+          setFlipped(true);
+          speak(item.frontText);
         }}
+        className="mb-6 flex min-h-50 w-full flex-col items-center justify-center rounded-xl border bg-card p-6 text-center transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <CardActionArea
-          onClick={() => {
-            setFlipped(true);
-            speak(item.frontText);
-          }}
-          sx={{
-            height: '100%',
-            minHeight: 200,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 3,
-          }}
-        >
-          <Typography variant="h4" sx={{ textAlign: 'center' }}>
-            {item.frontText}
-          </Typography>
+        <span className="text-3xl font-semibold">{item.frontText}</span>
 
-          {flipped ? (
-            <Typography variant="h5" color="primary" sx={{ mt: 2, textAlign: 'center' }}>
-              {getTranslation(item, user?.nativeLanguage ?? null)}
-            </Typography>
-          ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              {t('exercises.flashcards.tapToFlip')}
-            </Typography>
-          )}
-        </CardActionArea>
-      </Card>
+        {flipped ? (
+          <span className="mt-4 text-2xl text-primary">
+            {getTranslation(item, user?.nativeLanguage ?? null)}
+          </span>
+        ) : (
+          <span className="mt-4 text-sm text-muted-foreground">
+            {t('exercises.flashcards.tapToFlip')}
+          </span>
+        )}
+      </button>
 
       {flipped && (
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-          <Button variant="outlined" color="error" onClick={() => handleAnswer(false)} size="large">
+        <div className="flex justify-center gap-4">
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => handleAnswer(false)}
+          >
             {t('exercises.flashcards.didNotKnow')}
           </Button>
           <Button
-            variant="contained"
-            color="success"
+            size="lg"
+            className="bg-success text-success-foreground hover:bg-success/90"
             onClick={() => handleAnswer(true)}
-            size="large"
           >
             {t('exercises.flashcards.knew')}
           </Button>
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

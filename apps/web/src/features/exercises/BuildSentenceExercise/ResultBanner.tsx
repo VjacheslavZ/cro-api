@@ -1,6 +1,8 @@
-import { Alert, Button, Typography } from '@mui/material';
-import { CheckCircle, Replay } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { CircleCheckIcon, CircleXIcon, RotateCcwIcon } from 'lucide-react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   phase: 'correct' | 'incorrect';
@@ -13,21 +15,22 @@ export function ResultBanner({ phase, correctSentence, onRetry }: Props) {
 
   if (phase === 'correct') {
     return (
-      <Alert icon={<CheckCircle />} severity="success" sx={{ mt: 1 }}>
-        {t('exercises.buildSentence.correct')}
+      <Alert className="mt-2 border-green-500 text-green-800">
+        <CircleCheckIcon />
+        <AlertTitle>{t('exercises.buildSentence.correct')}</AlertTitle>
       </Alert>
     );
   }
 
   return (
     <>
-      <Alert severity="error" sx={{ mt: 1, mb: 2 }}>
-        {t('exercises.buildSentence.incorrect')}
-        <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 600 }}>
-          {correctSentence}
-        </Typography>
+      <Alert variant="destructive" className="mt-2 mb-4">
+        <CircleXIcon />
+        <AlertTitle>{t('exercises.buildSentence.incorrect')}</AlertTitle>
+        <AlertDescription className="font-semibold">{correctSentence}</AlertDescription>
       </Alert>
-      <Button variant="contained" startIcon={<Replay />} onClick={onRetry} sx={{ mt: 1 }}>
+      <Button className="mt-2" onClick={onRetry}>
+        <RotateCcwIcon data-icon="inline-start" />
         {t('exercises.buildSentence.tryAgain')}
       </Button>
     </>

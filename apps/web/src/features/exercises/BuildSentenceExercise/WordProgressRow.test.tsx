@@ -34,9 +34,10 @@ describe('WordProgressRow', () => {
       />,
     );
 
-    const lastChip = screen.getByText('jedem').closest('.MuiChip-root');
-    const deleteIcon = lastChip!.querySelector('.MuiChip-deleteIcon');
-    await user.click(deleteIcon!);
+    // Only the last chip is undoable, so there is exactly one Undo button.
+    const undoButton = screen.getByRole('button', { name: 'Undo' });
+    expect(screen.getByText('jedem').closest('[data-slot="badge"]')).toContainElement(undoButton);
+    await user.click(undoButton);
 
     expect(onUndo).toHaveBeenCalledTimes(1);
   });

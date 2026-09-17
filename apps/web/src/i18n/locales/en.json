@@ -339,6 +339,7 @@
     "error": "An error occurred",
     "retry": "Retry",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "undo": "Undo"
   }
 }

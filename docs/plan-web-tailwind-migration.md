@@ -46,11 +46,12 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 **Affects:** frontend
 **Tasks:**
 
-- [ ] `TextInputExercise`, `TypeTheAnswerExercise`, `FillInBlankExercise`, `FlashcardExercise`, `LetterPickExercise`, `MatchingExercise`, `BuildSentenceExercise/*` (deletable `Chip` → `Badge` + remove button with `aria-label`)
-- [ ] `SpeedQuiz/*`, `LearnWords/*` (`ToggleButtonGroup` → `ToggleGroup`)
-- [ ] Tests: `WordProgressRow.test.tsx` and `BuildSentenceExercise.test.tsx` (`.MuiChip-root` → `getByRole('button', { name: /remove/ })`), `SpeedQuizCard.test.tsx` (`toHaveStyle(backgroundColor)` → `toHaveClass` / `data-state`)
+- [x] Shared exercise blocks in `src/features/exercises/ui/`: `ExerciseCard` (elevated card + success/warning ring), `ExerciseFeedback` (fixed-height check/cross slot), `ExerciseActionButton` (full-width dark Check/Next)
+- [x] `TextInputExercise`, `TypeTheAnswerExercise`, `FillInBlankExercise`, `FlashcardExercise`, `LetterPickExercise`, `MatchingExercise`, `DictionaryReviewExercise`, `BuildSentenceExercise/*` (deletable `Chip` → `Badge` + "Undo" button; new `common.undo` i18n key)
+- [x] `SpeedQuiz/*` (`useSpeedQuiz` now returns `timerClassName` instead of an MUI palette string), `LearnWords/*` (`ToggleButtonGroup` → `ToggleGroup`), `VocabularyPage` (rows extracted into a local `ModeCard`)
+- [x] Tests: `WordProgressRow.test.tsx` / `BuildSentenceExercise.test.tsx` query `getByRole('button', { name: 'Undo' })`; `SpeedQuizCard.test.tsx` asserts `data-result="correct|wrong"`
 
-**Done when:** `src/features/exercises` has no `@mui` imports; all exercise tests pass.
+**Done when:** `src/features/exercises` has no `@mui` imports; all exercise tests pass. ✅
 
 ### Phase 4: Dictionary
 
@@ -71,7 +72,7 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 **Affects:** frontend
 **Tasks:**
 
-- [ ] `home/HomePage`, `exercises/VocabularyPage` (highest `sx` density — 40)
+- [ ] `home/HomePage`
 - [ ] `lessons/LessonsPage`, `settings/SettingsPage` (`Switch`, `ToggleGroup`)
 
 **Done when:** `grep -r "@mui" apps/web/src` returns nothing.

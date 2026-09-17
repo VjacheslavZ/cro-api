@@ -7,9 +7,12 @@
  */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Box, Button, Paper, Divider } from '@mui/material';
-import { CheckCircle } from '@mui/icons-material';
 import type { FinishDictionaryPracticeResponse } from '@cro/shared';
+import { CircleCheckIcon } from 'lucide-react';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 interface LocationState {
   allResults: FinishDictionaryPracticeResponse[];
@@ -41,36 +44,32 @@ export function LearnWordsResultsPage() {
     : '/dictionary/my';
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 1 }} />
-        <Typography variant="h4" gutterBottom>
-          {t('exercises.learnWords.resultsTitle')}
-        </Typography>
-      </Box>
+    <PageContainer size="sm" className="py-8">
+      <div className="mb-8 text-center">
+        <CircleCheckIcon className="mx-auto mb-2 size-16 text-success" />
+        <h1 className="text-3xl font-semibold">{t('exercises.learnWords.resultsTitle')}</h1>
+      </div>
 
-      <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
+      <div className="mb-6 rounded-xl border bg-card p-6">
+        <p className="mb-2 text-lg font-medium">
           {t('exercises.learnWords.totalScore', { correct: totalCorrect, total: totalQuestions })}
-        </Typography>
+        </p>
         {totalXp > 0 && (
-          <Typography variant="body1" color="primary">
-            {t('exercises.results.xpEarned', { xp: totalXp })}
-          </Typography>
+          <p className="text-primary">{t('exercises.results.xpEarned', { xp: totalXp })}</p>
         )}
         {lastResult.currentStreak > 0 && (
-          <Typography variant="body2" color="text.secondary">
+          <p className="text-sm text-muted-foreground">
             {t('exercises.results.streak_one', { count: lastResult.currentStreak })}
-          </Typography>
+          </p>
         )}
-      </Paper>
+      </div>
 
-      <Divider sx={{ mb: 3 }} />
+      <Separator className="mb-6" />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div className="flex flex-col gap-4">
         <Button
-          variant="contained"
-          size="large"
+          size="lg"
+          className="w-full"
           onClick={() =>
             navigate(
               collectionId
@@ -78,14 +77,18 @@ export function LearnWordsResultsPage() {
                 : '/exercises/vocabulary/learn',
             )
           }
-          fullWidth
         >
           {t('exercises.learnWords.learnAgain')}
         </Button>
-        <Button variant="outlined" size="large" onClick={() => navigate(dictionaryPath)} fullWidth>
+        <Button
+          variant="outline"
+          size="lg"
+          className="w-full"
+          onClick={() => navigate(dictionaryPath)}
+        >
           {t('exercises.learnWords.backToDictionary')}
         </Button>
-      </Box>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

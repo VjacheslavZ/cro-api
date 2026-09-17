@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Box, Button, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+
+import { Button } from '@/components/ui/button';
 
 interface Props {
   currentWordIndex: number;
@@ -30,49 +31,31 @@ export function WordOptions({ currentWordIndex, totalWords, options, onOptionCli
 
   return (
     <>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+      <p className="mb-2 block text-xs text-muted-foreground">
         {t('exercises.buildSentence.wordOf', {
           current: currentWordIndex + 1,
           total: totalWords,
         })}
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+      </p>
+      <div className="grid grid-cols-3 gap-2">
         {options.map((option, index) => (
           <Button
             key={index}
-            variant="outlined"
-            size="small"
+            variant="outline"
+            size="lg"
             onClick={() => onOptionClick(option)}
-            sx={{
-              fontWeight: 500,
-              gap: 0.75,
-              fontSize: 18,
-              textTransform: 'lowercase',
-            }}
+            className="gap-1.5 text-lg font-medium lowercase"
           >
-            <Box
-              component="span"
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 16,
-                height: 16,
-                border: '1px solid',
-                borderColor: 'inherit',
-                borderRadius: '3px',
-                fontSize: 10,
-                lineHeight: 1,
-                opacity: 0.55,
-                flexShrink: 0,
-              }}
+            <span
+              aria-hidden="true"
+              className="inline-flex size-4 shrink-0 items-center justify-center rounded-[3px] border border-current text-[10px] leading-none opacity-55"
             >
               {index + 1}
-            </Box>
+            </span>
             {option}
           </Button>
         ))}
-      </Box>
+      </div>
     </>
   );
 }

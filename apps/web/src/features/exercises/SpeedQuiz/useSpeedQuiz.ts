@@ -172,21 +172,22 @@ export function useSpeedQuiz(allItems: DictionaryPracticeItem[], sessionId: stri
 
   const totalWords = allItems.length;
   const progressPercent = (doneCount / (totalWords + retryQueue.length)) * 100;
-  const timerColor =
+  /** Tailwind text-colour class for the countdown, from calm blue to alarming red. */
+  const timerClassName =
     timeLeft <= 1
-      ? 'error.main'
+      ? 'text-destructive'
       : timeLeft <= 2
-        ? 'warning.main'
+        ? 'text-amber-600'
         : timeLeft <= 3
-          ? 'warning.light'
-          : 'primary.main';
+          ? 'text-amber-400'
+          : 'text-primary';
 
   return {
     currentItem,
     options,
     phase,
     timeLeft,
-    timerColor,
+    timerClassName,
     selectedAnswer,
     doneCount,
     totalWords,

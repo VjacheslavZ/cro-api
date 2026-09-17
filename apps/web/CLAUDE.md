@@ -16,6 +16,7 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 | `cn()` class merger | `src/lib/utils.ts` (re-exports the `cn` package) |
 | Design tokens (CSS variables + `@theme`) | `src/styles/globals.css` — imported once in `src/main.tsx` |
 | Shared building blocks | `src/components/Spinner.tsx`, `PageContainer.tsx` (`size="sm|md|lg"` = old MUI `Container` widths), `ErrorAlert.tsx`, `EmptyState.tsx` |
+| Exercise-specific blocks | `src/features/exercises/ui/`: `ExerciseCard`, `ExerciseFeedback`, `ExerciseActionButton` — use these in every exercise component instead of re-styling cards/buttons |
 | Icons | `lucide-react`; brand marks lucide lacks (Google, X, YouTube, stores) in `src/assets/icons/` |
 | Toasts | `toast()` from `sonner`; `<Toaster />` is mounted in `AppRouter` |
 | `@/` alias | → `src/` (vite, tsconfig, jest). Imports from `@/…` are the `internal` ESLint group and go **before** relative imports |

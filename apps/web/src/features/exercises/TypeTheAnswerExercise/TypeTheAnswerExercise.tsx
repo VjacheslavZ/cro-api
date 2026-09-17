@@ -6,7 +6,6 @@
  * @usedBy SessionPage
  */
 import { useTranslation } from 'react-i18next';
-import { Box, Typography } from '@mui/material';
 import type { TypeTheAnswerItem } from '@cro/shared';
 
 import { getTranslation } from '../../../shared/lib/content-utils.ts';
@@ -40,19 +39,11 @@ export function TypeTheAnswerExercise({ item, onAnswer }: TypeTheAnswerExerciseP
       wordToSpeak={item.answer}
       onAnswer={onAnswer}
       prompt={
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            {t('exercises.typeTheAnswer.instruction')}
-          </Typography>
-          <Typography variant="h3" sx={{ fontWeight: 700, color: '#111827', mb: 1 }}>
-            {item.baseForm}
-          </Typography>
-          {translation && (
-            <Typography variant="body2" color="text.secondary">
-              ({translation})
-            </Typography>
-          )}
-        </Box>
+        <div className="mb-8 text-center">
+          <p className="mb-6 text-muted-foreground">{t('exercises.typeTheAnswer.instruction')}</p>
+          <p className="mb-2 text-4xl font-bold text-foreground">{item.baseForm}</p>
+          {translation && <p className="text-sm text-muted-foreground">({translation})</p>}
+        </div>
       }
     />
   );
