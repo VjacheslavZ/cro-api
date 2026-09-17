@@ -1,8 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Typography } from '@mui/material';
 import type { DictionaryWord } from '@cro/shared';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Badge } from '@/components/ui/badge';
 
 import {
   useDictionaryWords,
@@ -112,29 +114,16 @@ export function MyDictionaryPage() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 1 }}>
+    <PageContainer size="lg" className="py-2">
       {/* Page header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#111827' }}>
-          {t('dictionary.title')}
-        </Typography>
+      <div className="mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-bold text-foreground">{t('dictionary.title')}</h1>
         {!isLoading && (
-          <Box
-            sx={{
-              px: 1.5,
-              py: 0.25,
-              bgcolor: '#eff6ff',
-              color: '#1d4ed8',
-              border: '1px solid #bfdbfe',
-              borderRadius: '999px',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-            }}
-          >
+          <Badge variant="outline" className="h-6 border-blue-200 bg-blue-50 text-sm text-blue-700">
             {total}
-          </Box>
+          </Badge>
         )}
-      </Box>
+      </div>
 
       <DictionaryTopBar
         search={search}
@@ -195,6 +184,6 @@ export function MyDictionaryPage() {
         onConfirm={handleDeleteConfirmed}
         onCancel={() => setDeletingWord(null)}
       />
-    </Container>
+    </PageContainer>
   );
 }

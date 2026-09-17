@@ -1,19 +1,21 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Checkbox, Chip, IconButton, LinearProgress, Typography } from '@mui/material';
-import { Delete, Edit, Refresh, School, VolumeUp } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
+import {
+  GraduationCapIcon,
+  PencilIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+  Volume2Icon,
+} from 'lucide-react';
+import { cn } from 'cn';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
 
 import { speakWord } from '../../shared/lib/speech';
 
-/**
- * Single row in the My Dictionary word list.
- *
- * Used in: DictionaryWordList (inside MyDictionaryPage).
- *
- * Displays the Croatian word, its translation, optional collection badge,
- * per-exercise-type progress bar (or "Learned" chip when all types hit 100%),
- * and action icons: edit, speak, delete.
- */
 interface WordRowProps {
   word: DictionaryWord;
   selected: boolean;
@@ -36,121 +38,93 @@ export function WordRow({
   const { t } = useTranslation();
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        px: 2,
-        py: 1.5,
-        border: '1px solid rgba(0,0,0,0.08)',
-        borderRadius: 1.5,
-        bgcolor: 'white',
-        '&:hover': { bgcolor: 'grey.50' },
-        transition: 'background-color 0.1s ease',
-      }}
-    >
+    <div className="flex items-center gap-2 rounded-lg border bg-card px-4 py-3 transition-colors hover:bg-muted/50">
       <Checkbox
         checked={selected}
-        onChange={(e) => onSelect(word.id, e.target.checked)}
-        size="small"
-        sx={{ p: 0.5, flexShrink: 0 }}
+        onCheckedChange={(checked) => onSelect(word.id, checked === true)}
+        aria-label={word.wordHr}
+        className="shrink-0"
       />
 
       {/* Word + translation */}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={600} noWrap sx={{ color: '#111827' }}>
-          {word.wordHr}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" noWrap>
-          {word.translation}
-        </Typography>
-      </Box>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground">{word.wordHr}</p>
+        <p className="truncate text-xs text-muted-foreground">{word.translation}</p>
+      </div>
 
       {/* Collection */}
-      <Box sx={{ width: 140, flexShrink: 0 }}>
-        <Typography variant="body2" color="text.secondary" noWrap sx={{ fontSize: '0.8rem' }}>
-          {word.collectionName || '—'}
-        </Typography>
-      </Box>
+      <div className="w-35 shrink-0">
+        <p className="truncate text-[0.8rem] text-muted-foreground">{word.collectionName || '—'}</p>
+      </div>
 
       {/* Progress */}
-      <Box sx={{ width: 150, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+      <div className="flex w-38 shrink-0 items-center gap-2">
         {word.isLearned ? (
-          <Chip
-            label={t('exercises.learnWords.learned')}
-            size="small"
-            color="success"
-            variant="outlined"
-            sx={{ fontSize: '0.7rem' }}
-          />
+          <Badge variant="outline" className="border-success text-[0.7rem] text-success">
+            {t('exercises.learnWords.learned')}
+          </Badge>
         ) : (
           <>
-            <LinearProgress
-              variant="determinate"
+            <Progress
               value={word.progressPercent}
-              sx={{
-                flex: 1,
-                height: 6,
-                borderRadius: 3,
-                bgcolor: 'grey.200',
-                '& .MuiLinearProgress-bar': { borderRadius: 3 },
-              }}
+              aria-label={t('dictionary.progress')}
+              className="flex-1 **:data-[slot=progress-indicator]:rounded-full **:data-[slot=progress-track]:h-1.5"
             />
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ minWidth: 30, textAlign: 'right' }}
-            >
+            <span className="min-w-8 text-right text-xs text-muted-foreground tabular-nums">
               {word.progressPercent}%
-            </Typography>
+            </span>
           </>
         )}
-      </Box>
+      </div>
 
       {/* Actions: MarkLearned → ResetProgress → Edit → Listen → Delete */}
-      <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-        <IconButton
-          size="small"
+      <div className="flex shrink-0 items-center">
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onMarkLearned(word)}
           aria-label={t('dictionary.markLearned')}
           title={t('dictionary.markLearned')}
-          sx={{ visibility: word.isLearned ? 'hidden' : 'visible' }}
+          className={cn(word.isLearned && 'invisible')}
         >
-          <School sx={{ fontSize: 18 }} />
-        </IconButton>
-        <IconButton
-          size="small"
+          <GraduationCapIcon />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onResetProgress(word)}
           aria-label={t('dictionary.resetProgress')}
           title={t('dictionary.resetProgress')}
-          sx={{ visibility: word.progressPercent > 0 ? 'visible' : 'hidden' }}
+          className={cn(word.progressPercent === 0 && 'invisible')}
         >
-          <Refresh sx={{ fontSize: 18 }} />
-        </IconButton>
-        <IconButton
-          size="small"
+          <RefreshCwIcon />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onEdit(word)}
           aria-label={t('dictionary.editWordModal.title')}
         >
-          <Edit sx={{ fontSize: 18 }} />
-        </IconButton>
-        <IconButton
-          size="small"
+          <PencilIcon />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => speakWord(word.wordHr)}
           aria-label={t('dictionary.listen')}
         >
-          <VolumeUp sx={{ fontSize: 18 }} />
-        </IconButton>
-        <IconButton
-          size="small"
+          <Volume2Icon />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onDelete(word)}
           aria-label={t('dictionary.delete')}
-          sx={{ color: 'error.main' }}
+          className="text-destructive hover:text-destructive"
         >
-          <Delete sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
-    </Box>
+          <Trash2Icon />
+        </Button>
+      </div>
+    </div>
   );
 }

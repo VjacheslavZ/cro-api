@@ -1,26 +1,22 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { PredefinedDictionaryWord } from '@cro/shared';
+import { ArrowLeftIcon, InfoIcon, LibraryIcon, Loader2Icon, Volume2Icon } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Container,
-  Typography,
-  Button,
-  Box,
-  CircularProgress,
-  Alert,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Snackbar,
-  Checkbox,
-  IconButton,
-} from '@mui/material';
-import { ArrowBack, LibraryAdd, VolumeUp } from '@mui/icons-material';
-import type { PredefinedDictionaryWord } from '@cro/shared';
+} from '@/components/ui/table';
 
 import { useAppSelector } from '../../../store';
 import { speakWord } from '../../../shared/lib/speech';
@@ -58,7 +54,6 @@ export function CollectionPreviewPage() {
   const { data: words = [], isLoading, isError } = useCollectionWords(collectionId!);
   const { data: collections = [] } = useDictionaryCollections();
   const addSet = useAddSet();
-  const [snackbar, setSnackbar] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const collection = collections.find((c) => c.id === collectionId);
@@ -90,7 +85,7 @@ export function CollectionPreviewPage() {
       { collectionId: collectionId!, wordIds },
       {
         onSuccess: (result) => {
-          setSnackbar(
+          toast.success(
             t('dictionary.collections.addSetSuccess', {
               added: result.addedCount,
               skipped: result.skippedCount,
@@ -106,95 +101,91 @@ export function CollectionPreviewPage() {
   if (queryState) return queryState;
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <PageContainer size="md" className="py-8">
       <Button
-        startIcon={<ArrowBack />}
+        variant="ghost"
+        className="mb-4"
         onClick={() => navigate('/dictionary/recommended-word-sets')}
-        sx={{ mb: 2 }}
       >
+        <ArrowLeftIcon data-icon="inline-start" />
         {t('dictionary.collections.title')}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4">{collection?.name ?? ''}</Typography>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold">{collection?.name ?? ''}</h1>
           {collection?.description && (
-            <Typography variant="body2" color="text.secondary">
-              {collection.description}
-            </Typography>
+            <p className="text-sm text-muted-foreground">{collection.description}</p>
           )}
-          <Typography variant="body2" color="text.secondary">
+          <p className="text-sm text-muted-foreground">
             {t('dictionary.collections.wordsInSet', { count: words.length })}
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={addSet.isPending ? <CircularProgress size={16} /> : <LibraryAdd />}
-          disabled={addSet.isPending || selectedIds.size === 0}
-          onClick={handleAdd}
-        >
+          </p>
+        </div>
+        <Button disabled={addSet.isPending || selectedIds.size === 0} onClick={handleAdd}>
+          {addSet.isPending ? (
+            <Loader2Icon className="animate-spin" data-icon="inline-start" />
+          ) : (
+            <LibraryIcon data-icon="inline-start" />
+          )}
           {t('dictionary.collections.addSelected', { count: selectedIds.size })}
         </Button>
-      </Box>
+      </div>
 
       {words.length === 0 ? (
-        <Alert severity="info">{t('dictionary.collections.noWords')}</Alert>
+        <Alert>
+          <InfoIcon />
+          <AlertTitle>{t('dictionary.collections.noWords')}</AlertTitle>
+        </Alert>
       ) : (
-        <TableContainer component={Paper} variant="outlined">
+        <div className="overflow-x-auto rounded-xl border">
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow>
-                <TableCell padding="checkbox">
+                <TableHead className="w-12">
                   <Checkbox
                     checked={allSelected}
                     indeterminate={selectedIds.size > 0 && !allSelected}
-                    onChange={toggleSelectAll}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
                   />
-                </TableCell>
-                <TableCell>{t('dictionary.word')}</TableCell>
-                <TableCell>{t('dictionary.translation')}</TableCell>
-                <TableCell padding="checkbox" />
+                </TableHead>
+                <TableHead>{t('dictionary.word')}</TableHead>
+                <TableHead>{t('dictionary.translation')}</TableHead>
+                <TableHead className="w-12" />
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {words.map((word) => (
                 <TableRow
                   key={word.id}
-                  hover
-                  selected={selectedIds.has(word.id)}
+                  data-state={selectedIds.has(word.id) ? 'selected' : undefined}
                   onClick={() => toggleSelect(word.id)}
-                  sx={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 >
-                  <TableCell padding="checkbox">
-                    <Checkbox checked={selectedIds.has(word.id)} />
+                  <TableCell>
+                    <Checkbox checked={selectedIds.has(word.id)} aria-label={word.wordHr} />
                   </TableCell>
                   <TableCell>{word.wordHr}</TableCell>
                   <TableCell>{getTranslation(word, nativeLanguage)}</TableCell>
-                  <TableCell padding="checkbox">
-                    <IconButton
-                      size="small"
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         speakWord(word.wordHr);
                       }}
                       aria-label={t('dictionary.listen')}
                     >
-                      <VolumeUp fontSize="small" />
-                    </IconButton>
+                      <Volume2Icon />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </div>
       )}
-
-      <Snackbar
-        open={snackbar !== null}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar(null)}
-        message={snackbar}
-      />
-    </Container>
+    </PageContainer>
   );
 }

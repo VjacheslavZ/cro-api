@@ -1,19 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Typography,
-  Button,
-  Box,
-  Card,
-  CardContent,
-  CardActions,
-  Grid,
-  IconButton,
-  Chip,
-  Container,
-} from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 import { useDictionaryCollections, useDeleteCollection } from '../../api/dictionary';
 import { QueryState } from '../../shared/components/QueryState';
@@ -66,101 +58,99 @@ export function CollectionsPage() {
   const queryState = QueryState({ isLoading, isError });
   if (queryState) return queryState;
 
+  const cardClass = 'flex flex-col rounded-xl border bg-card';
+  const cardBodyClass =
+    'flex-1 cursor-pointer rounded-xl p-4 text-left outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50';
+
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">{t('dictionary.collections.title')}</Typography>
+    <PageContainer size="md" className="py-8">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-semibold">{t('dictionary.collections.title')}</h1>
         <Button
-          variant="contained"
-          startIcon={<Add />}
           onClick={() => {
             setEditData(null);
             setModalOpen(true);
           }}
         >
+          <PlusIcon data-icon="inline-start" />
           {t('dictionary.collections.createCollection')}
         </Button>
-      </Box>
+      </div>
 
       {/* Word sets the user has added words from */}
       {addedWordSets.length > 0 && (
         <>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {t('dictionary.collections.fromWordSets')}
-          </Typography>
-          <Grid container spacing={2} sx={{ mb: 4 }}>
+          <h2 className="mb-4 text-lg font-medium">{t('dictionary.collections.fromWordSets')}</h2>
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {addedWordSets.map((c) => (
-              <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Card variant="outlined">
-                  <CardContent
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                      <Typography variant="h6">{c.name}</Typography>
-                      <Chip
-                        label={t('dictionary.collections.wordSet')}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </Box>
-                    {c.description && (
-                      <Typography variant="body2" color="text.secondary">
-                        {c.description}
-                      </Typography>
-                    )}
-                    <Typography variant="caption" color="text.secondary">
-                      {t('dictionary.collections.wordCount', { count: c.wordCount })}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+              <div key={c.id} className={cardClass}>
+                <button
+                  type="button"
+                  className={cardBodyClass}
+                  onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
+                >
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="text-lg font-medium">{c.name}</span>
+                    <Badge variant="outline" className="border-primary text-primary">
+                      {t('dictionary.collections.wordSet')}
+                    </Badge>
+                  </div>
+                  {c.description && (
+                    <p className="text-sm text-muted-foreground">{c.description}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {t('dictionary.collections.wordCount', { count: c.wordCount })}
+                  </p>
+                </button>
+              </div>
             ))}
-          </Grid>
+          </div>
         </>
       )}
 
       {/* Personal collections */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        {t('dictionary.collections.personal')}
-      </Typography>
+      <h2 className="mb-4 text-lg font-medium">{t('dictionary.collections.personal')}</h2>
       {personal.length === 0 ? (
-        <Typography color="text.secondary">{t('dictionary.collections.noCollections')}</Typography>
+        <p className="text-muted-foreground">{t('dictionary.collections.noCollections')}</p>
       ) : (
-        <Grid container spacing={2}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {personal.map((c) => (
-            <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card variant="outlined">
-                <CardContent
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
+            <div key={c.id} className={cardClass}>
+              <button
+                type="button"
+                className={cardBodyClass}
+                onClick={() => navigate(`/dictionary/my?collectionId=${c.id}`)}
+              >
+                <p className="text-lg font-medium">{c.name}</p>
+                {c.description && <p className="text-sm text-muted-foreground">{c.description}</p>}
+                <p className="text-xs text-muted-foreground">
+                  {t('dictionary.collections.wordCount', { count: c.wordCount })}
+                </p>
+              </button>
+              <div className="flex gap-1 px-2 pb-2">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => handleEdit(c)}
+                  aria-label={t('dictionary.collections.edit')}
                 >
-                  <Typography variant="h6">{c.name}</Typography>
-                  {c.description && (
-                    <Typography variant="body2" color="text.secondary">
-                      {c.description}
-                    </Typography>
-                  )}
-                  <Typography variant="caption" color="text.secondary">
-                    {t('dictionary.collections.wordCount', { count: c.wordCount })}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <IconButton size="small" onClick={() => handleEdit(c)}>
-                    <Edit fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(c.id)}>
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </CardActions>
-              </Card>
-            </Grid>
+                  <PencilIcon />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => handleDelete(c.id)}
+                  aria-label={t('dictionary.delete')}
+                >
+                  <Trash2Icon />
+                </Button>
+              </div>
+            </div>
           ))}
-        </Grid>
+        </div>
       )}
 
       <CreateCollectionModal open={modalOpen} onClose={handleCloseModal} editData={editData} />
-    </Container>
+    </PageContainer>
   );
 }

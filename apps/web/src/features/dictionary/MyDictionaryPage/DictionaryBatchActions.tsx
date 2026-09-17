@@ -1,7 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Select, MenuItem, Button, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
 import type { DictionaryCollection } from '@cro/shared';
+import { XIcon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface DictionaryBatchActionsProps {
   selectedCount: number;
@@ -25,76 +33,57 @@ export function DictionaryBatchActions({
   if (selectedCount === 0) return null;
 
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        bottom: 24,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        bgcolor: '#111827',
-        color: 'white',
-        borderRadius: '999px',
-        px: 3,
-        py: 1.5,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-        zIndex: 1300,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
+    <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-neutral-900 px-6 py-3 whitespace-nowrap text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+      <span className="text-sm font-medium">
         {t('dictionary.selected', { count: selectedCount })}
-      </Typography>
+      </span>
 
       <Select
         value={assignCollectionId}
-        onChange={(e) => onAssignCollectionChange(e.target.value)}
-        size="small"
-        displayEmpty
-        sx={{
-          color: 'white',
-          minWidth: 160,
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' },
-          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.6)' },
-          '& .MuiSvgIcon-root': { color: 'white' },
-          fontSize: '0.875rem',
-        }}
-        renderValue={(value) => {
-          if (!value)
-            return <span style={{ opacity: 0.6 }}>{t('dictionary.assignCollection')}</span>;
-          return collections.find((c) => c.id === value)?.name ?? t('dictionary.unassign');
-        }}
+        onValueChange={(value) => onAssignCollectionChange(value ?? '')}
       >
-        <MenuItem value="">{t('dictionary.unassign')}</MenuItem>
-        {collections.map((c) => (
-          <MenuItem key={c.id} value={c.id}>
-            {c.name}
-          </MenuItem>
-        ))}
+        <SelectTrigger
+          className="h-8 min-w-40 border-white/30 text-white hover:border-white/60 **:data-[slot=select-value]:text-white [&_svg]:text-white"
+          aria-label={t('dictionary.assignCollection')}
+        >
+          <SelectValue>
+            {(value: string) =>
+              value ? (
+                (collections.find((c) => c.id === value)?.name ?? t('dictionary.unassign'))
+              ) : (
+                <span className="opacity-60">{t('dictionary.assignCollection')}</span>
+              )
+            }
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t('dictionary.unassign')}</SelectItem>
+          {collections.map((c) => (
+            <SelectItem key={c.id} value={c.id}>
+              {c.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
 
       <Button
-        size="small"
-        variant="outlined"
+        size="sm"
+        variant="outline"
         onClick={onAssign}
-        sx={{
-          color: 'white',
-          borderColor: 'rgba(255,255,255,0.4)',
-          '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
-        }}
+        className="border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10 hover:text-white"
       >
         {t('dictionary.assignCollection')}
       </Button>
 
-      <IconButton
-        size="small"
+      <Button
+        size="icon-sm"
+        variant="ghost"
         onClick={onCancel}
-        sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: 'white' } }}
+        aria-label={t('common.cancel')}
+        className="text-white/70 hover:bg-white/10 hover:text-white"
       >
-        <Close sx={{ fontSize: 18 }} />
-      </IconButton>
-    </Box>
+        <XIcon />
+      </Button>
+    </div>
   );
 }

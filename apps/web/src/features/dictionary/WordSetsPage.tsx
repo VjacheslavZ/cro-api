@@ -1,16 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  CardActionArea,
-  Grid,
-  Alert,
-  Chip,
-} from '@mui/material';
+import { InfoIcon } from 'lucide-react';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 import { useDictionaryCollections } from '../../api/dictionary';
 import { QueryState } from '../../shared/components/QueryState';
@@ -35,45 +29,37 @@ export function WordSetsPage() {
   if (queryState) return queryState;
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4">{t('dictionary.wordSets.title')}</Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-          {t('dictionary.wordSets.subtitle')}
-        </Typography>
-      </Box>
+    <PageContainer size="md" className="py-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-semibold">{t('dictionary.wordSets.title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('dictionary.wordSets.subtitle')}</p>
+      </div>
 
       {predefined.length === 0 ? (
-        <Alert severity="info">{t('dictionary.wordSets.noSets')}</Alert>
+        <Alert>
+          <InfoIcon />
+          <AlertTitle>{t('dictionary.wordSets.noSets')}</AlertTitle>
+        </Alert>
       ) : (
-        <Grid container spacing={2}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {predefined.map((c) => (
-            <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card variant="outlined">
-                <CardActionArea onClick={() => navigate(`/dictionary/collections/${c.id}`)}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {c.name}
-                    </Typography>
-                    {c.description && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                        {c.description}
-                      </Typography>
-                    )}
-                    <Chip
-                      label={t('dictionary.collections.wordsInSet', {
-                        count: c.predefinedWordCount ?? 0,
-                      })}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => navigate(`/dictionary/collections/${c.id}`)}
+              className="rounded-xl border bg-card p-4 text-left transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <p className="mb-1 text-lg font-medium">{c.name}</p>
+              {c.description && (
+                <p className="mb-3 text-sm text-muted-foreground">{c.description}</p>
+              )}
+              <Badge variant="outline">
+                {t('dictionary.collections.wordsInSet', { count: c.predefinedWordCount ?? 0 })}
+              </Badge>
+            </button>
           ))}
-        </Grid>
+        </div>
       )}
-    </Container>
+    </PageContainer>
   );
 }

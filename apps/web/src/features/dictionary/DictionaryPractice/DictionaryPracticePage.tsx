@@ -1,20 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  Box,
-  Alert,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from '@mui/material';
-import { Stop } from '@mui/icons-material';
 import type { DictionaryPracticeItem } from '@cro/shared';
+import { SquareIcon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
 
 import { useAppDispatch } from '../../../store';
 import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
@@ -22,6 +14,7 @@ import { fetchMe } from '../../../api/auth.ts';
 import { TextInputExercise } from '../../exercises/TextInputExercise/TextInputExercise.tsx';
 import { LetterPickExercise } from '../../exercises/LetterPickExercise/LetterPickExercise.tsx';
 import { MatchingExercise } from '../../exercises/MatchingExercise/MatchingExercise.tsx';
+import { StopExerciseDialog } from '../../exercises/StopExerciseDialog';
 
 /**
  * Route: /dictionary/practice/:sessionId
@@ -135,52 +128,38 @@ export function DictionaryPracticePage() {
 
   if (!state || !state.items || state.items.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
+      <PageContainer size="sm" className="py-8">
+        <ErrorAlert />
+      </PageContainer>
     );
   }
 
   const { items, direction } = state;
 
+  const stopDialog = (
+    <StopExerciseDialog
+      open={stopDialogOpen}
+      onClose={() => setStopDialogOpen(false)}
+      onConfirm={() => navigate(state.backPath ?? '/exercises/vocabulary')}
+    />
+  );
+
   if (direction === 'matching') {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <Button
-            size="small"
-            color="inherit"
-            startIcon={<Stop />}
-            onClick={() => setStopDialogOpen(true)}
-          >
+      <PageContainer size="md" className="py-8">
+        <div className="mb-4 flex justify-end">
+          <Button variant="ghost" size="sm" onClick={() => setStopDialogOpen(true)}>
+            <SquareIcon data-icon="inline-start" />
             {t('exercises.session.stop')}
           </Button>
-        </Box>
+        </div>
 
-        {finishPractice.isError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {t('common.error')}
-          </Alert>
-        )}
+        {finishPractice.isError && <ErrorAlert className="mb-4" />}
 
         <MatchingExercise items={items} onComplete={handleBulkComplete} />
 
-        <Dialog open={stopDialogOpen} onClose={() => setStopDialogOpen(false)}>
-          <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
-          <DialogContent>
-            <DialogContentText>{t('exercises.session.stopMessage')}</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setStopDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button
-              color="error"
-              onClick={() => navigate(state.backPath ?? '/exercises/vocabulary')}
-            >
-              {t('exercises.session.stopConfirm')}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
+        {stopDialog}
+      </PageContainer>
     );
   }
 
@@ -197,12 +176,8 @@ export function DictionaryPracticePage() {
     : t('dictionary.practice.placeholder');
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      {finishPractice.isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+    <PageContainer size="sm" className="py-8">
+      {finishPractice.isError && <ErrorAlert className="mb-4" />}
 
       {direction === 'letter-pick' && (
         <LetterPickExercise
@@ -225,14 +200,10 @@ export function DictionaryPracticePage() {
           wordToSpeak={currentItem.wordHr}
           progress={{ currentIndex, total: items.length, onStop: () => setStopDialogOpen(true) }}
           prompt={
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                {instruction}
-              </Typography>
-              <Typography variant="h5" sx={{ mt: 1 }}>
-                {prompt}
-              </Typography>
-            </Box>
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">{instruction}</p>
+              <p className="mt-2 text-2xl">{prompt}</p>
+            </div>
           }
           correctMessage={t('dictionary.practice.correct')}
           incorrectMessage={t('dictionary.practice.incorrect', {
@@ -242,21 +213,7 @@ export function DictionaryPracticePage() {
         />
       )}
 
-      <Dialog open={stopDialogOpen} onClose={() => setStopDialogOpen(false)}>
-        <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{t('exercises.session.stopMessage')}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStopDialogOpen(false)}>{t('common.cancel')}</Button>
-          <Button
-            color="error"
-            onClick={() => navigate(state?.backPath ?? '/exercises/vocabulary')}
-          >
-            {t('exercises.session.stopConfirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {stopDialog}
+    </PageContainer>
   );
 }

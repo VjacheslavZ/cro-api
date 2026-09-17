@@ -59,12 +59,13 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 **Affects:** frontend
 **Tasks:**
 
-- [ ] `MyDictionaryPage/*`: `DictionaryTopBar` (`Select`), `DictionaryBatchActions` (`Select` with placeholder), `DictionaryWordList` (`@tanstack/react-virtual` stays; `Box` → `div`), `WordRow` (`Checkbox` `onChange` → `onCheckedChange`, `Progress`), `DeleteWordDialog` → `AlertDialog`
-- [ ] `AddWordModal`, `EditWordModal`, `CreateCollectionModal` → `Dialog` + `Label`/`Input`/`Select`
-- [ ] `CollectionPreviewPage` (`Table`, `Snackbar` → `toast()` from sonner), `CollectionsPage`, `WordSetsPage`
-- [ ] `DictionaryPractice/*`, `Review/*`
+- [x] `MyDictionaryPage/*`: `DictionaryTopBar` (`Select` with `SelectValue` render fn), `DictionaryBatchActions` (dark pill, `Select` with placeholder), `DictionaryWordList` (`@tanstack/react-virtual` stays; `Box` → `div`), `WordRow` (`Checkbox` `onCheckedChange`, `Progress`), `DeleteWordDialog` → `AlertDialog`
+- [x] `AddWordModal`, `EditWordModal`, `CreateCollectionModal` → `Dialog` + `Label`/`Input`/`Textarea`/`Select`; focus via `DialogContent initialFocus`
+- [x] `CollectionPreviewPage` (`Table`, `Snackbar` → `toast.success()`), `CollectionsPage`, `WordSetsPage`
+- [x] `DictionaryPractice/*`, `Review/*` — inline stop dialogs replaced by `StopExerciseDialog`; both results pages share `exercises/ui/ResultsSummary`
+- [x] `ui/checkbox.tsx` renders a minus icon + filled box for `indeterminate`
 
-**Done when:** `src/features/dictionary` has no `@mui` imports.
+**Done when:** `src/features/dictionary` has no `@mui` imports. ✅
 
 ### Phase 5: Remaining pages
 

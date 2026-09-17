@@ -1,20 +1,22 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DumbbellIcon, PlusIcon, SearchIcon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
-  TextField,
-  Button,
-  Box,
-  FormControlLabel,
-  Checkbox,
   Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Typography,
-} from '@mui/material';
-import { Add, FitnessCenter, Search } from '@mui/icons-material';
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import type { DictionaryWordSort } from '../../../api/dictionary.ts';
+
+const SORT_OPTIONS: DictionaryWordSort[] = ['newest', 'oldest', 'word', 'collection', 'progress'];
 
 interface DictionaryTopBarProps {
   search: string;
@@ -44,74 +46,61 @@ export function DictionaryTopBar({
   onSortChange,
 }: DictionaryTopBarProps) {
   const { t } = useTranslation();
+  const hideLearnedId = useId();
 
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center', mb: 3 }}>
-      <FormControl size="small" sx={{ minWidth: 180 }}>
-        <InputLabel>{t('dictionary.sortBy')}</InputLabel>
-        <Select
-          value={sort}
-          label={t('dictionary.sortBy')}
-          onChange={(e) => onSortChange(e.target.value as DictionaryWordSort)}
-        >
-          <MenuItem value="newest">{t('dictionary.sort.newest')}</MenuItem>
-          <MenuItem value="oldest">{t('dictionary.sort.oldest')}</MenuItem>
-          <MenuItem value="word">{t('dictionary.sort.word')}</MenuItem>
-          <MenuItem value="collection">{t('dictionary.sort.collection')}</MenuItem>
-          <MenuItem value="progress">{t('dictionary.sort.progress')}</MenuItem>
-        </Select>
-      </FormControl>
+    <div className="mb-6 flex flex-wrap items-center gap-3">
+      <Select value={sort} onValueChange={(value) => onSortChange(value as DictionaryWordSort)}>
+        <SelectTrigger className="h-9 min-w-45" aria-label={t('dictionary.sortBy')}>
+          <SelectValue>{(value: DictionaryWordSort) => t(`dictionary.sort.${value}`)}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {SORT_OPTIONS.map((option) => (
+            <SelectItem key={option} value={option}>
+              {t(`dictionary.sort.${option}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <TextField
-        size="small"
-        placeholder={t('dictionary.searchPlaceholder')}
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && search.trim()) onSearchEnter();
-        }}
-        sx={{ flex: 1, minWidth: 200 }}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search sx={{ fontSize: 18, color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+      <div className="relative min-w-50 flex-1">
+        <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          className="h-9 pl-8"
+          placeholder={t('dictionary.searchPlaceholder')}
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && search.trim()) onSearchEnter();
+          }}
+        />
+      </div>
 
-      <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={onAddWord}
-        sx={{ whiteSpace: 'nowrap' }}
-      >
+      <Button className="h-9" onClick={onAddWord}>
+        <PlusIcon data-icon="inline-start" />
         {t('dictionary.addWord')}
       </Button>
 
       <Button
-        variant="outlined"
-        startIcon={<FitnessCenter />}
+        variant="outline"
+        className="h-9"
         onClick={onStartPractice}
         disabled={practiceDisabled}
-        sx={{ whiteSpace: 'nowrap' }}
       >
+        <DumbbellIcon data-icon="inline-start" />
         {t('dictionary.practice.start')}
       </Button>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            size="small"
-            checked={hideLearned}
-            onChange={(e) => onHideLearnedChange(e.target.checked)}
-          />
-        }
-        label={<Typography variant="body2">{t('dictionary.hideLearned')}</Typography>}
-        sx={{ m: 0 }}
-      />
-    </Box>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={hideLearnedId}
+          checked={hideLearned}
+          onCheckedChange={(checked) => onHideLearnedChange(checked === true)}
+        />
+        <Label htmlFor={hideLearnedId} className="text-sm font-normal">
+          {t('dictionary.hideLearned')}
+        </Label>
+      </div>
+    </div>
   );
 }

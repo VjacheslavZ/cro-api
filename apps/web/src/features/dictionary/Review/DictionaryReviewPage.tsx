@@ -1,25 +1,19 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Box,
-  Alert,
-  Button,
-  LinearProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from '@mui/material';
-import { Stop } from '@mui/icons-material';
 import type { DictionaryReviewItem, FsrsRating } from '@cro/shared';
+import { SquareIcon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 import { useAppDispatch } from '../../../store';
 import { useFinishDictionaryReview } from '../../../api/dictionary.ts';
 import { fetchMe } from '../../../api/auth.ts';
 import { DictionaryReviewExercise } from '../../exercises/DictionaryReviewExercise/DictionaryReviewExercise.tsx';
+import { StopExerciseDialog } from '../../exercises/StopExerciseDialog';
 
 /**
  * Route: /dictionary/review/:sessionId
@@ -94,9 +88,9 @@ export function DictionaryReviewPage() {
 
   if (!state || !state.items || state.items.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
+      <PageContainer size="sm" className="py-8">
+        <ErrorAlert />
+      </PageContainer>
     );
   }
 
@@ -104,28 +98,23 @@ export function DictionaryReviewPage() {
   const currentItem = items[currentIndex];
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <LinearProgress
-          variant="determinate"
+    <PageContainer size="sm" className="py-8">
+      <div className="mb-4 flex items-center gap-4">
+        <Progress
           value={(currentIndex / items.length) * 100}
-          sx={{ flex: 1, height: 8, borderRadius: 4 }}
+          aria-label={t('exercises.session.progress', {
+            current: currentIndex + 1,
+            total: items.length,
+          })}
+          className="flex-1 **:data-[slot=progress-track]:h-2"
         />
-        <Button
-          size="small"
-          color="inherit"
-          startIcon={<Stop />}
-          onClick={() => setStopDialogOpen(true)}
-        >
+        <Button variant="ghost" size="sm" onClick={() => setStopDialogOpen(true)}>
+          <SquareIcon data-icon="inline-start" />
           {t('exercises.session.stop')}
         </Button>
-      </Box>
+      </div>
 
-      {finishReview.isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+      {finishReview.isError && <ErrorAlert className="mb-4" />}
 
       <DictionaryReviewExercise
         key={currentItem.wordId}
@@ -135,18 +124,11 @@ export function DictionaryReviewPage() {
         onAnswer={handleAnswer}
       />
 
-      <Dialog open={stopDialogOpen} onClose={() => setStopDialogOpen(false)}>
-        <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{t('exercises.session.stopMessage')}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStopDialogOpen(false)}>{t('common.cancel')}</Button>
-          <Button color="error" onClick={() => navigate(state.backPath ?? '/exercises/vocabulary')}>
-            {t('exercises.session.stopConfirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      <StopExerciseDialog
+        open={stopDialogOpen}
+        onClose={() => setStopDialogOpen(false)}
+        onConfirm={() => navigate(state.backPath ?? '/exercises/vocabulary')}
+      />
+    </PageContainer>
   );
 }

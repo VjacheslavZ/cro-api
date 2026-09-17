@@ -1,25 +1,17 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from '@mui/material';
 import type { DictionaryWord } from '@cro/shared';
 
-/**
- * Confirmation dialog shown before permanently deleting a word from the
- * user's personal dictionary.
- *
- * Used in: MyDictionaryPage — opened when the delete icon on a WordRow is
- * clicked.
- *
- * Displays the Croatian word in the message so the user can verify the
- * correct word is being deleted. The confirm button is disabled while the
- * delete mutation is in-flight.
- */
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
 interface DeleteWordDialogProps {
   /** The word pending deletion. Passing `null` closes the dialog. */
   word: DictionaryWord | null;
@@ -33,19 +25,21 @@ export function DeleteWordDialog({ word, isPending, onConfirm, onCancel }: Delet
   const { t } = useTranslation();
 
   return (
-    <Dialog open={word !== null} onClose={onCancel}>
-      <DialogTitle>{t('dictionary.deleteConfirm.title')}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {t('dictionary.deleteConfirm.message', { word: word?.wordHr })}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel}>{t('common.cancel')}</Button>
-        <Button variant="contained" color="error" onClick={onConfirm} disabled={isPending}>
-          {t('dictionary.deleteConfirm.confirm')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <AlertDialog open={word !== null} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('dictionary.deleteConfirm.title')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('dictionary.deleteConfirm.message', { word: word?.wordHr })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onConfirm} disabled={isPending}>
+            {t('dictionary.deleteConfirm.confirm')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
