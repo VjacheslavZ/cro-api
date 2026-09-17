@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryCollection } from '@cro/shared';
 import { XIcon } from 'lucide-react';
@@ -10,37 +11,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useBatchAssignCollection } from '@/api/dictionary.ts';
 
 interface DictionaryBatchActionsProps {
-  selectedCount: number;
-  assignCollectionId: string;
+  selectedIds: Set<string>;
   collections: DictionaryCollection[];
-  onAssignCollectionChange: (id: string) => void;
-  onAssign: () => void;
-  onCancel: () => void;
+  /** Called after a successful assignment and on cancel — the parent clears the selection. */
+  onDone: () => void;
 }
 
+/**
+ * Floating toolbar shown while words are selected. Owns the "assign to
+ * collection" form state and the batch mutation.
+ */
 export function DictionaryBatchActions({
-  selectedCount,
-  assignCollectionId,
+  selectedIds,
   collections,
-  onAssignCollectionChange,
-  onAssign,
-  onCancel,
+  onDone,
 }: DictionaryBatchActionsProps) {
   const { t } = useTranslation();
+  const [assignCollectionId, setAssignCollectionId] = useState('');
+  const batchAssign = useBatchAssignCollection();
 
-  if (selectedCount === 0) return null;
+  if (selectedIds.size === 0) return null;
+
+  const handleAssign = async () => {
+    await batchAssign.mutateAsync({
+      wordIds: Array.from(selectedIds),
+      collectionId: assignCollectionId || null,
+    });
+    setAssignCollectionId('');
+    onDone();
+  };
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-neutral-900 px-6 py-3 whitespace-nowrap text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+    <div className="fixed bottom-1/6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-neutral-900 px-6 py-3 whitespace-nowrap text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
       <span className="text-sm font-medium">
-        {t('dictionary.selected', { count: selectedCount })}
+        {t('dictionary.selected', { count: selectedIds.size })}
       </span>
 
       <Select
         value={assignCollectionId}
-        onValueChange={(value) => onAssignCollectionChange(value ?? '')}
+        onValueChange={(value) => setAssignCollectionId(value ?? '')}
       >
         <SelectTrigger
           className="h-8 min-w-40 border-white/30 text-white hover:border-white/60 **:data-[slot=select-value]:text-white [&_svg]:text-white"
@@ -69,7 +81,8 @@ export function DictionaryBatchActions({
       <Button
         size="sm"
         variant="outline"
-        onClick={onAssign}
+        onClick={handleAssign}
+        disabled={batchAssign.isPending}
         className="border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10 hover:text-white"
       >
         {t('dictionary.assignCollection')}
@@ -78,7 +91,7 @@ export function DictionaryBatchActions({
       <Button
         size="icon-sm"
         variant="ghost"
-        onClick={onCancel}
+        onClick={onDone}
         aria-label={t('common.cancel')}
         className="text-white/70 hover:bg-white/10 hover:text-white"
       >

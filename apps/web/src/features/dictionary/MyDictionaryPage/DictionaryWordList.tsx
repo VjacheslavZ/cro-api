@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryWord } from '@cro/shared';
@@ -9,6 +9,7 @@ import { ErrorAlert } from '@/components/ErrorAlert';
 import { Spinner } from '@/components/Spinner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useMarkWordAsLearned, useResetWordProgress } from '@/api/dictionary.ts';
 
 import { WordRow } from '../WordRow.tsx';
 
@@ -33,8 +34,6 @@ interface DictionaryWordListProps {
   onSelect: (id: string, checked: boolean) => void;
   onEdit: (word: DictionaryWord) => void;
   onDelete: (word: DictionaryWord) => void;
-  onMarkLearned: (word: DictionaryWord) => void;
-  onResetProgress: (word: DictionaryWord) => void;
 }
 
 const ROW_GAP = 8;
@@ -56,12 +55,30 @@ export function DictionaryWordList({
   onSelect,
   onEdit,
   onDelete,
-  onMarkLearned,
-  onResetProgress,
 }: DictionaryWordListProps) {
   const { t } = useTranslation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const { mutate: markLearned } = useMarkWordAsLearned();
+  const { mutate: resetProgress } = useResetWordProgress();
+
+  // `useVirtualizer` below makes React Compiler skip this component, so the row
+  // callbacks must be memoized by hand — they are passed to a memoized WordRow
+  // and this component re-renders on every scroll tick.
+  const handleMarkLearned = useCallback(
+    (word: DictionaryWord) => markLearned(word.id),
+    [markLearned],
+  );
+  const handleResetProgress = useCallback(
+    (word: DictionaryWord) => resetProgress(word.id),
+    [resetProgress],
+  );
+
+  // `useVirtualizer` returns a mutable instance, so React Compiler skips this
+  // component entirely. Nothing it returns is passed to a memoized child — the
+  // virtual items only drive plain DOM here — and the WordRow callbacks above
+  // are memoized by hand to compensate.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: words.length,
     getScrollElement: () => scrollContainerRef.current,
@@ -147,8 +164,8 @@ export function DictionaryWordList({
                   onSelect={onSelect}
                   onEdit={onEdit}
                   onDelete={onDelete}
-                  onMarkLearned={onMarkLearned}
-                  onResetProgress={onResetProgress}
+                  onMarkLearned={handleMarkLearned}
+                  onResetProgress={handleResetProgress}
                 />
               </div>
             );

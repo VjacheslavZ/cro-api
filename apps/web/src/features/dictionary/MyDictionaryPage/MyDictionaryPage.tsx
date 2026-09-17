@@ -1,35 +1,32 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryWord } from '@cro/shared';
 
 import { PageContainer } from '@/components/PageContainer';
 import { Badge } from '@/components/ui/badge';
-
 import {
   useDictionaryWords,
-  useDeleteWord,
-  useMarkWordAsLearned,
-  useResetWordProgress,
-  useBatchAssignCollection,
   useDictionaryCollections,
   type DictionaryWordSort,
-} from '../../../api/dictionary.ts';
+} from '@/api/dictionary.ts';
+
 import { AddWordModal } from '../AddWordModal/AddWordModal.tsx';
 import { EditWordModal } from '../EditWordModal.tsx';
 import { DictionaryTopBar } from './DictionaryTopBar.tsx';
 import { DictionaryBatchActions } from './DictionaryBatchActions.tsx';
 import { DictionaryWordList } from './DictionaryWordList.tsx';
 import { DeleteWordDialog } from './DeleteWordDialog.tsx';
+import { useWordSelection } from './useWordSelection.ts';
 
 /**
  * Route: /dictionary/my (supports ?collectionId=<id> filter)
  *
- * Main personal dictionary page. Orchestrates all dictionary state and
- * delegates rendering to focused sub-components:
- * - DictionaryTopBar — search input, Add Word, and Practice buttons
- * - DictionaryBatchActions — collection assignment for selected words
- * - DictionaryWordList — paginated word list with infinite scroll
+ * Main personal dictionary page. Owns the list filters and which dialog is
+ * open; everything else is delegated:
+ * - DictionaryTopBar — search, sort, hide-learned, Add Word, Practice
+ * - DictionaryBatchActions — assign selected words to a collection
+ * - DictionaryWordList — virtualized list with infinite scroll
  * - AddWordModal, EditWordModal, DeleteWordDialog — CRUD dialogs
  */
 export function MyDictionaryPage() {
@@ -38,14 +35,15 @@ export function MyDictionaryPage() {
   const [searchParams] = useSearchParams();
   const collectionIdParam = searchParams.get('collectionId') ?? undefined;
 
+  // List filters
   const [search, setSearch] = useState('');
   const [hideLearned, setHideLearned] = useState(false);
   const [sort, setSort] = useState<DictionaryWordSort>('newest');
+
+  // Dialogs
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<DictionaryWord | null>(null);
   const [deletingWord, setDeletingWord] = useState<DictionaryWord | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [assignCollectionId, setAssignCollectionId] = useState('');
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useDictionaryWords({
@@ -54,57 +52,14 @@ export function MyDictionaryPage() {
       excludeLearned: hideLearned || undefined,
       sort,
     });
-  const deleteWord = useDeleteWord();
-  const markLearned = useMarkWordAsLearned();
-  const resetProgress = useResetWordProgress();
-  const batchAssign = useBatchAssignCollection();
-  const { data: collections = [] } = useDictionaryCollections();
+  const collectionsQuery = useDictionaryCollections();
+  // No default in the destructuring pattern: it makes React Compiler bail out of this component
+  const collections = collectionsQuery.data ?? [];
 
   const words = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
 
-  const allSelected = words.length > 0 && selectedIds.size === words.length;
-
-  const handleSelectAll = useCallback(() => {
-    if (allSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(words.map((w) => w.id)));
-    }
-  }, [allSelected, words]);
-
-  const handleSelect = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  };
-
-  const handleDeleteConfirmed = async () => {
-    if (!deletingWord) return;
-    await deleteWord.mutateAsync(deletingWord.id);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deletingWord.id);
-      return next;
-    });
-    setDeletingWord(null);
-  };
-
-  const handleBatchAssign = async () => {
-    if (selectedIds.size === 0) return;
-    await batchAssign.mutateAsync({
-      wordIds: Array.from(selectedIds),
-      collectionId: assignCollectionId || null,
-    });
-    setSelectedIds(new Set());
-    setAssignCollectionId('');
-  };
-
-  const handleMarkLearned = (word: DictionaryWord) => markLearned.mutate(word.id);
-  const handleResetProgress = (word: DictionaryWord) => resetProgress.mutate(word.id);
+  const selection = useWordSelection(words);
 
   const handleStartPractice = () => {
     const url = collectionIdParam
@@ -114,8 +69,7 @@ export function MyDictionaryPage() {
   };
 
   return (
-    <PageContainer size="lg" className="py-2">
-      {/* Page header */}
+    <PageContainer size="lg" className="relative py-2">
       <div className="mb-2 flex items-center gap-3">
         <h1 className="text-3xl font-bold text-foreground">{t('dictionary.title')}</h1>
         {!isLoading && (
@@ -139,12 +93,9 @@ export function MyDictionaryPage() {
       />
 
       <DictionaryBatchActions
-        selectedCount={selectedIds.size}
-        assignCollectionId={assignCollectionId}
+        selectedIds={selection.selectedIds}
         collections={collections}
-        onAssignCollectionChange={setAssignCollectionId}
-        onAssign={handleBatchAssign}
-        onCancel={() => setSelectedIds(new Set())}
+        onDone={selection.clear}
       />
 
       <DictionaryWordList
@@ -153,15 +104,13 @@ export function MyDictionaryPage() {
         isError={isError}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
-        selectedIds={selectedIds}
-        allSelected={allSelected}
+        selectedIds={selection.selectedIds}
+        allSelected={selection.allSelected}
         onFetchNextPage={fetchNextPage}
-        onSelectAll={handleSelectAll}
-        onSelect={handleSelect}
+        onSelectAll={selection.toggleAll}
+        onSelect={selection.select}
         onEdit={setEditingWord}
         onDelete={setDeletingWord}
-        onMarkLearned={handleMarkLearned}
-        onResetProgress={handleResetProgress}
       />
 
       <AddWordModal
@@ -180,9 +129,8 @@ export function MyDictionaryPage() {
 
       <DeleteWordDialog
         word={deletingWord}
-        isPending={deleteWord.isPending}
-        onConfirm={handleDeleteConfirmed}
-        onCancel={() => setDeletingWord(null)}
+        onDeleted={selection.remove}
+        onClose={() => setDeletingWord(null)}
       />
     </PageContainer>
   );
