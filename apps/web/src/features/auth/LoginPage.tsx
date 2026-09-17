@@ -6,9 +6,9 @@ import { ErrorAlert } from '@/components/ErrorAlert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth-client.ts';
+import { GoogleIcon } from '@/assets/icons';
 
-import { authClient } from '../../lib/auth-client';
-import { GoogleIcon } from '../../assets/icons';
 import { AuthLayout } from './AuthLayout';
 import { EmailAuthForm } from './EmailAuthForm';
 
@@ -20,7 +20,6 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<AuthMode>('login');
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -39,7 +38,6 @@ export function LoginPage() {
   const toggleMode = () => {
     setMode((prev) => (prev === 'login' ? 'register' : 'login'));
     setError(null);
-    setFormData({ name: '', email: '', password: '' });
   };
 
   return (
@@ -88,8 +86,6 @@ export function LoginPage() {
               setLoading={setLoading}
               onSuccess={() => setError(null)}
               onError={(msg) => setError(msg || null)}
-              formData={formData}
-              setFormData={setFormData}
             />
           )}
 

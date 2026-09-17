@@ -1,12 +1,11 @@
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import { authClient } from '../../lib/auth-client';
+import { authClient } from '@/lib/auth-client.ts';
 
 type AuthMode = 'login' | 'register';
 
@@ -16,8 +15,6 @@ interface EmailAuthFormProps {
   setLoading: (loading: boolean) => void;
   onSuccess: () => void;
   onError: (message: string) => void;
-  formData: { name: string; email: string; password: string };
-  setFormData: (data: { name: string; email: string; password: string }) => void;
 }
 
 export function EmailAuthForm({
@@ -26,13 +23,13 @@ export function EmailAuthForm({
   setLoading,
   onSuccess,
   onError,
-  formData,
-  setFormData,
 }: EmailAuthFormProps) {
   const { t } = useTranslation();
   const id = useId();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
     onError('');
@@ -64,6 +61,10 @@ export function EmailAuthForm({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setFormData({ name: '', email: '', password: '' });
+  }, [mode]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">

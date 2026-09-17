@@ -4,16 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from 'cn';
 
 import { Spinner } from '@/components/Spinner';
+import { useAppDispatch } from '@/store';
+import { setUser } from '@/store/auth.slice.ts';
+import { apiClient } from '@/api/client.ts';
 
-import { useAppDispatch } from '../../store';
-import { setUser } from '../../store/auth.slice';
-import { apiClient } from '../../api/client';
 import i18n from '../../i18n';
 import { AuthLayout } from './AuthLayout';
 
 type LanguageCode = 'RU' | 'UK' | 'EN';
 
-// TODO move to const and reuse in SettingsPage.tsx
 const languages: { code: LanguageCode; nativeName: string; name: string; flag: string }[] = [
   { code: 'UK', nativeName: 'Українська', name: 'Ukrainian', flag: '🇺🇦' },
   { code: 'EN', nativeName: 'English', name: 'English', flag: '🇬🇧' },
