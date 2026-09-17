@@ -11,10 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { useAppSelector, useAppDispatch } from '../../store';
-import { clearAuth } from '../../store/auth.slice';
-import { authClient } from '../../lib/auth-client';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { clearAuth } from '@/store/auth.slice.ts';
+import { authClient } from '@/lib/auth-client';
 
 export function UserMenu() {
   const { t } = useTranslation();

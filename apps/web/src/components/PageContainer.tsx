@@ -3,7 +3,6 @@ import { cn } from 'cn';
 
 type PageContainerSize = 'sm' | 'md' | 'lg';
 
-/** Widths match the MUI `Container maxWidth` presets the pages were built on. */
 const sizeClass: Record<PageContainerSize, string> = {
   sm: 'max-w-[600px]',
   md: 'max-w-[900px]',

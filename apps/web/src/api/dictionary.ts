@@ -105,21 +105,6 @@ export function useDeleteWord() {
   });
 }
 
-export function useAssignCollection() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: { wordId: string; collectionId: string | null }) => {
-      const { data } = await apiClient.patch(`/dictionary/words/${params.wordId}/collection`, {
-        collectionId: params.collectionId,
-      });
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
-    },
-  });
-}
-
 export function useBatchAssignCollection() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -128,18 +113,6 @@ export function useBatchAssignCollection() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dictionary-words'] });
-    },
-  });
-}
-
-export function useDictionaryWordCount() {
-  return useQuery<number>({
-    queryKey: ['dictionary-word-count'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<DictionaryWord>>('/dictionary/words', {
-        params: { limit: 1 },
-      });
-      return data.total;
     },
   });
 }
