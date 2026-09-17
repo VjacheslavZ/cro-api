@@ -1,7 +1,8 @@
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { ArrowForward } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import type { ExerciseType } from '@cro/shared';
+import { ArrowRightIcon, Loader2Icon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 
 import {
   getExerciseTypeLabel,
@@ -19,58 +20,26 @@ export function ExerciseTypeCard({ type, isPending, onStart }: Props) {
   const { t } = useTranslation();
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 3,
-        p: 3,
-        border: '1px solid rgba(0,0,0,0.12)',
-        borderRadius: 2,
-        bgcolor: 'white',
-        cursor: 'pointer',
-        transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
-        '&:hover': {
-          boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-          borderColor: '#93c5fd',
-        },
-      }}
-    >
-      <Box
-        sx={{
-          flexShrink: 0,
-          width: 64,
-          height: 64,
-          bgcolor: 'grey.50',
-          borderRadius: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+    <div className="flex items-center gap-6 rounded-xl border bg-card p-6 transition-[box-shadow,border-color] hover:border-blue-300 hover:shadow-lg">
+      <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
         {getExerciseTypeIcon(type)}
-      </Box>
+      </div>
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 0.25 }}>
+      <div className="min-w-0 flex-1">
+        <h3 className="mb-0.5 text-lg font-semibold text-foreground">
           {getExerciseTypeLabel(type, t)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {getExerciseTypeDescription(type, t)}
-        </Typography>
-      </Box>
+        </h3>
+        <p className="text-sm text-muted-foreground">{getExerciseTypeDescription(type, t)}</p>
+      </div>
 
-      <Button
-        variant="contained"
-        endIcon={
-          isPending ? <CircularProgress size={16} sx={{ color: 'inherit' }} /> : <ArrowForward />
-        }
-        onClick={onStart}
-        disabled={isPending}
-        sx={{ flexShrink: 0, minWidth: 120 }}
-      >
+      <Button className="min-w-30 shrink-0" onClick={onStart} disabled={isPending}>
         {t('exercises.start')}
+        {isPending ? (
+          <Loader2Icon className="animate-spin" data-icon="inline-end" />
+        ) : (
+          <ArrowRightIcon data-icon="inline-end" />
+        )}
       </Button>
-    </Box>
+    </div>
   );
 }

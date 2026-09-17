@@ -1,18 +1,24 @@
-import { Edit, Keyboard, Layers, Sort, ViewCarousel } from '@mui/icons-material';
 import type { ExerciseType } from '@cro/shared';
 import { ExerciseType as ExerciseTypeEnum } from '@cro/shared';
+import {
+  ArrowDownUpIcon,
+  GalleryHorizontalIcon,
+  KeyboardIcon,
+  LayersIcon,
+  PencilIcon,
+} from 'lucide-react';
 
 export function getExerciseTypeIcon(type: ExerciseType) {
   switch (type) {
     case ExerciseTypeEnum.TYPE_THE_ANSWER:
-      return <Keyboard sx={{ fontSize: 32, color: '#2563eb' }} />;
+      return <KeyboardIcon className="size-8 text-primary" />;
     case ExerciseTypeEnum.FLASHCARDS:
-      return <ViewCarousel sx={{ fontSize: 32, color: '#9333ea' }} />;
+      return <GalleryHorizontalIcon className="size-8 text-purple-600" />;
     case ExerciseTypeEnum.FILL_IN_BLANK:
-      return <Edit sx={{ fontSize: 32, color: '#16a34a' }} />;
+      return <PencilIcon className="size-8 text-success" />;
     case ExerciseTypeEnum.BUILD_SENTENCE:
-      return <Sort sx={{ fontSize: 32, color: '#d97706' }} />;
+      return <ArrowDownUpIcon className="size-8 text-amber-600" />;
     default:
-      return <Layers sx={{ fontSize: 32, color: '#6b7280' }} />;
+      return <LayersIcon className="size-8 text-muted-foreground" />;
   }
 }

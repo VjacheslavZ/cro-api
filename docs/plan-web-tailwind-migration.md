@@ -32,9 +32,11 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 **Affects:** frontend
 **Tasks:**
 
-- [ ] `features/exercises/SessionPage.tsx`, `ExerciseProgressHeader.tsx` (`LinearProgress` → `Progress`)
-- [ ] Dialogs: `StopExerciseDialog`, `CycleResetDialog` → `AlertDialog`; `ExerciseRulesDialog` → `Dialog` + prose styles for admin-authored HTML (`[&_ul]:list-disc …` or `@tailwindcss/typography`)
-- [ ] `ExercisesPage`, `TopicExercisesPage/`, `SessionResultsPage` (`Skeleton`, `Card`, `Grid` → `grid-cols`)
+- [x] `features/exercises/SessionPage.tsx` (now reuses `StopExerciseDialog` instead of an inline copy), `ExerciseProgressHeader.tsx` (`LinearProgress` → `Progress`)
+- [x] Dialogs: `StopExerciseDialog`, `CycleResetDialog` → `AlertDialog`; `ExerciseRulesDialog` → `Dialog` + `[&_h1]…[&_blockquote]` prose classes for admin-authored HTML
+- [x] `ExercisesPage`, `TopicExercisesPage/`, `SessionResultsPage` (`Skeleton`, `Card`, `Grid` → `grid-cols`)
+- [x] Shared blocks added for the recurring patterns: `src/components/ErrorAlert.tsx` (`Alert severity="error"` + optional action) and `src/components/EmptyState.tsx` (icon disc + title + description)
+- [x] `SessionResultsPage.test.tsx`
 
 **Done when:** `grep -rln "@mui" src/features/exercises` lists only exercise-type components and LearnWords/SpeedQuiz pages.
 
@@ -116,7 +118,9 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 | `LoadingButton loading` | `Button disabled` + `<Loader2Icon className="animate-spin" />` |
 | `IconButton` | `Button variant="ghost" size="icon"` + `aria-label` |
 | `Button component={RouterLink}` | `<Link className={buttonVariants({ variant })}>` |
-| `Alert severity="error/…"` | `Alert variant="destructive/default"` + icon + `AlertTitle` |
+| `Alert severity="error"` | `<ErrorAlert message action />` (`src/components/ErrorAlert.tsx`) |
+| `Alert severity="info/success/warning"` | `Alert` + icon + `AlertTitle` |
+| Empty-state block (grey icon disc + title + text) | `<EmptyState icon title description />` |
 | `Dialog` (confirm) | `AlertDialog` |
 | `Dialog` (form / content) | `Dialog` + `DialogHeader/Footer` |
 | `Menu` + anchor state | `DropdownMenu`; items navigate via `render={<Link to=… />}` |

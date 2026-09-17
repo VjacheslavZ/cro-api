@@ -5,14 +5,17 @@
  * @usedBy TopicExercisesPage
  */
 import { useTranslation } from 'react-i18next';
+
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  Button,
-} from '@mui/material';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { useResetCycle } from '../../api/exercises';
 
@@ -52,17 +55,19 @@ export function CycleResetDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('exercises.results.title')}</DialogTitle>
-      <DialogContent>
-        <Typography>{t('exercises.cycle.exhausted')}</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('exercises.cycle.back')}</Button>
-        <Button variant="contained" onClick={handleReset} disabled={resetCycle.isPending}>
-          {t('exercises.cycle.resetAndStart')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('exercises.results.title')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('exercises.cycle.exhausted')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('exercises.cycle.back')}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleReset} disabled={resetCycle.isPending}>
+            {t('exercises.cycle.resetAndStart')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

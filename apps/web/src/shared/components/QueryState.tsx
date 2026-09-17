@@ -1,8 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { AlertCircleIcon } from 'lucide-react';
-
+import { ErrorAlert } from '@/components/ErrorAlert';
 import { Spinner } from '@/components/Spinner';
-import { Alert, AlertTitle } from '@/components/ui/alert';
 
 interface QueryStateProps {
   isLoading: boolean;
@@ -10,8 +7,6 @@ interface QueryStateProps {
 }
 
 export function QueryState({ isLoading, isError }: QueryStateProps) {
-  const { t } = useTranslation();
-
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -23,10 +18,7 @@ export function QueryState({ isLoading, isError }: QueryStateProps) {
   if (isError) {
     return (
       <div className="py-8">
-        <Alert variant="destructive">
-          <AlertCircleIcon />
-          <AlertTitle>{t('common.error')}</AlertTitle>
-        </Alert>
+        <ErrorAlert />
       </div>
     );
   }

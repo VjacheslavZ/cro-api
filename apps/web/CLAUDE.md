@@ -15,7 +15,7 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 | shadcn primitives (generated, editable source) | `src/components/ui/*` — add more with `npx shadcn@latest add <name>` from `apps/web/` |
 | `cn()` class merger | `src/lib/utils.ts` (re-exports the `cn` package) |
 | Design tokens (CSS variables + `@theme`) | `src/styles/globals.css` — imported once in `src/main.tsx` |
-| Shared building blocks | `src/components/Spinner.tsx`, `src/components/PageContainer.tsx` (`size="sm|md|lg"` = old MUI `Container` widths) |
+| Shared building blocks | `src/components/Spinner.tsx`, `PageContainer.tsx` (`size="sm|md|lg"` = old MUI `Container` widths), `ErrorAlert.tsx`, `EmptyState.tsx` |
 | Icons | `lucide-react`; brand marks lucide lacks (Google, X, YouTube, stores) in `src/assets/icons/` |
 | Toasts | `toast()` from `sonner`; `<Toaster />` is mounted in `AppRouter` |
 | `@/` alias | → `src/` (vite, tsconfig, jest). Imports from `@/…` are the `internal` ESLint group and go **before** relative imports |

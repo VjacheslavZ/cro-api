@@ -10,19 +10,10 @@
  */
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import {
-  Typography,
-  Box,
-  Alert,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Container,
-} from '@mui/material';
 import type { ExerciseItem } from '@cro/shared';
+
+import { PageContainer } from '@/components/PageContainer';
+import { ErrorAlert } from '@/components/ErrorAlert';
 
 import { useAppDispatch } from '../../store';
 import { useFinishSession } from '../../api/exercises';
@@ -33,6 +24,7 @@ import { FillInBlankExercise } from './FillInBlankExercise/FillInBlankExercise.t
 import { BuildSentenceExercise } from './BuildSentenceExercise/BuildSentenceExercise.tsx';
 import { ExerciseRulesDialog } from './ExerciseRulesDialog';
 import { ExerciseProgressHeader } from './ExerciseProgressHeader';
+import { StopExerciseDialog } from './StopExerciseDialog';
 
 interface SessionLocationState {
   items: ExerciseItem[];
@@ -53,7 +45,6 @@ interface SessionAnswer {
  * Redirects to an error state if location state is missing (direct URL access).
  */
 export function SessionPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -103,9 +94,9 @@ export function SessionPage() {
 
   if (!state || !state.items || state.items.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Container>
+      <PageContainer size="sm" className="py-8">
+        <ErrorAlert />
+      </PageContainer>
     );
   }
 
@@ -113,15 +104,8 @@ export function SessionPage() {
   const currentItem = items[currentIndex];
 
   return (
-    <Box
-      sx={{
-        background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
-        minHeight: 'calc(100vh - 64px)',
-        py: 6,
-        px: 2,
-      }}
-    >
-      <Box sx={{ maxWidth: 672, mx: 'auto' }}>
+    <div className="min-h-[calc(100vh-64px)] bg-[linear-gradient(135deg,#eff6ff_0%,#e0e7ff_100%)] px-4 py-12">
+      <div className="mx-auto max-w-2xl">
         <ExerciseProgressHeader
           currentIndex={currentIndex}
           total={items.length}
@@ -129,13 +113,9 @@ export function SessionPage() {
           onShowRules={rulesHtml ? () => setRulesOpen(true) : undefined}
         />
 
-        {finishSession.isError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {t('common.error')}
-          </Alert>
-        )}
+        {finishSession.isError && <ErrorAlert className="mb-4" />}
 
-        <Box>
+        <div>
           {exerciseType === 'TYPE_THE_ANSWER' && (
             <TypeTheAnswerExercise
               key={currentItem.id}
@@ -167,8 +147,8 @@ export function SessionPage() {
               onAnswer={handleAnswer}
             />
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {rulesHtml && (
         <ExerciseRulesDialog
@@ -178,21 +158,11 @@ export function SessionPage() {
         />
       )}
 
-      {/* Stop confirmation dialog */}
-      <Dialog open={stopOpen} onClose={() => setStopOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            {t('exercises.session.stopMessage')}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStopOpen(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" color="error" onClick={() => navigate(-1)}>
-            {t('exercises.session.stopConfirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      <StopExerciseDialog
+        open={stopOpen}
+        onClose={() => setStopOpen(false)}
+        onConfirm={() => navigate(-1)}
+      />
+    </div>
   );
 }

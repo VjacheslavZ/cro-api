@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertCircleIcon, Loader2Icon } from 'lucide-react';
+import { Loader2Icon } from 'lucide-react';
 
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { ErrorAlert } from '@/components/ErrorAlert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -53,12 +53,7 @@ export function LoginPage() {
             {mode === 'login' ? t('auth.signInSubtitle') : t('auth.createAccountSubtitle')}
           </p>
 
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircleIcon />
-              <AlertTitle>{error}</AlertTitle>
-            </Alert>
-          )}
+          {error && <ErrorAlert message={error} className="mb-4" />}
 
           <Button
             variant="outline"

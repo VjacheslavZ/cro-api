@@ -2,17 +2,20 @@
  * @module StopExerciseDialog
  * @description Generic confirmation dialog for stopping an in-progress exercise session.
  * Calls onConfirm when the user confirms, onClose when they cancel.
- * @usedBy LearnWordsPreviewPage, LearnWordsSessionPage
+ * @usedBy SessionPage, LearnWordsPreviewPage, LearnWordsSessionPage
  */
 import { useTranslation } from 'react-i18next';
+
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  Button,
-} from '@mui/material';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface StopExerciseDialogProps {
   open: boolean;
@@ -30,17 +33,19 @@ export function StopExerciseDialog({ open, onConfirm, onClose }: StopExerciseDia
   const { t } = useTranslation();
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('exercises.session.stopTitle')}</DialogTitle>
-      <DialogContent>
-        <Typography>{t('exercises.session.stopMessage')}</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('common.cancel')}</Button>
-        <Button variant="contained" color="error" onClick={onConfirm}>
-          {t('exercises.session.stopConfirm')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('exercises.session.stopTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('exercises.session.stopMessage')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onConfirm}>
+            {t('exercises.session.stopConfirm')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
