@@ -1,16 +1,12 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Paper,
-  Typography,
-  ToggleButtonGroup,
-  ToggleButton,
-  Alert,
-  FormControlLabel,
-  Switch,
-  Divider,
-} from '@mui/material';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 import i18n from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store';
@@ -32,7 +28,9 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLanguageChange = async (_: React.MouseEvent, value: string | null) => {
+  const speechId = useId();
+
+  const handleLanguageChange = async (value: string | undefined) => {
     if (!value || value === user?.nativeLanguage) return;
 
     setSaving(true);
@@ -49,51 +47,43 @@ export function SettingsPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        {t('settings.title')}
-      </Typography>
+    <PageContainer size="sm" className="py-8">
+      <h1 className="mb-2 text-2xl font-semibold">{t('settings.title')}</h1>
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          {t('settings.nativeLanguage')}
-        </Typography>
+      <div className="rounded-xl border bg-card p-6">
+        <h2 className="mb-2 font-medium">{t('settings.nativeLanguage')}</h2>
 
-        <ToggleButtonGroup
-          value={user?.nativeLanguage ?? ''}
-          exclusive
-          onChange={handleLanguageChange}
+        <ToggleGroup
+          variant="outline"
+          spacing={0}
+          className="w-full *:flex-1"
+          value={[user?.nativeLanguage ?? '']}
+          onValueChange={(val) => handleLanguageChange(val[0] as string | undefined)}
           disabled={saving}
-          fullWidth
         >
           {languages.map((lang) => (
-            <ToggleButton key={lang.code} value={lang.code}>
+            <ToggleGroupItem key={lang.code} value={lang.code}>
               {lang.label}
-            </ToggleButton>
+            </ToggleGroupItem>
           ))}
-        </ToggleButtonGroup>
+        </ToggleGroup>
 
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
+        {error && <ErrorAlert message={error} className="mt-4" />}
 
-        <Divider sx={{ my: 2 }} />
+        <Separator className="my-4" />
 
-        <Typography variant="subtitle1" gutterBottom>
-          {t('settings.speech.title')}
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={speechEnabled}
-              onChange={(e) => dispatch(setSpeechEnabled(e.target.checked))}
-            />
-          }
-          label={t('settings.speech.autoPlay')}
-        />
-      </Paper>
-    </Container>
+        <h2 className="mb-2 font-medium">{t('settings.speech.title')}</h2>
+        <div className="flex items-center gap-3">
+          <Switch
+            id={speechId}
+            checked={speechEnabled}
+            onCheckedChange={(checked) => dispatch(setSpeechEnabled(checked))}
+          />
+          <Label htmlFor={speechId} className="font-normal">
+            {t('settings.speech.autoPlay')}
+          </Label>
+        </div>
+      </div>
+    </PageContainer>
   );
 }

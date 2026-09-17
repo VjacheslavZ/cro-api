@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FlameIcon, StarIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from 'cn';
 
 import { buttonVariants } from '@/components/ui/button';
 
@@ -30,7 +31,7 @@ export function Header() {
             <nav className="flex items-center gap-1">
               <ExercisesMenu />
               <DictionaryMenu />
-              <Link to="/lessons" className={buttonVariants({ variant: 'ghost' })}>
+              <Link to="/lessons" className={cn(buttonVariants({ variant: 'ghost' }))}>
                 {t('nav.lessons')}
               </Link>
             </nav>

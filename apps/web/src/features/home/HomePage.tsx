@@ -1,12 +1,11 @@
-import { Link as RouterLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  MenuBook as MenuBookIcon,
-  LibraryBooks as LibraryBooksIcon,
-  LocalFireDepartment as FlameIcon,
-  Star as StarIcon,
-} from '@mui/icons-material';
-import { Box, Container, Typography, Grid, Card, CardContent, Button, Chip } from '@mui/material';
+import { BookOpenIcon, FlameIcon, LibraryIcon, StarIcon } from 'lucide-react';
+import { cn } from 'cn';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Badge } from '@/components/ui/badge';
+import { Button, buttonVariants } from '@/components/ui/button';
 
 import { useAppSelector } from '../../store';
 import { useTopics } from '../../api/content';
@@ -23,30 +22,26 @@ export function HomePage() {
 
   const stats = [
     {
-      icon: <MenuBookIcon />,
-      iconColor: '#2563eb',
-      bgColor: '#dbeafe',
+      icon: <BookOpenIcon />,
+      toneClass: 'bg-blue-100 text-primary',
       value: topics?.length ?? '—',
       label: t('home.statsGrammarTopics'),
     },
     {
-      icon: <LibraryBooksIcon />,
-      iconColor: '#7c3aed',
-      bgColor: '#ede9fe',
+      icon: <LibraryIcon />,
+      toneClass: 'bg-violet-100 text-violet-600',
       value: wordCount ?? 0,
       label: t('home.statsWordsLearned'),
     },
     {
       icon: <FlameIcon />,
-      iconColor: '#ea580c',
-      bgColor: '#ffedd5',
+      toneClass: 'bg-streak-muted text-streak',
       value: user?.currentStreak ?? 0,
       label: t('home.statsDayStreak'),
     },
     {
       icon: <StarIcon />,
-      iconColor: '#d97706',
-      bgColor: '#fef3c7',
+      toneClass: 'bg-xp-muted text-xp',
       value: user?.xpTotal ?? 0,
       label: t('home.statsTotalXp'),
     },
@@ -58,7 +53,7 @@ export function HomePage() {
     btnLabel: string;
     href?: string;
     onClick?: () => void;
-    variant: 'contained' | 'outlined';
+    variant: 'default' | 'outline';
     badge?: number;
     loading?: boolean;
   }[] = [
@@ -67,145 +62,98 @@ export function HomePage() {
       description: t('home.practiceGrammarDesc'),
       btnLabel: t('home.practiceGrammarBtn'),
       href: '/exercises/grammar',
-      variant: 'contained',
+      variant: 'default',
     },
     {
       title: t('home.buildVocabTitle'),
       description: t('home.buildVocabDesc'),
       btnLabel: t('home.buildVocabBtn'),
       href: '/dictionary/my',
-      variant: 'outlined',
+      variant: 'outline',
     },
     {
       title: t('home.wordSetsTitle'),
       description: t('home.wordSetsDesc'),
       btnLabel: t('home.wordSetsBtn'),
       href: '/dictionary/recommended-word-sets',
-      variant: 'outlined',
+      variant: 'outline',
     },
     {
       title: t('home.revisionTitle'),
       description: t('home.revisionDesc'),
       btnLabel: t('home.revisionBtn'),
       onClick: launchReview,
-      variant: 'outlined',
+      variant: 'outline',
       badge: reviewDueCount,
       loading: reviewLoading,
     },
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
+    <PageContainer size="lg" className="py-16">
       {/* Hero */}
-      <Box sx={{ textAlign: 'center', mb: 8 }}>
-        <Typography
-          variant="h3"
-          sx={{ fontWeight: 700, color: '#111827', mb: 2, fontSize: { xs: '2rem', md: '3rem' } }}
-        >
-          {t('home.title')}
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{ color: '#6b7280', maxWidth: 600, mx: 'auto', fontWeight: 400, lineHeight: 1.6 }}
-        >
+      <div className="mb-16 text-center">
+        <h1 className="mb-4 text-3xl font-bold text-foreground md:text-5xl">{t('home.title')}</h1>
+        <p className="mx-auto max-w-[600px] text-lg leading-relaxed text-muted-foreground">
           {t('home.subtitle')}
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Stats */}
-      <Grid container spacing={3} sx={{ mb: 8 }}>
+      <div className="mb-16 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
         {stats.map((stat) => (
-          <Grid key={stat.label} size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card elevation={0} sx={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 2 }}>
-              <CardContent sx={{ pt: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: '50%',
-                      bgcolor: stat.bgColor,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Box sx={{ color: stat.iconColor, display: 'flex' }}>{stat.icon}</Box>
-                  </Box>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                      {stat.value}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                      {stat.label}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <div key={stat.label} className="flex items-center gap-4 rounded-xl border bg-card p-6">
+            <div
+              className={cn(
+                'flex size-12 shrink-0 items-center justify-center rounded-full [&_svg]:size-6',
+                stat.toneClass,
+              )}
+            >
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-2xl leading-tight font-bold">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            </div>
+          </div>
         ))}
-      </Grid>
+      </div>
 
       {/* Action cards */}
-      <Grid container spacing={3} sx={{ maxWidth: 960, mx: 'auto' }}>
+      <div className="mx-auto grid max-w-[960px] grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
         {actions.map((action) => (
-          <Grid key={action.title} size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              elevation={0}
-              sx={{
-                height: '100%',
-                border: '1px solid rgba(0,0,0,0.08)',
-                borderRadius: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'box-shadow 0.15s ease',
-                '&:hover': { boxShadow: '0 4px 20px rgba(0,0,0,0.1)' },
-              }}
-            >
-              <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {action.title}
-                  </Typography>
-                  {!!action.badge && (
-                    <Chip
-                      label={action.badge}
-                      size="small"
-                      sx={{ bgcolor: '#0d9488', color: 'white', fontWeight: 700 }}
-                    />
-                  )}
-                </Box>
-                <Typography variant="body2" sx={{ color: '#6b7280', mb: 3, flex: 1 }}>
-                  {action.description}
-                </Typography>
-                {action.onClick ? (
-                  <Button
-                    onClick={action.onClick}
-                    variant={action.variant}
-                    size="large"
-                    fullWidth
-                    disabled={action.loading}
-                  >
-                    {action.btnLabel}
-                  </Button>
-                ) : (
-                  <Button
-                    component={RouterLink}
-                    to={action.href!}
-                    variant={action.variant}
-                    size="large"
-                    fullWidth
-                  >
-                    {action.btnLabel}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
+          <div
+            key={action.title}
+            className="flex h-full flex-col rounded-xl border bg-card p-6 transition-shadow hover:shadow-lg"
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <h2 className="text-lg font-semibold">{action.title}</h2>
+              {!!action.badge && (
+                <Badge className="bg-teal-600 font-bold text-white">{action.badge}</Badge>
+              )}
+            </div>
+            <p className="mb-6 flex-1 text-sm text-muted-foreground">{action.description}</p>
+            {action.onClick ? (
+              <Button
+                onClick={action.onClick}
+                variant={action.variant}
+                size="lg"
+                className="w-full"
+                disabled={action.loading}
+              >
+                {action.btnLabel}
+              </Button>
+            ) : (
+              <Link
+                to={action.href!}
+                className={cn(buttonVariants({ variant: action.variant, size: 'lg' }), 'w-full')}
+              >
+                {action.btnLabel}
+              </Link>
+            )}
+          </div>
         ))}
-      </Grid>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

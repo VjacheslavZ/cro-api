@@ -25,7 +25,7 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 
 **Typography recipe** (no `Typography` component): page title `text-3xl font-semibold`, section `text-2xl font-semibold`, card title `text-lg font-medium`, body `text-sm`, hint `text-xs text-muted-foreground`.
 
-**Base UI composition**: primitives have no `asChild`. Use `render={<Link to="…" />}` on `DropdownMenuItem` / triggers; for plain navigation links use `<Link className={buttonVariants({ variant: 'ghost' })}>` so they keep `role="link"`.
+**Base UI composition**: primitives have no `asChild`. Use `render={<Link to="…" />}` on `DropdownMenuItem` / triggers; for plain navigation links use `<Link className={cn(buttonVariants({ variant }), extra)}>` so they keep `role="link"` — always wrap in `cn()`: `cva` does not merge conflicting classes, so `outline` would lose its border to the base `border-transparent`.
 
 **Tests**: query by role / label / text. jsdom does not compute Tailwind styles — assert `toHaveClass` or `data-*` attributes, never `toHaveStyle` for class-driven colours. `src/test-utils/jest.setup.ts` shims `Element.prototype.matches` for `:modal` / `:popover-open` (Floating UI probe that is pathologically slow in jsdom).
 

@@ -73,10 +73,10 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 **Affects:** frontend
 **Tasks:**
 
-- [ ] `home/HomePage`
-- [ ] `lessons/LessonsPage`, `settings/SettingsPage` (`Switch`, `ToggleGroup`)
+- [x] `home/HomePage`
+- [x] `lessons/LessonsPage`, `settings/SettingsPage` (`Switch`, `ToggleGroup`)
 
-**Done when:** `grep -r "@mui" apps/web/src` returns nothing.
+**Done when:** `grep -r "@mui" apps/web/src` returns nothing. ✅
 
 ### Phase 6: Cleanup
 
@@ -119,7 +119,7 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 | `Button variant="contained/outlined/text"` | `Button variant="default/outline/ghost"` |
 | `LoadingButton loading` | `Button disabled` + `<Loader2Icon className="animate-spin" />` |
 | `IconButton` | `Button variant="ghost" size="icon"` + `aria-label` |
-| `Button component={RouterLink}` | `<Link className={buttonVariants({ variant })}>` |
+| `Button component={RouterLink}` | `<Link className={cn(buttonVariants({ variant }))}>` (wrap in `cn()` — `cva` doesn't merge conflicts) |
 | `Alert severity="error"` | `<ErrorAlert message action />` (`src/components/ErrorAlert.tsx`) |
 | `Alert severity="info/success/warning"` | `Alert` + icon + `AlertTitle` |
 | Empty-state block (grey icon disc + title + text) | `<EmptyState icon title description />` |
