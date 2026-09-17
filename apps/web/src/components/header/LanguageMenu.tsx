@@ -1,7 +1,13 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconButton, Menu, MenuItem } from '@mui/material';
-import { Language as LanguageIcon } from '@mui/icons-material';
+import { CheckIcon, LanguagesIcon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const APP_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -11,28 +17,28 @@ const APP_LANGUAGES = [
 
 export function LanguageMenu() {
   const { i18n } = useTranslation();
-  const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
   return (
-    <>
-      <IconButton color="inherit" onClick={(e) => setAnchor(e.currentTarget)}>
-        <LanguageIcon />
-      </IconButton>
-
-      <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
-        {APP_LANGUAGES.map((lang) => (
-          <MenuItem
-            key={lang.code}
-            selected={i18n.language === lang.code}
-            onClick={() => {
-              i18n.changeLanguage(lang.code);
-              setAnchor(null);
-            }}
-          >
-            {lang.label}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label="Language" />}>
+        <LanguagesIcon />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {APP_LANGUAGES.map((lang) => {
+          const selected = i18n.language === lang.code;
+          return (
+            <DropdownMenuItem
+              key={lang.code}
+              aria-current={selected ? 'true' : undefined}
+              className="justify-between"
+              onClick={() => i18n.changeLanguage(lang.code)}
+            >
+              {lang.label}
+              {selected && <CheckIcon className="text-primary" />}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

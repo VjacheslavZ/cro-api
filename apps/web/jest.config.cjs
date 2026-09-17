@@ -3,6 +3,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/test-utils/jest.setup.ts'],
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
   moduleNameMapper: {
+    '\\.css$': 'identity-obj-proxy',
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^@cro/shared$': '<rootDir>/../../packages/shared/src',
     '^@cro/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
   },

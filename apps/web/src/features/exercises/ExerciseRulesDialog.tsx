@@ -5,7 +5,16 @@
  * @usedBy SessionPage
  */
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Box, Button } from '@mui/material';
+
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ExerciseRulesDialogProps {
   open: boolean;
@@ -14,7 +23,23 @@ interface ExerciseRulesDialogProps {
 }
 
 /**
- * Displays grammar rules HTML in a non-blocking MUI Dialog.
+ * Typography for admin-authored HTML (Tiptap output). Tailwind's preflight strips
+ * default heading/list styles, so they are restored here for the rules content only.
+ */
+const rulesProseClass = [
+  'text-sm leading-relaxed',
+  '[&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-2xl [&_h1]:font-semibold',
+  '[&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold',
+  '[&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-lg [&_h3]:font-semibold',
+  '[&_p]:mb-2',
+  '[&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6',
+  '[&_li]:mb-1',
+  '[&_strong]:font-semibold',
+  '[&_blockquote]:border-l-[3px] [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground',
+].join(' ');
+
+/**
+ * Displays grammar rules HTML in a non-blocking dialog.
  * @param props.open - Whether the dialog is visible
  * @param props.onClose - Called when user closes the dialog; session continues uninterrupted
  * @param props.rulesHtml - Raw HTML string authored in the admin's Tiptap rich-text editor
@@ -23,32 +48,16 @@ export function ExerciseRulesDialog({ open, onClose, rulesHtml }: ExerciseRulesD
   const { t } = useTranslation();
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('exercises.rules.title')}</DialogTitle>
-      <DialogContent>
-        <Box
-          dangerouslySetInnerHTML={{ __html: rulesHtml }}
-          sx={{
-            '& h1': { fontSize: '1.5rem', fontWeight: 600, mt: 2, mb: 1 },
-            '& h2': { fontSize: '1.25rem', fontWeight: 600, mt: 2, mb: 1 },
-            '& h3': { fontSize: '1.1rem', fontWeight: 600, mt: 1.5, mb: 0.5 },
-            '& p': { mb: 1 },
-            '& ul, & ol': { pl: 3, mb: 1 },
-            '& li': { mb: 0.5 },
-            '& strong': { fontWeight: 600 },
-            '& blockquote': {
-              borderLeft: 3,
-              borderColor: 'primary.main',
-              pl: 2,
-              ml: 0,
-              color: 'text.secondary',
-            },
-          }}
-        />
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t('exercises.rules.title')}</DialogTitle>
+        </DialogHeader>
+        <div className={rulesProseClass} dangerouslySetInnerHTML={{ __html: rulesHtml }} />
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline" />}>{t('common.close')}</DialogClose>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('common.close')}</Button>
-      </DialogActions>
     </Dialog>
   );
 }

@@ -1,20 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Container,
-  Grid,
-  Skeleton,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { MenuBook as MenuBookIcon, Quiz as TopicIcon } from '@mui/icons-material';
 import { LessonItemType } from '@cro/shared';
+import { BookOpenIcon, ListChecksIcon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { useAppSelector } from '../../store';
 import { useLessons } from '../../api/lessons';
@@ -28,106 +21,85 @@ export function LessonsPage() {
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Skeleton width={200} height={40} sx={{ mb: 4 }} />
-        <Grid container spacing={3}>
+      <PageContainer size="lg" className="py-12">
+        <Skeleton className="mb-8 h-10 w-50" />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Skeleton variant="rounded" height={160} />
-            </Grid>
+            <Skeleton key={i} className="h-40 rounded-xl" />
           ))}
-        </Grid>
-      </Container>
+        </div>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Alert
-          severity="error"
+      <PageContainer size="lg" className="py-12">
+        <ErrorAlert
+          message="Failed to load lessons"
           action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
               Retry
             </Button>
           }
-        >
-          Failed to load lessons
-        </Alert>
-      </Container>
+        />
+      </PageContainer>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
-        {t('nav.lessons')}
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        {t('lessons.subtitle')}
-      </Typography>
+    <PageContainer size="lg" className="py-12">
+      <h1 className="mb-2 text-3xl font-bold">{t('nav.lessons')}</h1>
+      <p className="mb-8 text-muted-foreground">{t('lessons.subtitle')}</p>
 
-      {lessons?.length === 0 && (
-        <Typography color="text.secondary">{t('lessons.empty')}</Typography>
-      )}
+      {lessons?.length === 0 && <p className="text-muted-foreground">{t('lessons.empty')}</p>}
 
-      <Grid container spacing={3}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
         {lessons?.map((lesson) => {
           const title = getLessonTitle(lesson, user?.nativeLanguage ?? null);
           const description = getLessonDescription(lesson, user?.nativeLanguage ?? null);
 
           return (
-            <Grid key={lesson.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card variant="outlined" sx={{ height: '100%' }}>
-                <CardContent>
-                  <Typography variant="h6" fontWeight={600} gutterBottom>
-                    {title}
-                  </Typography>
-                  {description && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {description}
-                    </Typography>
-                  )}
-                  {lesson.items.length > 0 ? (
-                    <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: 'auto' }}>
-                      {lesson.items.map((item) => (
-                        <Chip
-                          key={item.id}
-                          icon={
-                            item.itemType === LessonItemType.EXERCISE_TOPIC ? (
-                              <TopicIcon sx={{ fontSize: 14 }} />
-                            ) : (
-                              <MenuBookIcon sx={{ fontSize: 14 }} />
-                            )
-                          }
-                          label={item.itemName}
-                          size="small"
-                          variant="outlined"
-                          color={
-                            item.itemType === LessonItemType.EXERCISE_TOPIC
-                              ? 'primary'
-                              : 'secondary'
-                          }
-                          onClick={() =>
-                            item.itemType === LessonItemType.EXERCISE_TOPIC
-                              ? navigate(`/exercises/${item.itemId}`)
-                              : navigate(`/dictionary/collections/${item.itemId}`)
-                          }
-                          sx={{ cursor: 'pointer' }}
-                        />
-                      ))}
-                    </Stack>
-                  ) : (
-                    <Box sx={{ mt: 1 }}>
-                      <Chip label={t('lessons.noItems')} size="small" variant="outlined" />
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+            <div key={lesson.id} className="flex h-full flex-col rounded-xl border bg-card p-6">
+              <h2 className="mb-1 text-lg font-semibold">{title}</h2>
+              {description && <p className="mb-4 text-sm text-muted-foreground">{description}</p>}
+              {lesson.items.length > 0 ? (
+                <div className="mt-auto flex flex-wrap gap-1.5">
+                  {lesson.items.map((item) => {
+                    const isTopic = item.itemType === LessonItemType.EXERCISE_TOPIC;
+                    return (
+                      <Badge
+                        key={item.id}
+                        render={<button type="button" />}
+                        variant="outline"
+                        className={
+                          isTopic
+                            ? 'h-6 cursor-pointer border-primary text-primary hover:bg-blue-50'
+                            : 'h-6 cursor-pointer border-violet-500 text-violet-700 hover:bg-violet-50'
+                        }
+                        onClick={() =>
+                          navigate(
+                            isTopic
+                              ? `/exercises/${item.itemId}`
+                              : `/dictionary/collections/${item.itemId}`,
+                          )
+                        }
+                      >
+                        {isTopic ? <ListChecksIcon /> : <BookOpenIcon />}
+                        {item.itemName}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-2">
+                  <Badge variant="outline">{t('lessons.noItems')}</Badge>
+                </div>
+              )}
+            </div>
           );
         })}
-      </Grid>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

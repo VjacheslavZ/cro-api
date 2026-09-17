@@ -9,7 +9,6 @@
  */
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, Typography } from '@mui/material';
 import type { BuildSentenceItem } from '@cro/shared';
 
 import { getTranslation } from '../../../shared/lib/content-utils.ts';
@@ -85,35 +84,31 @@ export function BuildSentenceExercise({ item, onAnswer }: BuildSentenceExerciseP
   const translation = getTranslation(item, user?.nativeLanguage ?? null);
 
   return (
-    <Card elevation={2} sx={{ borderRadius: 3 }}>
-      <CardContent sx={{ p: 3 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-          {t('exercises.buildSentence.instruction')}
-        </Typography>
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 500 }}>
-          {translation}
-        </Typography>
+    <div className="rounded-xl bg-card p-6 shadow-md ring-1 ring-foreground/10">
+      <p className="mb-1 text-sm text-muted-foreground">
+        {t('exercises.buildSentence.instruction')}
+      </p>
+      <p className="mb-6 text-lg font-medium">{translation}</p>
 
-        <WordProgressRow
-          phase={phase}
-          selectedWords={selectedWords}
-          sortedWords={sortedWords}
-          onUndo={handleUndo}
+      <WordProgressRow
+        phase={phase}
+        selectedWords={selectedWords}
+        sortedWords={sortedWords}
+        onUndo={handleUndo}
+      />
+
+      {phase === 'selecting' && currentWordIndex < sortedWords.length && (
+        <WordOptions
+          currentWordIndex={currentWordIndex}
+          totalWords={sortedWords.length}
+          options={sortedWords[currentWordIndex].options}
+          onOptionClick={handleOptionClick}
         />
+      )}
 
-        {phase === 'selecting' && currentWordIndex < sortedWords.length && (
-          <WordOptions
-            currentWordIndex={currentWordIndex}
-            totalWords={sortedWords.length}
-            options={sortedWords[currentWordIndex].options}
-            onOptionClick={handleOptionClick}
-          />
-        )}
-
-        {phase !== 'selecting' && (
-          <ResultBanner phase={phase} correctSentence={correctSentence} onRetry={handleRetry} />
-        )}
-      </CardContent>
-    </Card>
+      {phase !== 'selecting' && (
+        <ResultBanner phase={phase} correctSentence={correctSentence} onRetry={handleRetry} />
+      )}
+    </div>
   );
 }

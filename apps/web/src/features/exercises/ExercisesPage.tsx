@@ -5,26 +5,17 @@
  * Navigates to TopicExercisesPage on click.
  * @usedBy AppRouter (/exercises/grammar)
  */
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  Card,
-  CardActionArea,
-  CardContent,
-  Box,
-  Alert,
-  Button,
-  Grid,
-  Skeleton,
-} from '@mui/material';
-import {
-  Keyboard as KeyboardIcon,
-  Layers as LayersIcon,
-  EditNote as EditNoteIcon,
-} from '@mui/icons-material';
 import { ExerciseType } from '@cro/shared';
+import { KeyboardIcon, LayersIcon, PencilLineIcon } from 'lucide-react';
+
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { useAppSelector } from '../../store';
 import { useTopics } from '../../api/content';
@@ -32,154 +23,94 @@ import { getLocalizedName } from '../../shared/lib/content-utils';
 import { getExerciseTypeLabel } from '../../shared/lib/exercise-utils';
 
 const exerciseTypeIcons: Partial<Record<ExerciseType, React.ReactNode>> = {
-  [ExerciseType.TYPE_THE_ANSWER]: <KeyboardIcon sx={{ fontSize: 12 }} />,
-  [ExerciseType.FLASHCARDS]: <LayersIcon sx={{ fontSize: 12 }} />,
-  [ExerciseType.FILL_IN_BLANK]: <EditNoteIcon sx={{ fontSize: 12 }} />,
+  [ExerciseType.TYPE_THE_ANSWER]: <KeyboardIcon />,
+  [ExerciseType.FLASHCARDS]: <LayersIcon />,
+  [ExerciseType.FILL_IN_BLANK]: <PencilLineIcon />,
 };
 
 export function ExercisesPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const user = useAppSelector((state) => state.auth.user);
   const { data: topics, isLoading, error, refetch } = useTopics();
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box sx={{ mb: 4 }}>
-          <Skeleton width={240} height={40} sx={{ mb: 1 }} />
-          <Skeleton width={380} height={24} />
-        </Box>
-        <Grid container spacing={3}>
+      <PageContainer size="lg" className="py-12">
+        <div className="mb-8">
+          <Skeleton className="mb-2 h-10 w-60" />
+          <Skeleton className="h-6 w-96" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Skeleton variant="rounded" height={120} />
-            </Grid>
+            <Skeleton key={i} className="h-30 rounded-xl" />
           ))}
-        </Grid>
-      </Container>
+        </div>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Alert
-          severity="error"
+      <PageContainer size="lg" className="py-12">
+        <ErrorAlert
           action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
               {t('common.retry')}
             </Button>
           }
-        >
-          {t('common.error')}
-        </Alert>
-      </Container>
+        />
+      </PageContainer>
     );
   }
 
   if (!topics?.length) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Box
-            sx={{
-              width: 64,
-              height: 64,
-              bgcolor: 'grey.100',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mx: 'auto',
-              mb: 2,
-            }}
-          >
-            <LayersIcon sx={{ fontSize: 32, color: 'grey.400' }} />
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 1 }}>
-            {t('exercises.noTopics')}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#6b7280' }}>
-            {t('exercises.noTopicsDesc')}
-          </Typography>
-        </Box>
-      </Container>
+      <PageContainer size="lg" className="py-12">
+        <EmptyState
+          icon={<LayersIcon />}
+          title={t('exercises.noTopics')}
+          description={t('exercises.noTopicsDesc')}
+        />
+      </PageContainer>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
+    <PageContainer size="lg" className="py-12">
       {/* Page header */}
-      <Box sx={{ mb: 5 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#111827', mb: 1 }}>
-          {t('exercises.title')}
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#6b7280' }}>
-          {t('exercises.subtitle')}
-        </Typography>
-      </Box>
+      <div className="mb-10">
+        <h1 className="mb-2 text-3xl font-bold text-foreground">{t('exercises.title')}</h1>
+        <p className="text-muted-foreground">{t('exercises.subtitle')}</p>
+      </div>
 
       {/* Topics grid */}
-      <Grid container spacing={3}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
         {topics.map((topic) => (
-          <Grid key={topic.id} size={{ xs: 12, sm: 6, md: 4 }}>
-            <Card
-              elevation={0}
-              sx={{
-                height: '100%',
-                border: '1px solid rgba(0,0,0,0.08)',
-                borderRadius: 2,
-                transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
-                '&:hover': {
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                  borderColor: '#93c5fd',
-                },
-              }}
-            >
-              <CardActionArea
-                onClick={() => navigate(`/exercises/${topic.id}`)}
-                sx={{ height: '100%', alignItems: 'flex-start' }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 600, color: '#111827', mb: 2, lineHeight: 1.4 }}
-                  >
-                    {getLocalizedName(topic, user?.nativeLanguage ?? null)}
-                  </Typography>
+          <Link
+            key={topic.id}
+            to={`/exercises/${topic.id}`}
+            className="block h-full rounded-xl border bg-card p-6 transition-[box-shadow,border-color] outline-none hover:border-blue-300 hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <h2 className="mb-4 text-lg leading-snug font-semibold text-foreground">
+              {getLocalizedName(topic, user?.nativeLanguage ?? null)}
+            </h2>
 
-                  {/* Exercise type pills */}
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                    {topic.exerciseTypes.map((type) => (
-                      <Box
-                        key={type}
-                        sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          px: 1.25,
-                          py: 0.5,
-                          bgcolor: '#eff6ff',
-                          color: '#1d4ed8',
-                          border: '1px solid #bfdbfe',
-                          borderRadius: '999px',
-                          fontSize: '0.75rem',
-                          fontWeight: 500,
-                          lineHeight: 1,
-                        }}
-                      >
-                        {exerciseTypeIcons[type]}
-                        {getExerciseTypeLabel(type, t)}
-                      </Box>
-                    ))}
-                  </Box>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
+            {/* Exercise type pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {topic.exerciseTypes.map((type) => (
+                <Badge
+                  key={type}
+                  variant="outline"
+                  className="border-blue-200 bg-blue-50 text-blue-700"
+                >
+                  {exerciseTypeIcons[type]}
+                  {getExerciseTypeLabel(type, t)}
+                </Badge>
+              ))}
+            </div>
+          </Link>
         ))}
-      </Grid>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

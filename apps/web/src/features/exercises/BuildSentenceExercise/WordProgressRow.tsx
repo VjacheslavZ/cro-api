@@ -1,4 +1,7 @@
-import { Box, Chip, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { XIcon } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
 
 interface SortedWord {
   wordHr: string;
@@ -12,57 +15,54 @@ interface Props {
 }
 
 export function WordProgressRow({ phase, selectedWords, sortedWords, onUndo }: Props) {
+  const { t } = useTranslation();
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 1,
-        minHeight: 40,
-        mb: 2,
-        p: 1.5,
-        bgcolor: 'grey.50',
-        borderRadius: 2,
-        border: '1px dashed rgba(0,0,0,0.15)',
-      }}
-    >
+    <div className="mb-4 flex min-h-10 flex-wrap gap-2 rounded-lg border border-dashed bg-neutral-50 p-3">
       {phase === 'selecting' &&
-        selectedWords.map((word, idx) => (
-          <Chip
-            key={idx}
-            label={word}
-            size="small"
-            sx={{ bgcolor: 'primary.50' }}
-            onDelete={idx === selectedWords.length - 1 && onUndo ? onUndo : undefined}
-          />
-        ))}
+        selectedWords.map((word, idx) => {
+          const canUndo = idx === selectedWords.length - 1 && Boolean(onUndo);
+          return (
+            <Badge key={idx} variant="outline" className="h-6 bg-blue-50 text-sm">
+              {word}
+              {canUndo && (
+                <button
+                  type="button"
+                  onClick={onUndo}
+                  aria-label={t('common.undo')}
+                  className="-mr-1 ml-0.5 rounded-full p-0.5 hover:bg-blue-200"
+                >
+                  <XIcon className="size-3" />
+                </button>
+              )}
+            </Badge>
+          );
+        })}
 
       {phase !== 'selecting' &&
         sortedWords.map((correctWord, idx) => {
           const chosen = selectedWords[idx];
           const isWrong = chosen !== correctWord.wordHr;
           return (
-            <Box key={idx} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div key={idx} className="flex flex-col items-center">
               {isWrong && (
-                <Typography
-                  variant="caption"
-                  sx={{ color: 'success.main', fontWeight: 600, lineHeight: 1.2 }}
-                >
+                <span className="text-xs leading-tight font-semibold text-success">
                   {correctWord.wordHr}
-                </Typography>
+                </span>
               )}
-              <Chip
-                label={chosen}
-                size="small"
-                sx={
+              <Badge
+                variant="outline"
+                className={
                   isWrong
-                    ? { bgcolor: '#ffebee', color: '#c62828', textDecoration: 'line-through' }
-                    : { bgcolor: '#e8f5e9', color: '#2e7d32' }
+                    ? 'h-6 border-transparent bg-red-100 text-sm text-red-800 line-through'
+                    : 'h-6 border-transparent bg-green-100 text-sm text-green-800'
                 }
-              />
-            </Box>
+              >
+                {chosen}
+              </Badge>
+            </div>
           );
         })}
-    </Box>
+    </div>
   );
 }

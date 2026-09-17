@@ -1,15 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { DictionaryWord } from '@cro/shared';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Alert,
-} from '@mui/material';
-import type { DictionaryWord } from '@cro/shared';
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import { useUpdateWord } from '../../api/dictionary';
 
@@ -34,6 +37,7 @@ interface EditWordModalProps {
 
 export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
   const { t } = useTranslation();
+  const id = useId();
   const [wordHr, setWordHr] = useState('');
   const [translation, setTranslation] = useState('');
   const [error, setError] = useState('');
@@ -78,47 +82,47 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
     (wordHr.trim() !== word?.wordHr || translation.trim() !== word?.translation);
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      TransitionProps={{
-        onEntered: () => wordRef.current?.focus(),
-      }}
-    >
-      <DialogTitle>{t('dictionary.editWordModal.title')}</DialogTitle>
-      <DialogContent>
-        <TextField
-          fullWidth
-          label={t('dictionary.editWordModal.wordLabel')}
-          value={wordHr}
-          onChange={(e) => setWordHr(e.target.value)}
-          inputRef={wordRef}
-          sx={{ mt: 1, mb: 2 }}
-        />
-        <TextField
-          fullWidth
-          label={t('dictionary.editWordModal.translationLabel')}
-          value={translation}
-          onChange={(e) => setTranslation(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && canSave) void handleSubmit();
-          }}
-          sx={{ mb: 1 }}
-        />
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg" initialFocus={wordRef}>
+        <DialogHeader>
+          <DialogTitle>{t('dictionary.editWordModal.title')}</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-word`}>{t('dictionary.editWordModal.wordLabel')}</Label>
+            <Input
+              id={`${id}-word`}
+              value={wordHr}
+              onChange={(e) => setWordHr(e.target.value)}
+              ref={wordRef}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-translation`}>
+              {t('dictionary.editWordModal.translationLabel')}
+            </Label>
+            <Input
+              id={`${id}-translation`}
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && canSave) void handleSubmit();
+              }}
+            />
+          </div>
+          {error && <ErrorAlert message={error} />}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t('dictionary.editWordModal.cancel')}
+          </Button>
+          <Button onClick={handleSubmit} disabled={!canSave}>
+            {t('dictionary.editWordModal.save')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('dictionary.editWordModal.cancel')}</Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={!canSave}>
-          {t('dictionary.editWordModal.save')}
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Box, CircularProgress, Alert } from '@mui/material';
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Spinner } from '@/components/Spinner';
 
 interface QueryStateProps {
   isLoading: boolean;
@@ -7,21 +7,19 @@ interface QueryStateProps {
 }
 
 export function QueryState({ isLoading, isError }: QueryStateProps) {
-  const { t } = useTranslation();
-
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center py-8">
+        <Spinner />
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <Box sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Box>
+      <div className="py-8">
+        <ErrorAlert />
+      </div>
     );
   }
 

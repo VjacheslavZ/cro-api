@@ -7,8 +7,11 @@
  */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Button, Card, CardContent, Box } from '@mui/material';
-import { EmojiEvents, LocalFireDepartment } from '@mui/icons-material';
+import { FlameIcon, TrophyIcon } from 'lucide-react';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ResultsLocationState {
   correctAnswers: number;
@@ -31,52 +34,45 @@ export function SessionResultsPage() {
 
   if (!state) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4, textAlign: 'center' }}>
-        <Typography>{t('common.error')}</Typography>
-        <Button onClick={() => navigate('/exercises')} sx={{ mt: 2 }}>
+      <PageContainer size="sm" className="py-8 text-center">
+        <p>{t('common.error')}</p>
+        <Button variant="ghost" className="mt-4" onClick={() => navigate('/exercises')}>
           {t('exercises.results.backToExercises')}
         </Button>
-      </Container>
+      </PageContainer>
     );
   }
 
   const { correctAnswers, totalQuestions, xpEarned, currentStreak, topicId, exerciseType } = state;
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Card variant="outlined">
-        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-          <EmojiEvents sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
+    <PageContainer size="sm" className="py-8">
+      <Card>
+        <CardContent className="py-8 text-center">
+          <TrophyIcon className="mx-auto mb-4 size-16 text-xp" />
 
-          <Typography variant="h4" gutterBottom>
-            {t('exercises.results.title')}
-          </Typography>
+          <h1 className="mb-2 text-3xl font-semibold">{t('exercises.results.title')}</h1>
 
-          <Typography variant="h5" sx={{ mb: 2 }}>
+          <p className="mb-4 text-2xl">
             {t('exercises.results.score', {
               correct: correctAnswers,
               total: totalQuestions,
             })}
-          </Typography>
+          </p>
 
-          <Typography variant="h4" color="primary" sx={{ mb: 2, fontWeight: 700 }}>
+          <p className="mb-4 text-3xl font-bold text-primary">
             {t('exercises.results.xpEarned', { xp: xpEarned })}
-          </Typography>
+          </p>
 
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 3 }}
-          >
-            <LocalFireDepartment color="warning" />
-            <Typography variant="h6">
-              {t('exercises.results.streak', { count: currentStreak })}
-            </Typography>
-          </Box>
+          <div className="mb-6 flex items-center justify-center gap-2 text-lg font-medium">
+            <FlameIcon className="size-5 text-streak" />
+            {t('exercises.results.streak', { count: currentStreak })}
+          </div>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div className="flex flex-col gap-4">
             {topicId && exerciseType && (
               <Button
-                variant="contained"
-                size="large"
+                size="lg"
                 onClick={() =>
                   navigate(`/exercises/${topicId}`, {
                     replace: true,
@@ -88,15 +84,15 @@ export function SessionResultsPage() {
               </Button>
             )}
             <Button
-              variant="outlined"
-              size="large"
+              variant="outline"
+              size="lg"
               onClick={() => navigate('/exercises', { replace: true })}
             >
               {t('exercises.results.backToExercises')}
             </Button>
-          </Box>
+          </div>
         </CardContent>
       </Card>
-    </Container>
+    </PageContainer>
   );
 }

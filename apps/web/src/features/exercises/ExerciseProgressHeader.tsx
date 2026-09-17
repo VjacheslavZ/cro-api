@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Button, LinearProgress, Paper } from '@mui/material';
-import { ArrowBack, MenuBook } from '@mui/icons-material';
+import { ArrowLeftIcon, BookOpenIcon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 interface ExerciseProgressHeaderProps {
   currentIndex: number;
@@ -22,32 +24,29 @@ export function ExerciseProgressHeader({
   const progress = progressValue ?? ((currentIndex + 1) / total) * 100;
 
   return (
-    <Paper elevation={2} sx={{ borderRadius: 2, p: 2, mb: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Button size="small" variant="text" startIcon={<ArrowBack />} onClick={onStop}>
+    <div className="mb-8 rounded-xl border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex gap-1">
+          <Button size="sm" variant="ghost" onClick={onStop}>
+            <ArrowLeftIcon data-icon="inline-start" />
             {t('exercises.session.stop')}
           </Button>
           {onShowRules && (
-            <Button size="small" variant="text" startIcon={<MenuBook />} onClick={onShowRules}>
+            <Button size="sm" variant="ghost" onClick={onShowRules}>
+              <BookOpenIcon data-icon="inline-start" />
               {t('exercises.rules.show')}
             </Button>
           )}
-        </Box>
-        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+        </div>
+        <span className="text-sm font-medium text-muted-foreground tabular-nums">
           {currentIndex + 1} / {total}
-        </Typography>
-      </Box>
-      <LinearProgress
-        variant="determinate"
+        </span>
+      </div>
+      <Progress
         value={progress}
-        sx={{
-          height: 8,
-          borderRadius: 4,
-          bgcolor: 'rgba(0,0,0,0.08)',
-          '& .MuiLinearProgress-bar': { bgcolor: '#0f172a' },
-        }}
+        aria-label={t('exercises.session.progress', { current: currentIndex + 1, total })}
+        className="**:data-[slot=progress-indicator]:rounded-full **:data-[slot=progress-indicator]:bg-foreground **:data-[slot=progress-track]:h-2 **:data-[slot=progress-track]:bg-foreground/10"
       />
-    </Paper>
+    </div>
   );
 }

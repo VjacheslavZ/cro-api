@@ -1,23 +1,27 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { DictionaryCollection } from '@cro/shared';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Spinner } from '@/components/Spinner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Box,
-  Chip,
-  Alert,
-  Typography,
-  FormControl,
-  InputLabel,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
   Select,
-  MenuItem,
-  CircularProgress,
-} from '@mui/material';
-import type { DictionaryCollection } from '@cro/shared';
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import {
   useAddWord,
@@ -57,6 +61,7 @@ export function AddWordModal({
   collections,
 }: AddWordModalProps) {
   const { t } = useTranslation();
+  const id = useId();
   const [wordHr, setWordHr] = useState(initialWord);
   const [debouncedWord, setDebouncedWord] = useState(initialWord);
   const [translation, setTranslation] = useState('');
@@ -115,118 +120,110 @@ export function AddWordModal({
     }
   };
 
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      TransitionProps={{
-        onEntered: () => {
-          if (initialWord) translationRef.current?.focus();
-        },
-      }}
+  /** A clickable translation suggestion; highlighted when it matches the current input. */
+  const suggestionChip = (label: string, value: string) => (
+    <Badge
+      key={label}
+      render={<button type="button" />}
+      variant={translation === value ? 'default' : 'outline'}
+      className="h-6 cursor-pointer"
+      onClick={() => setTranslation(value)}
     >
-      <DialogTitle>{t('dictionary.addWordModal.title')}</DialogTitle>
-      <DialogContent>
-        <TextField
-          fullWidth
-          label={t('dictionary.addWordModal.wordLabel')}
-          value={wordHr}
-          onChange={(e) => setWordHr(e.target.value)}
-          sx={{ mt: 1, mb: 2 }}
-          autoFocus={!initialWord}
-        />
+      {label}
+    </Badge>
+  );
 
-        <TextField
-          fullWidth
-          label={t('dictionary.addWordModal.translationLabel')}
-          value={translation}
-          onChange={(e) => setTranslation(e.target.value)}
-          inputRef={translationRef}
-          onKeyDown={handleKeyDown}
-          sx={{ mb: 1 }}
-        />
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent
+        className="sm:max-w-lg"
+        initialFocus={initialWord ? translationRef : undefined}
+      >
+        <DialogHeader>
+          <DialogTitle>{t('dictionary.addWordModal.title')}</DialogTitle>
+        </DialogHeader>
 
-        {wordHr.length >= 2 && (
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5 }}>
-              {suggestionsLoading && <CircularProgress size={20} />}
-              {!suggestionsLoading &&
-                suggestions?.map((s) => (
-                  <Chip
-                    key={s.translation}
-                    label={`${s.translation} (${s.count})`}
-                    onClick={() => setTranslation(s.translation)}
-                    color={translation === s.translation ? 'primary' : 'default'}
-                    variant={translation === s.translation ? 'filled' : 'outlined'}
-                    size="small"
-                  />
-                ))}
-              {aiLoading && <CircularProgress size={14} />}
-              {!aiLoading &&
-                aiTranslations.map((tr) => (
-                  <Chip
-                    key={tr}
-                    label={tr}
-                    onClick={() => setTranslation(tr)}
-                    color={translation === tr ? 'primary' : 'default'}
-                    variant={translation === tr ? 'filled' : 'outlined'}
-                    size="small"
-                  />
-                ))}
-            </Box>
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-word`}>{t('dictionary.addWordModal.wordLabel')}</Label>
+            <Input id={`${id}-word`} value={wordHr} onChange={(e) => setWordHr(e.target.value)} />
+          </div>
 
-            {!aiLoading && aiSentences.length > 0 && (
-              <Box sx={{ mt: 1 }}>
-                {aiSentences.map((s) => (
-                  <Box key={s.hr} sx={{ mb: 0.5 }} display="flex">
-                    <Typography variant="body2">{s.hr} - </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {s.translation}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Box>
-        )}
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-translation`}>
+              {t('dictionary.addWordModal.translationLabel')}
+            </Label>
+            <Input
+              id={`${id}-translation`}
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+              ref={translationRef}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
 
-        {collections.length > 0 && (
-          <FormControl fullWidth>
-            <InputLabel>{t('dictionary.addWordModal.collectionLabel')}</InputLabel>
-            <Select
-              value={collectionId}
-              onChange={(e) => setCollectionId(e.target.value)}
-              label={t('dictionary.addWordModal.collectionLabel')}
-            >
-              <MenuItem value="">—</MenuItem>
-              {collections.map((c) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
+          {wordHr.length >= 2 && (
+            <div>
+              <div className="flex flex-wrap items-center gap-1">
+                {suggestionsLoading && <Spinner className="size-5" />}
+                {!suggestionsLoading &&
+                  suggestions?.map((s) =>
+                    suggestionChip(`${s.translation} (${s.count})`, s.translation),
+                  )}
+                {aiLoading && <Spinner className="size-3.5" />}
+                {!aiLoading && aiTranslations.map((tr) => suggestionChip(tr, tr))}
+              </div>
 
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
+              {!aiLoading && aiSentences.length > 0 && (
+                <div className="mt-2 space-y-1 text-sm">
+                  {aiSentences.map((s) => (
+                    <p key={s.hr}>
+                      {s.hr} - <span className="text-muted-foreground">{s.translation}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {collections.length > 0 && (
+            <div className="grid gap-2">
+              <Label htmlFor={`${id}-collection`}>
+                {t('dictionary.addWordModal.collectionLabel')}
+              </Label>
+              <Select value={collectionId} onValueChange={(value) => setCollectionId(value ?? '')}>
+                <SelectTrigger id={`${id}-collection`} className="w-full">
+                  <SelectValue>
+                    {(value: string) => collections.find((c) => c.id === value)?.name ?? '—'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">—</SelectItem>
+                  {collections.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {error && <ErrorAlert message={error} />}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t('dictionary.addWordModal.cancel')}
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={!wordHr.trim() || !translation.trim() || addWord.isPending}
+          >
+            {t('dictionary.addWordModal.add')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose}>{t('dictionary.addWordModal.cancel')}</Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={!wordHr.trim() || !translation.trim() || addWord.isPending}
-        >
-          {t('dictionary.addWordModal.add')}
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

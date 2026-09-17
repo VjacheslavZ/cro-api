@@ -6,9 +6,10 @@
  * @usedBy DictionaryReviewPage
  */
 import { useTranslation } from 'react-i18next';
-import { Typography, Button, Card, CardActionArea, Box } from '@mui/material';
 import { FsrsRating } from '@cro/shared';
 import type { DictionaryReviewItem, DictionaryReviewInterval } from '@cro/shared';
+
+import { Button } from '@/components/ui/button';
 
 import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 
@@ -23,31 +24,32 @@ const RATINGS: {
   rating: FsrsRating;
   labelKey: string;
   intervalKey: keyof DictionaryReviewInterval;
-  color: 'error' | 'warning' | 'primary' | 'success';
+  /** Button colour classes per FSRS rating. */
+  className: string;
 }[] = [
   {
     rating: FsrsRating.AGAIN,
     labelKey: 'dictionary.review.again',
     intervalKey: 'again',
-    color: 'error',
+    className: 'bg-destructive text-white hover:bg-destructive/90',
   },
   {
     rating: FsrsRating.HARD,
     labelKey: 'dictionary.review.hard',
     intervalKey: 'hard',
-    color: 'warning',
+    className: 'bg-amber-500 text-white hover:bg-amber-500/90',
   },
   {
     rating: FsrsRating.GOOD,
     labelKey: 'dictionary.review.good',
     intervalKey: 'good',
-    color: 'primary',
+    className: 'bg-primary text-primary-foreground hover:bg-primary/90',
   },
   {
     rating: FsrsRating.EASY,
     labelKey: 'dictionary.review.easy',
     intervalKey: 'easy',
-    color: 'success',
+    className: 'bg-success text-success-foreground hover:bg-success/90',
   },
 ];
 
@@ -81,78 +83,44 @@ export function DictionaryReviewExercise({
   };
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        {t('dictionary.review.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('dictionary.review.instruction')}
-      </Typography>
+    <div>
+      <h2 className="mb-1 text-lg font-medium">{t('dictionary.review.title')}</h2>
+      <p className="mb-4 text-sm text-muted-foreground">{t('dictionary.review.instruction')}</p>
 
-      <Card
-        variant="outlined"
-        sx={{
-          minHeight: 200,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: 3,
-        }}
+      <button
+        type="button"
+        onClick={handleReveal}
+        disabled={revealed}
+        className="mb-6 flex min-h-50 w-full flex-col items-center justify-center rounded-xl border bg-card p-6 text-center transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 enabled:hover:bg-muted/50"
       >
-        <CardActionArea
-          onClick={handleReveal}
-          disabled={revealed}
-          sx={{
-            height: '100%',
-            minHeight: 200,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 3,
-          }}
-        >
-          <Typography variant="h4" sx={{ textAlign: 'center' }}>
-            {item.wordHr}
-          </Typography>
+        <span className="text-3xl font-semibold">{item.wordHr}</span>
 
-          {revealed ? (
-            <Typography variant="h5" color="primary" sx={{ mt: 2, textAlign: 'center' }}>
-              {item.translation}
-            </Typography>
-          ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              {t('dictionary.review.tapToReveal')}
-            </Typography>
-          )}
-        </CardActionArea>
-      </Card>
+        {revealed ? (
+          <span className="mt-4 text-2xl text-primary">{item.translation}</span>
+        ) : (
+          <span className="mt-4 text-sm text-muted-foreground">
+            {t('dictionary.review.tapToReveal')}
+          </span>
+        )}
+      </button>
 
       {revealed && (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 2,
-          }}
-        >
-          {RATINGS.map(({ rating, labelKey, intervalKey, color }) => (
+        <div className="grid grid-cols-2 gap-4">
+          {RATINGS.map(({ rating, labelKey, intervalKey, className }) => (
             <Button
               key={rating}
-              variant="contained"
-              color={color}
-              size="large"
+              size="lg"
+              className={`h-auto flex-col gap-0 py-3 leading-snug ${className}`}
               onClick={() => onAnswer({ wordId: item.wordId, rating })}
-              sx={{ display: 'flex', flexDirection: 'column', py: 1.5, lineHeight: 1.3 }}
             >
-              <Typography variant="button">{t(labelKey)}</Typography>
-              <Typography variant="caption" sx={{ opacity: 0.85, textTransform: 'none' }}>
+              <span className="text-sm font-semibold uppercase">{t(labelKey)}</span>
+              <span className="text-xs font-normal opacity-85">
                 {formatInterval(t, item.intervals[intervalKey])}
-              </Typography>
+              </span>
             </Button>
           ))}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

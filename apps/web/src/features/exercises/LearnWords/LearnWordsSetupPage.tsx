@@ -9,16 +9,12 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Container,
-  Typography,
-  Box,
-  ToggleButtonGroup,
-  ToggleButton,
-  Button,
-  Alert,
-} from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowLeftIcon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 import { useLearnWordsPreview } from '../../../api/dictionary';
 
@@ -72,74 +68,61 @@ export function LearnWordsSetupPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)} sx={{ mb: 2 }}>
+    <PageContainer size="sm" className="py-8">
+      <Button variant="ghost" className="mb-4" onClick={() => navigate(-1)}>
+        <ArrowLeftIcon data-icon="inline-start" />
         {collectionId ? t('nav.dictionary') : t('exercises.vocabulary.title')}
       </Button>
 
-      <Typography variant="h4" gutterBottom>
-        {t('exercises.learnWords.setupTitle')}
-      </Typography>
+      <h1 className="mb-2 text-3xl font-semibold">{t('exercises.learnWords.setupTitle')}</h1>
 
-      <Typography variant="subtitle1" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
-        {t('exercises.learnWords.wordCount')}
-      </Typography>
-      <ToggleButtonGroup
-        value={count}
-        exclusive
-        onChange={(_, val) => {
-          if (val !== null) {
-            setCount(val);
-            localStorage.setItem('cro_learn_words_count', String(val));
+      <h2 className="mt-6 mb-2 font-semibold">{t('exercises.learnWords.wordCount')}</h2>
+      <ToggleGroup
+        variant="outline"
+        className="flex-wrap"
+        value={[String(count)]}
+        onValueChange={(val) => {
+          const next = Number(val[0]);
+          if (COUNT_OPTIONS.includes(next)) {
+            setCount(next);
+            localStorage.setItem('cro_learn_words_count', String(next));
           }
         }}
-        sx={{ flexWrap: 'wrap', gap: 1 }}
       >
         {COUNT_OPTIONS.map((n) => (
-          <ToggleButton key={n} value={n} sx={{ minWidth: 56 }}>
+          <ToggleGroupItem key={n} value={String(n)} className="min-w-14">
             {n}
-          </ToggleButton>
+          </ToggleGroupItem>
         ))}
-      </ToggleButtonGroup>
+      </ToggleGroup>
 
-      <Typography variant="subtitle1" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
-        {t('exercises.learnWords.filter')}
-      </Typography>
-      <ToggleButtonGroup
-        value={filter}
-        exclusive
-        onChange={(_, val) => {
-          if (val !== null) {
-            setFilter(val);
-            localStorage.setItem('cro_learn_words_filter', val);
+      <h2 className="mt-6 mb-2 font-semibold">{t('exercises.learnWords.filter')}</h2>
+      <ToggleGroup
+        variant="outline"
+        className="flex-wrap"
+        value={[filter]}
+        onValueChange={(val) => {
+          const next = val[0] as FilterOption | undefined;
+          if (next && FILTER_OPTIONS.includes(next)) {
+            setFilter(next);
+            localStorage.setItem('cro_learn_words_filter', next);
           }
         }}
-        sx={{ flexWrap: 'wrap', gap: 1 }}
       >
         {FILTER_OPTIONS.map((f) => (
-          <ToggleButton key={f} value={f}>
+          <ToggleGroupItem key={f} value={f}>
             {t(filterLabelKey[f])}
-          </ToggleButton>
+          </ToggleGroupItem>
         ))}
-      </ToggleButtonGroup>
+      </ToggleGroup>
 
-      {isError && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+      {isError && <ErrorAlert className="mt-4" />}
 
-      <Box sx={{ mt: 4 }}>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleNext}
-          disabled={isLoading}
-          fullWidth
-        >
+      <div className="mt-8">
+        <Button size="lg" className="w-full" onClick={handleNext} disabled={isLoading}>
           {t('exercises.learnWords.next')}
         </Button>
-      </Box>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

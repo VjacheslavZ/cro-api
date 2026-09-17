@@ -1,9 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, CircularProgress, Skeleton, Checkbox, Alert } from '@mui/material';
-import { LibraryBooks as LibraryBooksIcon } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
+import { LibraryIcon } from 'lucide-react';
+
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Spinner } from '@/components/Spinner';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { WordRow } from '../WordRow.tsx';
 
@@ -35,13 +40,8 @@ interface DictionaryWordListProps {
 const ROW_GAP = 8;
 const ESTIMATED_ROW_HEIGHT = 62;
 
-const COLUMN_HEADER_SX = {
-  fontSize: '0.7rem',
-  fontWeight: 700,
-  color: 'text.secondary',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.06em',
-};
+const COLUMN_HEADER_CLASS =
+  'text-[0.7rem] font-bold tracking-wider text-muted-foreground uppercase';
 
 export function DictionaryWordList({
   words,
@@ -81,123 +81,65 @@ export function DictionaryWordList({
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <div className="flex flex-col gap-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <Box
-            key={i}
-            sx={{
-              px: 2,
-              py: 1.5,
-              border: '1px solid rgba(0,0,0,0.08)',
-              borderRadius: 1.5,
-            }}
-          >
-            <Skeleton width="40%" height={20} />
-            <Skeleton width="25%" height={16} sx={{ mt: 0.5 }} />
-          </Box>
+          <div key={i} className="rounded-lg border px-4 py-3">
+            <Skeleton className="h-5 w-2/5" />
+            <Skeleton className="mt-1 h-4 w-1/4" />
+          </div>
         ))}
-      </Box>
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <Box sx={{ py: 4 }}>
-        <Alert severity="error">{t('common.error')}</Alert>
-      </Box>
+      <div className="py-8">
+        <ErrorAlert />
+      </div>
     );
   }
 
   if (words.length === 0) {
     return (
-      <Box
-        sx={{
-          border: '1px solid rgba(0,0,0,0.08)',
-          borderRadius: 2,
-          py: 8,
-          textAlign: 'center',
-        }}
-      >
-        <Box
-          sx={{
-            width: 64,
-            height: 64,
-            bgcolor: 'grey.100',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            mb: 2,
-          }}
-        >
-          <LibraryBooksIcon sx={{ fontSize: 32, color: 'grey.400' }} />
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 0.5 }}>
-          {t('dictionary.noWords')}
-        </Typography>
-      </Box>
+      <div className="rounded-xl border">
+        <EmptyState icon={<LibraryIcon />} title={t('dictionary.noWords')} />
+      </div>
     );
   }
 
   return (
-    <Box sx={{ overflow: 'hidden' }}>
+    <div className="overflow-hidden">
       {/* Column headers — outside the scroll container so they stay fixed */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          px: 2,
-          py: 1.25,
-          bgcolor: 'grey.50',
-          border: '1px solid rgba(0,0,0,0.08)',
-          borderRadius: 1.5,
-          gap: 1,
-          mb: 1,
-        }}
-      >
+      <div className="mb-2 flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2.5">
         <Checkbox
           checked={allSelected}
-          onChange={onSelectAll}
-          size="small"
-          sx={{ p: 0.5, flexShrink: 0 }}
+          onCheckedChange={onSelectAll}
+          className="shrink-0"
           aria-label="Select all"
         />
-        <Typography sx={{ ...COLUMN_HEADER_SX, flex: 1 }}>{t('dictionary.word')}</Typography>
-        <Typography sx={{ ...COLUMN_HEADER_SX, width: 140 }}>
-          {t('dictionary.collection')}
-        </Typography>
-        <Typography sx={{ ...COLUMN_HEADER_SX, width: 150 }}>{t('dictionary.progress')}</Typography>
-        <Box sx={{ width: 164, flexShrink: 0 }} />
-      </Box>
+        <span className={`${COLUMN_HEADER_CLASS} flex-1`}>{t('dictionary.word')}</span>
+        <span className={`${COLUMN_HEADER_CLASS} w-35`}>{t('dictionary.collection')}</span>
+        <span className={`${COLUMN_HEADER_CLASS} w-38`}>{t('dictionary.progress')}</span>
+        <div className="w-35 shrink-0" />
+      </div>
 
       {/* Fixed-height scroll container — page height never changes as pages load */}
-      <Box
+      <div
         ref={scrollContainerRef}
-        sx={{
-          height: 'calc(100vh - 450px)',
-          minHeight: 300,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
+        className="h-[calc(100vh-450px)] min-h-75 overflow-x-hidden overflow-y-auto"
       >
         {/* Virtual spacer — as tall as all rows combined */}
-        <Box sx={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+        <div className="relative" style={{ height: virtualizer.getTotalSize() }}>
           {virtualItems.map((virtualItem) => {
             const word = words[virtualItem.index];
             return (
-              <Box
+              <div
                 key={virtualItem.key}
                 ref={virtualizer.measureElement}
                 data-index={virtualItem.index}
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  transform: `translateY(${virtualItem.start}px)`,
-                  pb: `${ROW_GAP}px`,
-                }}
+                className="absolute top-0 left-0 w-full"
+                style={{ transform: `translateY(${virtualItem.start}px)`, paddingBottom: ROW_GAP }}
               >
                 <WordRow
                   word={word}
@@ -208,17 +150,17 @@ export function DictionaryWordList({
                   onMarkLearned={onMarkLearned}
                   onResetProgress={onResetProgress}
                 />
-              </Box>
+              </div>
             );
           })}
-        </Box>
+        </div>
 
         {isFetchingNextPage && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-            <CircularProgress size={24} />
-          </Box>
+          <div className="flex justify-center py-4">
+            <Spinner className="size-6" />
+          </div>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

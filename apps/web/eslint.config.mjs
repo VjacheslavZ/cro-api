@@ -18,6 +18,9 @@ export default [
       '@typescript-eslint': tseslint,
       'import-x': importPlugin,
     },
+    settings: {
+      'import-x/internal-regex': '^@/',
+    },
     rules: {
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

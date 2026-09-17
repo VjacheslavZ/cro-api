@@ -17,7 +17,7 @@ describe('SpeedQuizCard', () => {
         phase="answering"
         selectedAnswer={null}
         timeLeft={5}
-        timerColor="primary.main"
+        timerClassName="text-primary"
         onAnswer={jest.fn()}
       />,
     );
@@ -39,7 +39,7 @@ describe('SpeedQuizCard', () => {
         phase="answering"
         selectedAnswer={null}
         timeLeft={5}
-        timerColor="primary.main"
+        timerClassName="text-primary"
         onAnswer={onAnswer}
       />,
     );
@@ -57,7 +57,7 @@ describe('SpeedQuizCard', () => {
         phase="result"
         selectedAnswer="milk"
         timeLeft={0}
-        timerColor="error.main"
+        timerClassName="text-destructive"
         onAnswer={jest.fn()}
       />,
     );
@@ -65,9 +65,7 @@ describe('SpeedQuizCard', () => {
     options.forEach((opt) => {
       expect(screen.getByRole('button', { name: opt })).toBeDisabled();
     });
-    expect(screen.getByRole('button', { name: 'bread' })).toHaveStyle({
-      backgroundColor: '#e8f5e9',
-    });
+    expect(screen.getByRole('button', { name: 'bread' })).toHaveAttribute('data-result', 'correct');
   });
 
   it('highlights the wrong selected answer differently from the correct one in the result phase', () => {
@@ -78,14 +76,12 @@ describe('SpeedQuizCard', () => {
         phase="result"
         selectedAnswer="milk"
         timeLeft={0}
-        timerColor="error.main"
+        timerClassName="text-destructive"
         onAnswer={jest.fn()}
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'milk' })).toHaveStyle({
-      backgroundColor: '#ffebee',
-    });
+    expect(screen.getByRole('button', { name: 'milk' })).toHaveAttribute('data-result', 'wrong');
   });
 
   it('does not highlight any option as wrong when the correct answer was selected', () => {
@@ -96,16 +92,12 @@ describe('SpeedQuizCard', () => {
         phase="result"
         selectedAnswer="bread"
         timeLeft={0}
-        timerColor="error.main"
+        timerClassName="text-destructive"
         onAnswer={jest.fn()}
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'bread' })).toHaveStyle({
-      backgroundColor: '#e8f5e9',
-    });
-    expect(screen.getByRole('button', { name: 'milk' })).not.toHaveStyle({
-      backgroundColor: '#ffebee',
-    });
+    expect(screen.getByRole('button', { name: 'bread' })).toHaveAttribute('data-result', 'correct');
+    expect(screen.getByRole('button', { name: 'milk' })).not.toHaveAttribute('data-result');
   });
 });

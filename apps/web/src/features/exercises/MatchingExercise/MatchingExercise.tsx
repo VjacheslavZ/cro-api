@@ -9,9 +9,11 @@
  */
 import { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Paper, Typography, Alert } from '@mui/material';
-import { VolumeUp, CheckCircle } from '@mui/icons-material';
 import type { DictionaryPracticeItem } from '@cro/shared';
+import { CircleCheckIcon, Volume2Icon } from 'lucide-react';
+import { cn } from 'cn';
+
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 import { speakWord } from '../../../shared/lib/speech.ts';
 
@@ -91,113 +93,84 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
     }
   };
 
-  return (
-    <Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('exercises.matching.progress', { matched: matched.size, total: items.length })}
-      </Typography>
+  const tileClass =
+    'flex w-full items-center gap-3 rounded-lg border bg-card px-4 py-3 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default';
 
-      <Box sx={{ display: 'flex', gap: 2 }}>
+  return (
+    <div>
+      <p className="mb-4 text-sm text-muted-foreground">
+        {t('exercises.matching.progress', { matched: matched.size, total: items.length })}
+      </p>
+
+      <div className="flex gap-4">
         {/* Left column — speaker icons */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <div className="flex flex-1 flex-col gap-2">
           {items.map((item) => {
             const isMatched = matched.has(item.wordId);
             const isSelected = selectedWordId === item.wordId;
             return (
-              <Paper
+              <button
                 key={item.wordId}
-                variant="outlined"
+                type="button"
                 onClick={() => handleWordClick(item.wordId, item.wordHr)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1.5,
-                  px: 2,
-                  py: 1.5,
-                  cursor: isMatched ? 'default' : 'pointer',
-                  bgcolor: isMatched
-                    ? 'success.light'
+                aria-pressed={isSelected}
+                className={cn(
+                  tileClass,
+                  isMatched
+                    ? 'border-green-500 bg-green-100 text-green-900'
                     : isSelected
-                      ? 'lightGreen'
-                      : 'background.paper',
-                  borderColor: isMatched ? 'success.main' : isSelected ? 'primary.main' : 'divider',
-                  borderWidth: isSelected ? 2 : 1,
-                  transition: 'background-color 0.15s, border-color 0.15s',
-                  '&:hover': {
-                    bgcolor: isMatched ? 'slightGreen' : isSelected ? 'lightGreen' : 'lightGreen',
-                  },
-                }}
+                      ? 'border-2 border-primary bg-green-50 text-primary'
+                      : 'hover:bg-green-50',
+                )}
               >
                 {isMatched ? (
-                  <CheckCircle fontSize="small" sx={{ flexShrink: 0, color: '#0d3110' }} />
+                  <CircleCheckIcon className="size-4 shrink-0" />
                 ) : (
-                  <VolumeUp
-                    fontSize="small"
-                    sx={{ flexShrink: 0, color: isSelected ? 'primary.main' : 'action.active' }}
+                  <Volume2Icon
+                    className={cn(
+                      'size-4 shrink-0',
+                      isSelected ? 'text-primary' : 'text-muted-foreground',
+                    )}
                   />
                 )}
-                <Typography
-                  variant="body1"
-                  color={isMatched ? '#0d3110' : isSelected ? 'primary.main' : 'text.primary'}
-                  noWrap
-                >
-                  {isMatched ? item.wordHr : '*************'}
-                </Typography>
-              </Paper>
+                <span className="truncate">{isMatched ? item.wordHr : '*************'}</span>
+              </button>
             );
           })}
-        </Box>
+        </div>
 
         {/* Right column — shuffled translations */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <div className="flex flex-1 flex-col gap-2">
           {shuffledTranslations.map((option) => {
             const isMatched = matched.has(option.wordId);
             const isFlashWrong = flashWrongId === option.wordId;
             return (
-              <Paper
+              <button
                 key={option.wordId}
-                variant="outlined"
+                type="button"
                 onClick={() => handleTranslationClick(option)}
-                sx={{
-                  px: 2,
-                  py: 1.5,
-                  cursor: isMatched ? 'default' : 'pointer',
-                  bgcolor: isMatched
-                    ? 'success.light'
+                className={cn(
+                  tileClass,
+                  isMatched
+                    ? 'border-green-500 bg-green-100 text-green-900'
                     : isFlashWrong
-                      ? 'error.light'
-                      : 'background.paper',
-                  borderColor: isMatched ? 'success.main' : isFlashWrong ? 'error.main' : 'divider',
-                  transition: 'background-color 0.1s, border-color 0.1s',
-                  '&:hover': {
-                    bgcolor: isMatched
-                      ? 'success.light'
-                      : isFlashWrong
-                        ? 'error.light'
-                        : selectedWordId
-                          ? 'action.hover'
-                          : 'background.paper',
-                  },
-                }}
+                      ? 'border-destructive bg-red-100 text-destructive'
+                      : selectedWordId && 'hover:bg-muted',
+                )}
               >
-                <Typography
-                  variant="body1"
-                  color={isMatched ? '#0d3110' : isFlashWrong ? 'error.main' : 'text.primary'}
-                  noWrap
-                >
-                  {option.translation}
-                </Typography>
-              </Paper>
+                <span className="truncate">{option.translation}</span>
+              </button>
             );
           })}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {isComplete && (
-        <Alert severity="success" sx={{ mt: 2 }}>
-          {t('exercises.matching.complete')}
+        <Alert className="mt-4 border-green-500 text-green-800">
+          <CircleCheckIcon />
+          <AlertTitle>{t('exercises.matching.complete')}</AlertTitle>
         </Alert>
       )}
-    </Box>
+    </div>
   );
 }

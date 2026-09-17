@@ -1,18 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LogOutIcon, SettingsIcon } from 'lucide-react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
-  Avatar,
-  Box,
-  Typography,
-  Menu,
-  MenuItem,
-  Divider,
-  IconButton,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
-import { Settings, Logout } from '@mui/icons-material';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import { useAppSelector, useAppDispatch } from '../../store';
 import { clearAuth } from '../../store/auth.slice';
@@ -23,7 +21,6 @@ export function UserMenu() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.auth.user);
-  const [anchor, setAnchor] = useState<null | HTMLElement>(null);
 
   if (!user) return null;
 
@@ -35,60 +32,38 @@ export function UserMenu() {
     .slice(0, 2);
 
   const handleLogout = async () => {
-    setAnchor(null);
     await authClient.signOut();
     dispatch(clearAuth());
     navigate('/login', { replace: true });
   };
 
   return (
-    <>
-      <IconButton onClick={(e) => setAnchor(e.currentTarget)} sx={{ ml: 0.5 }}>
-        <Avatar
-          src={user.avatarUrl ?? undefined}
-          alt={user.name}
-          sx={{ width: 32, height: 32, fontSize: '0.875rem', bgcolor: '#2563eb' }}
-        >
-          {initials}
-        </Avatar>
-      </IconButton>
-
-      <Menu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
-        onClose={() => setAnchor(null)}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        slotProps={{ paper: { sx: { minWidth: 192 } } }}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" className="ml-1 rounded-full" />}
+        aria-label={user.name}
       >
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle2" fontWeight={600}>
-            {user.name}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {user.email}
-          </Typography>
-        </Box>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            setAnchor(null);
-            navigate('/settings');
-          }}
-        >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>{t('header.settings')}</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-          <ListItemIcon>
-            <Logout fontSize="small" sx={{ color: 'error.main' }} />
-          </ListItemIcon>
-          <ListItemText>{t('header.logout')}</ListItemText>
-        </MenuItem>
-      </Menu>
-    </>
+        <Avatar>
+          <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
+          <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-48">
+        <div className="px-1.5 py-1.5">
+          <p className="text-sm font-semibold">{user.name}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link to="/settings" />}>
+          <SettingsIcon />
+          {t('header.settings')}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+          <LogOutIcon />
+          {t('header.logout')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

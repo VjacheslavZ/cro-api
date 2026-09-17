@@ -9,10 +9,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Alert, Box, Button, Container, Skeleton, Typography } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import type { ExerciseTopic } from '@cro/shared';
+import { ArrowLeftIcon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { useAppSelector } from '../../../store';
 import { apiClient } from '../../../api/client.ts';
@@ -93,46 +97,46 @@ export function TopicExercisesPage() {
 
   if (isPageLoading) {
     return (
-      <Container maxWidth="md" sx={{ py: 6 }}>
-        <Box sx={{ maxWidth: 768, mx: 'auto' }}>
-          <Skeleton width={140} height={36} sx={{ mb: 3 }} />
-          <Skeleton width={260} height={44} sx={{ mb: 1 }} />
-          <Skeleton width={220} height={24} sx={{ mb: 4 }} />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <PageContainer size="md" className="py-12">
+        <div className="mx-auto max-w-3xl">
+          <Skeleton className="mb-6 h-9 w-35" />
+          <Skeleton className="mb-2 h-11 w-65" />
+          <Skeleton className="mb-8 h-6 w-55" />
+          <div className="flex flex-col gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} variant="rounded" height={100} />
+              <Skeleton key={i} className="h-25 rounded-xl" />
             ))}
-          </Box>
-        </Box>
-      </Container>
+          </div>
+        </div>
+      </PageContainer>
     );
   }
 
   if (error || !topic) {
     return (
-      <Container maxWidth="md" sx={{ py: 6 }}>
-        <Box sx={{ maxWidth: 768, mx: 'auto' }}>
-          <Button startIcon={<ArrowBack />} onClick={() => navigate('/exercises')} sx={{ mb: 3 }}>
+      <PageContainer size="md" className="py-12">
+        <div className="mx-auto max-w-3xl">
+          <Button variant="ghost" className="mb-6" onClick={() => navigate('/exercises')}>
+            <ArrowLeftIcon data-icon="inline-start" />
             {t('exercises.title')}
           </Button>
-          <Alert severity="error">{t('common.error')}</Alert>
-        </Box>
-      </Container>
+          <ErrorAlert />
+        </div>
+      </PageContainer>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
-      <Box sx={{ maxWidth: 768, mx: 'auto' }}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/exercises')} sx={{ mb: 3 }}>
+    <PageContainer size="md" className="py-12">
+      <div className="mx-auto max-w-3xl">
+        <Button variant="ghost" className="mb-6" onClick={() => navigate('/exercises')}>
+          <ArrowLeftIcon data-icon="inline-start" />
           {t('exercises.title')}
         </Button>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#111827', mb: 0.5 }}>
+        <h1 className="mb-1 text-3xl font-bold text-foreground">
           {getLocalizedName(topic, user?.nativeLanguage ?? null)}
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          {t('exercises.chooseType')}
-        </Typography>
+        </h1>
+        <p className="mb-8 text-muted-foreground">{t('exercises.chooseType')}</p>
 
         <ExerciseTypeList
           exerciseTypes={topic.exerciseTypes}
@@ -151,7 +155,7 @@ export function TopicExercisesPage() {
           topicId={cycleResetInfo?.topicId ?? ''}
           exerciseType={cycleResetInfo?.exerciseType ?? ''}
         />
-      </Box>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

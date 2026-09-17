@@ -7,7 +7,6 @@
  * @usedBy SessionPage
  */
 import { useTranslation } from 'react-i18next';
-import { Typography } from '@mui/material';
 import type { FillInBlankItem } from '@cro/shared';
 
 import { getTranslation } from '../../../shared/lib/content-utils.ts';
@@ -45,18 +44,14 @@ export function FillInBlankExercise({ item, onAnswer }: FillInBlankExerciseProps
       onAnswer={onAnswer}
       prompt={
         <>
-          <Typography variant="h6" gutterBottom>
-            {t('exercises.fillInBlank.title')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <h2 className="mb-1 text-lg font-medium">{t('exercises.fillInBlank.title')}</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
             {t('exercises.fillInBlank.instruction')}
-          </Typography>
-          <Typography variant="h5" sx={{ mb: 1, textAlign: 'center' }}>
-            {renderSentence(item.sentenceHr)}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
+          </p>
+          <p className="mb-2 text-center text-2xl">{renderSentence(item.sentenceHr)}</p>
+          <p className="mb-6 text-center text-muted-foreground">
             {getTranslation(item, user?.nativeLanguage ?? null)}
-          </Typography>
+          </p>
         </>
       }
     />

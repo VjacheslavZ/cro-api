@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { cn } from 'cn';
+
+import { Spinner } from '@/components/Spinner';
 
 import { useAppDispatch } from '../../store';
 import { setUser } from '../../store/auth.slice';
 import { apiClient } from '../../api/client';
 import i18n from '../../i18n';
+import { AuthLayout } from './AuthLayout';
 
 type LanguageCode = 'RU' | 'UK' | 'EN';
 
@@ -41,99 +44,40 @@ export function LanguageSelectPage() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
-        p: 2,
-      }}
-    >
-      {/* Logo + Title */}
-      <Box sx={{ textAlign: 'center', mb: 5 }}>
-        <Box
-          sx={{
-            width: 64,
-            height: 64,
-            bgcolor: '#2563eb',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            mb: 2,
-          }}
-        >
-          <Typography sx={{ color: 'white', fontSize: 26, fontWeight: 700, lineHeight: 1 }}>
-            C
-          </Typography>
-        </Box>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#111827', mb: 1 }}>
-          {t('auth.selectLanguage')}
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#6b7280', maxWidth: 420, mx: 'auto' }}>
-          {t('auth.languageSubtitle')}
-        </Typography>
-      </Box>
+    <AuthLayout title={t('auth.selectLanguage')} subtitle={t('auth.languageSubtitle')}>
+      <div className="grid w-full max-w-[680px] grid-cols-1 gap-4 sm:grid-cols-3">
+        {languages.map((lang) => {
+          const isSelected = selectedLanguage === lang.code;
+          const isDisabled = loading && !isSelected;
+          return (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => handleSelect(lang.code)}
+              disabled={loading}
+              aria-pressed={isSelected}
+              className={cn(
+                'rounded-xl border bg-card p-8 text-center transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                'enabled:hover:scale-[1.03] enabled:hover:border-blue-300 enabled:hover:shadow-lg',
+                isSelected && 'border-2 border-primary bg-blue-50 enabled:hover:border-primary',
+                isDisabled && 'opacity-50',
+                loading && 'cursor-default',
+              )}
+            >
+              <div className="mb-3 text-[52px] leading-none">{lang.flag}</div>
+              <div className="mb-1 font-semibold text-foreground">{lang.nativeName}</div>
+              <div className="text-sm text-muted-foreground">{lang.name}</div>
+              {isSelected && loading && (
+                <div className="mt-4 flex justify-center">
+                  <Spinner className="size-5" />
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Language Cards */}
-      <Box sx={{ width: '100%', maxWidth: 680 }}>
-        <Grid container spacing={2} justifyContent="center">
-          {languages.map((lang) => {
-            const isSelected = selectedLanguage === lang.code;
-            const isDisabled = loading && !isSelected;
-            return (
-              <Grid key={lang.code} size={{ xs: 12, sm: 4 }}>
-                <Paper
-                  elevation={0}
-                  onClick={() => !loading && handleSelect(lang.code)}
-                  sx={{
-                    p: 4,
-                    textAlign: 'center',
-                    cursor: loading ? 'default' : 'pointer',
-                    border: isSelected ? '2px solid #2563eb' : '1px solid rgba(0,0,0,0.08)',
-                    bgcolor: isSelected ? '#eff6ff' : 'white',
-                    borderRadius: 2,
-                    opacity: isDisabled ? 0.5 : 1,
-                    transition: 'all 0.15s ease',
-                    '&:hover': loading
-                      ? {}
-                      : {
-                          boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                          transform: 'scale(1.03)',
-                          borderColor: isSelected ? '#2563eb' : '#93c5fd',
-                        },
-                  }}
-                >
-                  <Typography sx={{ fontSize: 52, lineHeight: 1, mb: 1.5 }}>{lang.flag}</Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontWeight: 600, color: '#111827', mb: 0.5 }}
-                  >
-                    {lang.nativeName}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                    {lang.name}
-                  </Typography>
-                  {isSelected && loading && (
-                    <Box sx={{ mt: 2 }}>
-                      <CircularProgress size={20} sx={{ color: '#2563eb' }} />
-                    </Box>
-                  )}
-                </Paper>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Box>
-
-      {/* Footer note */}
-      <Typography variant="body2" sx={{ color: '#9ca3af', mt: 4 }}>
-        {t('auth.changeLanguageLater')}
-      </Typography>
-    </Box>
+      <p className="mt-8 text-sm text-neutral-400">{t('auth.changeLanguageLater')}</p>
+    </AuthLayout>
   );
 }

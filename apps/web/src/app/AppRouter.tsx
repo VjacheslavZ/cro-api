@@ -1,90 +1,25 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Box, CircularProgress } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import { authClient } from '../lib/auth-client';
-import { useAppSelector, useAppDispatch } from '../store';
-import { clearAuth } from '../store/auth.slice';
-import { fetchMe } from '../api/auth';
+import { Toaster } from '@/components/ui/sonner';
+
 import { LoginPage } from '../features/auth/LoginPage';
 import { LanguageSelectPage } from '../features/auth/LanguageSelectPage';
-import { ExercisesPage } from '../features/exercises/ExercisesPage';
-import { VocabularyPage } from '../features/exercises/VocabularyPage';
-import { TopicExercisesPage } from '../features/exercises/TopicExercisesPage/TopicExercisesPage.tsx';
-import { SessionPage } from '../features/exercises/SessionPage';
-import { SessionResultsPage } from '../features/exercises/SessionResultsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
-import { MyDictionaryPage } from '../features/dictionary/MyDictionaryPage/MyDictionaryPage.tsx';
-import { CollectionsPage } from '../features/dictionary/CollectionsPage';
-import { WordSetsPage } from '../features/dictionary/WordSetsPage';
-import { CollectionPreviewPage } from '../features/dictionary/CollectionPreviewPage/CollectionPreviewPage.tsx';
-import { DictionaryPracticePage } from '../features/dictionary/DictionaryPractice/DictionaryPracticePage.tsx';
-import { DictionaryPracticeResultsPage } from '../features/dictionary/DictionaryPractice/DictionaryPracticeResultsPage.tsx';
-import { DictionaryReviewPage } from '../features/dictionary/Review/DictionaryReviewPage.tsx';
-import { DictionaryReviewResultsPage } from '../features/dictionary/Review/DictionaryReviewResultsPage.tsx';
-import { LearnWordsSetupPage } from '../features/exercises/LearnWords/LearnWordsSetupPage';
-import { LearnWordsPreviewPage } from '../features/exercises/LearnWords/LearnWordsPreviewPage';
-import { LearnWordsSessionPage } from '../features/exercises/LearnWords/LearnWordsSessionPage';
-import { LearnWordsResultsPage } from '../features/exercises/LearnWords/LearnWordsResultsPage';
-import { SpeedQuizPage } from '../features/exercises/SpeedQuiz/SpeedQuizPage';
 import { HomePage } from '../features/home/HomePage';
 import { LessonsPage } from '../features/lessons/LessonsPage';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-
-function AuthGuard({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-  const dispatch = useAppDispatch();
-  const { user, loading } = useAppSelector((state) => state.auth);
-  const { data: session, isPending } = authClient.useSession();
-
-  useEffect(() => {
-    if (isPending) return;
-    if (session && !user && !loading) {
-      dispatch(fetchMe());
-    } else if (!session && user) {
-      dispatch(clearAuth());
-    }
-  }, [session, isPending, user, loading, dispatch, location.pathname]);
-
-  if (isPending || (session != null && user == null)) {
-    return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  return <>{children}</>;
-}
-
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const user = useAppSelector((state) => state.auth.user);
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
-}
-
-function GuestRoute({ children }: { children: React.ReactNode }) {
-  const user = useAppSelector((state) => state.auth.user);
-  if (user) return <Navigate to="/" replace />;
-  return <>{children}</>;
-}
-
-function LanguageGuard({ children }: { children: React.ReactNode }) {
-  const user = useAppSelector((state) => state.auth.user);
-  if (user && !user.nativeLanguage) return <Navigate to="/language-select" replace />;
-  return <>{children}</>;
-}
+import { AuthGuard, GuestRoute, PrivateRoute, ProtectedLayout } from './guards';
+import { ExercisesRoutes } from './routes/ExercisesRoutes';
+import { DictionaryRoutes } from './routes/DictionaryRoutes';
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <AuthGuard>
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div className="flex min-h-screen flex-col">
           <Header />
-          <Box component="main" sx={{ flex: 1 }}>
+          <main className="flex-1">
             <Routes>
               <Route
                 path="/login"
@@ -97,208 +32,6 @@ export function AppRouter() {
               <Route path="/about" element={<div>About Us (placeholder)</div>} />
               <Route path="/partners" element={<div>For Partners (placeholder)</div>} />
               <Route path="/contacts" element={<div>Contacts (placeholder)</div>} />
-              {/*{ Private routes }*/}
-              <Route path="/exercises" element={<Navigate to="/exercises/grammar" replace />} />
-              <Route
-                path="/exercises/grammar"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <ExercisesPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <VocabularyPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary/learn"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <LearnWordsSetupPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary/learn/preview"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <LearnWordsPreviewPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary/learn/session"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <LearnWordsSessionPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary/learn/results"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <LearnWordsResultsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/vocabulary/speed-quiz"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <SpeedQuizPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/:topicId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <TopicExercisesPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/session/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <SessionPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/exercises/results/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <SessionResultsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/my"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <MyDictionaryPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/my-collections"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <CollectionsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/recommended-word-sets"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <WordSetsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/collections/:collectionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <CollectionPreviewPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/practice/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <DictionaryPracticePage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/practice/results/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <DictionaryPracticeResultsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/review/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <DictionaryReviewPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dictionary/review/results/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <DictionaryReviewResultsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/lessons"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <LessonsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <SettingsPage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
               <Route
                 path="/language-select"
                 element={
@@ -307,20 +40,19 @@ export function AppRouter() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <LanguageGuard>
-                      <HomePage />
-                    </LanguageGuard>
-                  </PrivateRoute>
-                }
-              />
+              {/* Private routes (PrivateRoute + LanguageGuard) */}
+              <Route path="/exercises/*" element={<ExercisesRoutes />} />
+              <Route path="/dictionary/*" element={<DictionaryRoutes />} />
+              <Route element={<ProtectedLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/lessons" element={<LessonsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
             </Routes>
-          </Box>
+          </main>
           <Footer />
-        </Box>
+          <Toaster />
+        </div>
       </AuthGuard>
     </BrowserRouter>
   );

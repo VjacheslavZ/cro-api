@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Button, Card, CardContent } from '@mui/material';
 import type { DictionaryPracticeItem } from '@cro/shared';
+import { cn } from 'cn';
+
+import { Button } from '@/components/ui/button';
 
 import type { Phase } from './useSpeedQuiz';
 
@@ -10,7 +12,8 @@ interface SpeedQuizCardProps {
   phase: Phase;
   selectedAnswer: string | null;
   timeLeft: number;
-  timerColor: string;
+  /** Tailwind text-colour class for the countdown (see `useSpeedQuiz`). */
+  timerClassName: string;
   onAnswer: (answer: string) => void;
 }
 
@@ -20,74 +23,51 @@ export function SpeedQuizCard({
   phase,
   selectedAnswer,
   timeLeft,
-  timerColor,
+  timerClassName,
   onAnswer,
 }: SpeedQuizCardProps) {
   const { t } = useTranslation();
 
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Typography variant="h4" fontWeight={700} sx={{ color: timerColor }}>
-            {timeLeft}
-          </Typography>
-        </Box>
+    <div className="rounded-xl border bg-card p-6">
+      <div className="mb-4 flex justify-center">
+        <span className={cn('text-3xl font-bold tabular-nums', timerClassName)}>{timeLeft}</span>
+      </div>
 
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-            {t('exercises.letterPick.instruction')}
-          </Typography>
-          <Typography variant="h4" fontWeight={700}>
-            {item.wordHr}
-          </Typography>
-        </Box>
+      <div className="mb-6 text-center">
+        <p className="mb-1 text-sm text-muted-foreground">
+          {t('exercises.letterPick.instruction')}
+        </p>
+        <p className="text-3xl font-bold">{item.wordHr}</p>
+      </div>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {options.map((opt) => {
-            const isCorrectOpt = opt === item.translation;
-            const isWrongSelected = phase === 'result' && opt === selectedAnswer && !isCorrectOpt;
-            const isHighlightCorrect = phase === 'result' && isCorrectOpt;
+      <div className="flex flex-col gap-3">
+        {options.map((opt) => {
+          const isCorrectOpt = opt === item.translation;
+          const isWrongSelected = phase === 'result' && opt === selectedAnswer && !isCorrectOpt;
+          const isHighlightCorrect = phase === 'result' && isCorrectOpt;
+          const result = isHighlightCorrect ? 'correct' : isWrongSelected ? 'wrong' : undefined;
 
-            return (
-              <Button
-                key={opt}
-                fullWidth
-                variant="outlined"
-                disabled={phase === 'result'}
-                onClick={() => onAnswer(opt)}
-                sx={{
-                  py: 1.5,
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
-                  ...(isHighlightCorrect && {
-                    bgcolor: '#e8f5e9',
-                    borderColor: '#66bb6a',
-                    color: '#2e7d32',
-                    '&.Mui-disabled': {
-                      bgcolor: '#e8f5e9',
-                      borderColor: '#66bb6a',
-                      color: '#2e7d32',
-                    },
-                  }),
-                  ...(isWrongSelected && {
-                    bgcolor: '#ffebee',
-                    borderColor: '#ef9a9a',
-                    color: '#c62828',
-                    '&.Mui-disabled': {
-                      bgcolor: '#ffebee',
-                      borderColor: '#ef9a9a',
-                      color: '#c62828',
-                    },
-                  }),
-                }}
-              >
-                {opt}
-              </Button>
-            );
-          })}
-        </Box>
-      </CardContent>
-    </Card>
+          return (
+            <Button
+              key={opt}
+              variant="outline"
+              size="lg"
+              disabled={phase === 'result'}
+              onClick={() => onAnswer(opt)}
+              data-result={result}
+              className={cn(
+                'h-12 w-full justify-start text-left text-base disabled:opacity-100',
+                result === 'correct' && 'border-green-400 bg-green-50 text-green-800',
+                result === 'wrong' && 'border-red-300 bg-red-50 text-red-800',
+                !result && 'disabled:opacity-50',
+              )}
+            >
+              {opt}
+            </Button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

@@ -10,9 +10,11 @@
  * @usedBy AppRouter (/exercises/vocabulary/speed-quiz)
  */
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Container, Alert, CircularProgress, Box } from '@mui/material';
 import type { DictionaryPracticeItem } from '@cro/shared';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { PageContainer } from '@/components/PageContainer';
+import { Spinner } from '@/components/Spinner';
 
 import { StopExerciseDialog } from '../StopExerciseDialog';
 import { ExerciseProgressHeader } from '../ExerciseProgressHeader';
@@ -26,7 +28,6 @@ interface LocationState {
 }
 
 export function SpeedQuizPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState | null;
@@ -42,7 +43,7 @@ export function SpeedQuizPage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <PageContainer size="sm" className="py-8">
       <ExerciseProgressHeader
         currentIndex={quiz.doneCount - 1}
         total={quiz.totalWords}
@@ -50,16 +51,12 @@ export function SpeedQuizPage() {
         onStop={() => quiz.setStopOpen(true)}
       />
 
-      {quiz.isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+      {quiz.isError && <ErrorAlert className="mb-4" />}
 
       {quiz.isPending ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center py-16">
+          <Spinner />
+        </div>
       ) : quiz.currentItem ? (
         <SpeedQuizCard
           item={quiz.currentItem}
@@ -67,7 +64,7 @@ export function SpeedQuizPage() {
           phase={quiz.phase}
           selectedAnswer={quiz.selectedAnswer}
           timeLeft={quiz.timeLeft}
-          timerColor={quiz.timerColor}
+          timerClassName={quiz.timerClassName}
           onAnswer={quiz.handleAnswer}
         />
       ) : null}
@@ -77,6 +74,6 @@ export function SpeedQuizPage() {
         onClose={() => quiz.setStopOpen(false)}
         onConfirm={() => navigate('/exercises/vocabulary', { replace: true })}
       />
-    </Container>
+    </PageContainer>
   );
 }

@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
-import { Google as GoogleIcon } from '@mui/icons-material';
-import { Box, Typography, Paper, Alert, Divider, Button, Link } from '@mui/material';
+import { Loader2Icon } from 'lucide-react';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 import { authClient } from '../../lib/auth-client';
+import { GoogleIcon } from '../../assets/icons';
+import { AuthLayout } from './AuthLayout';
 import { EmailAuthForm } from './EmailAuthForm';
 
 type AuthMode = 'login' | 'register';
@@ -38,118 +43,63 @@ export function LoginPage() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
-        p: 2,
-      }}
-    >
-      {/* Logo + Branding */}
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Box
-          sx={{
-            width: 64,
-            height: 64,
-            bgcolor: '#2563eb',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            mb: 2,
-          }}
-        >
-          <Typography sx={{ color: 'white', fontSize: 26, fontWeight: 700, lineHeight: 1 }}>
-            C
-          </Typography>
-        </Box>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#111827', mb: 0.5 }}>
-          CroGrammar
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#6b7280' }}>
-          {t('auth.tagline')}
-        </Typography>
-      </Box>
+    <AuthLayout title="CroGrammar" subtitle={t('auth.tagline')}>
+      <Card className="w-full max-w-[420px]">
+        <CardContent className="p-8">
+          <h2 className="mb-1 text-center text-lg font-semibold">
+            {mode === 'login' ? t('auth.welcomeBack') : t('auth.createAccount')}
+          </h2>
+          <p className="mb-6 text-center text-sm text-muted-foreground">
+            {mode === 'login' ? t('auth.signInSubtitle') : t('auth.createAccountSubtitle')}
+          </p>
 
-      {/* Card */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 4,
-          width: '100%',
-          maxWidth: 420,
-          border: '1px solid rgba(0, 0, 0, 0.08)',
-          borderRadius: 2,
-        }}
-      >
-        {/* Card header */}
-        <Typography variant="h6" align="center" sx={{ fontWeight: 600, mb: 0.5 }}>
-          {mode === 'login' ? t('auth.welcomeBack') : t('auth.createAccount')}
-        </Typography>
-        <Typography variant="body2" align="center" sx={{ color: '#6b7280', mb: 3 }}>
-          {mode === 'login' ? t('auth.signInSubtitle') : t('auth.createAccountSubtitle')}
-        </Typography>
+          {error && <ErrorAlert message={error} className="mb-4" />}
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        {/* Google button */}
-        <LoadingButton
-          variant="outlined"
-          size="large"
-          startIcon={<GoogleIcon />}
-          onClick={handleGoogleLogin}
-          loading={loading}
-          fullWidth
-        >
-          {t('auth.signInWithGoogle')}
-        </LoadingButton>
-
-        <Divider sx={{ my: 2.5 }}>{t('auth.orDivider')}</Divider>
-
-        {/* Email form toggle */}
-        {!showEmailForm ? (
           <Button
-            variant="text"
-            fullWidth
-            onClick={() => setShowEmailForm(true)}
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={handleGoogleLogin}
             disabled={loading}
           >
-            {t('auth.continueWithEmail')}
+            {loading ? <Loader2Icon className="animate-spin" /> : <GoogleIcon />}
+            {t('auth.signInWithGoogle')}
           </Button>
-        ) : (
-          <EmailAuthForm
-            mode={mode}
-            loading={loading}
-            setLoading={setLoading}
-            onSuccess={() => setError(null)}
-            onError={(msg) => setError(msg || null)}
-            formData={formData}
-            setFormData={setFormData}
-          />
-        )}
 
-        {/* Login / register toggle */}
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Link
-            component="button"
-            variant="body2"
-            onClick={toggleMode}
-            disabled={loading}
-            sx={{ color: '#2563eb' }}
-          >
-            {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
-          </Link>
-        </Box>
-      </Paper>
-    </Box>
+          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+            <Separator className="flex-1" />
+            {t('auth.orDivider')}
+            <Separator className="flex-1" />
+          </div>
+
+          {!showEmailForm ? (
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => setShowEmailForm(true)}
+              disabled={loading}
+            >
+              {t('auth.continueWithEmail')}
+            </Button>
+          ) : (
+            <EmailAuthForm
+              mode={mode}
+              loading={loading}
+              setLoading={setLoading}
+              onSuccess={() => setError(null)}
+              onError={(msg) => setError(msg || null)}
+              formData={formData}
+              setFormData={setFormData}
+            />
+          )}
+
+          <div className="mt-4 text-center">
+            <Button variant="link" size="sm" onClick={toggleMode} disabled={loading}>
+              {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </AuthLayout>
   );
 }

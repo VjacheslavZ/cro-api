@@ -8,9 +8,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Box, Button, Paper } from '@mui/material';
-import { Close } from '@mui/icons-material';
 import type { DictionaryWord } from '@cro/shared';
+import { XIcon } from 'lucide-react';
+import { cn } from 'cn';
+
+import { PageContainer } from '@/components/PageContainer';
+import { Button } from '@/components/ui/button';
 
 import { useSpeech } from '../../../shared/hooks/useSpeech';
 import { StopExerciseDialog } from '../StopExerciseDialog';
@@ -60,8 +63,13 @@ export function LearnWordsPreviewPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Button startIcon={<Close />} color="error" onClick={() => setStopOpen(true)} sx={{ mb: 2 }}>
+    <PageContainer size="sm" className="py-8">
+      <Button
+        variant="ghost"
+        className="mb-4 text-destructive hover:text-destructive"
+        onClick={() => setStopOpen(true)}
+      >
+        <XIcon data-icon="inline-start" />
         {t('exercises.session.stop')}
       </Button>
 
@@ -71,55 +79,35 @@ export function LearnWordsPreviewPage() {
         onConfirm={() => navigate(-1)}
       />
 
-      <Typography variant="h5" gutterBottom>
-        {t('exercises.learnWords.previewTitle')}
-      </Typography>
+      <h1 className="mb-2 text-2xl font-semibold">{t('exercises.learnWords.previewTitle')}</h1>
 
       {/* Progress dots */}
-      <Box sx={{ display: 'flex', gap: 0.5, mb: 3, flexWrap: 'wrap' }}>
+      <div className="mb-6 flex flex-wrap gap-1" aria-hidden="true">
         {words.map((_, i) => (
-          <Box
+          <span
             key={i}
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              bgcolor: i === index ? 'primary.main' : i < index ? 'primary.light' : 'grey.300',
-            }}
+            className={cn(
+              'size-2 rounded-full',
+              i === index ? 'bg-primary' : i < index ? 'bg-primary/40' : 'bg-neutral-300',
+            )}
           />
         ))}
-      </Box>
+      </div>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <p className="mb-4 text-sm text-muted-foreground">
         {t('exercises.learnWords.wordOf', { current: index + 1, total: words.length })}
-      </Typography>
+      </p>
 
-      <Paper
-        elevation={2}
-        sx={{
-          p: 4,
-          textAlign: 'center',
-          borderRadius: 3,
-          minHeight: 180,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          gap: 2,
-        }}
-      >
-        <Typography variant="h3" fontWeight={700}>
-          {current.wordHr}
-        </Typography>
-        <Typography variant="h5" color="text.secondary">
-          {current.translation}
-        </Typography>
-      </Paper>
+      <div className="flex min-h-45 flex-col justify-center gap-4 rounded-xl bg-card p-8 text-center shadow-md ring-1 ring-foreground/10">
+        <p className="text-4xl font-bold">{current.wordHr}</p>
+        <p className="text-2xl text-muted-foreground">{current.translation}</p>
+      </div>
 
-      <Box sx={{ mt: 3 }}>
-        <Button variant="contained" size="large" onClick={handleNext} fullWidth>
+      <div className="mt-6">
+        <Button size="lg" className="w-full" onClick={handleNext}>
           {isLast ? t('exercises.learnWords.startExercises') : t('exercises.learnWords.next')}
         </Button>
-      </Box>
-    </Container>
+      </div>
+    </PageContainer>
   );
 }

@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Alert,
-} from '@mui/material';
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 import { useCreateCollection, useUpdateCollection } from '../../api/dictionary';
 
@@ -31,6 +35,7 @@ interface CreateCollectionModalProps {
 
 export function CreateCollectionModal({ open, onClose, editData }: CreateCollectionModalProps) {
   const { t } = useTranslation();
+  const id = useId();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
@@ -72,39 +77,42 @@ export function CreateCollectionModal({ open, onClose, editData }: CreateCollect
   const isPending = createCollection.isPending || updateCollection.isPending;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {isEdit ? t('dictionary.collections.edit') : t('dictionary.collections.createCollection')}
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          fullWidth
-          label={t('dictionary.collections.name')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          sx={{ mt: 1, mb: 2 }}
-          autoFocus
-        />
-        <TextField
-          fullWidth
-          label={t('dictionary.collections.description')}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          multiline
-          rows={2}
-        />
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {isEdit
+              ? t('dictionary.collections.edit')
+              : t('dictionary.collections.createCollection')}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-name`}>{t('dictionary.collections.name')}</Label>
+            <Input id={`${id}-name`} value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-description`}>{t('dictionary.collections.description')}</Label>
+            <Textarea
+              id={`${id}-description`}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+            />
+          </div>
+          {error && <ErrorAlert message={error} />}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t('dictionary.addWordModal.cancel')}
+          </Button>
+          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+            {isEdit ? t('dictionary.collections.save') : t('dictionary.collections.create')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('dictionary.addWordModal.cancel')}</Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={!name.trim() || isPending}>
-          {isEdit ? t('dictionary.collections.save') : t('dictionary.collections.create')}
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

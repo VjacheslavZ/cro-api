@@ -50,12 +50,7 @@ describe('BuildSentenceExercise', () => {
     await user.click(screen.getByText('Ja'));
     expect(screen.getByText('Word 2 of 3')).toBeInTheDocument();
 
-    const chip = screen.getByText('Ja').closest('.MuiChip-root');
-    expect(chip).not.toBeNull();
-    const deleteIcon = chip!.querySelector('.MuiChip-deleteIcon');
-    expect(deleteIcon).not.toBeNull();
-
-    await user.click(deleteIcon!);
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
 
     expect(screen.getByText('Word 1 of 3')).toBeInTheDocument();
   });

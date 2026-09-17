@@ -1,8 +1,35 @@
 # cro-web — Student Web App
 
-Vite + React + TypeScript + Material UI (MUI). i18n via i18next (RU/UK/EN).
+Vite + React + TypeScript + Tailwind CSS v4 + shadcn/ui (Base UI primitives). i18n via i18next (RU/UK/EN).
+
+The MUI → Tailwind/shadcn migration (ADR-001, `docs/intent/adr-001-web-mui-to-tailwind-shadcn.md`) is complete: `@mui/*` and `@emotion/*` are not dependencies of this app any more. **Do not add them back** — `apps/admin` is the only app on MUI.
 
 For exercise type definitions, payment architecture, and domain models, see `packages/shared/CLAUDE.md`.
+
+---
+
+## UI Stack & Conventions
+
+| What | Where |
+|------|-------|
+| shadcn primitives (generated, editable source) | `src/components/ui/*` — add more with `npx shadcn@latest add <name>` from `apps/web/` |
+| `cn()` class merger | `src/lib/utils.ts` (re-exports the `cn` package) |
+| Design tokens (CSS variables + `@theme`) | `src/styles/globals.css` — imported once in `src/main.tsx` |
+| Shared building blocks | `src/components/Spinner.tsx`, `PageContainer.tsx` (`size="sm|md|lg"` = old MUI `Container` widths), `ErrorAlert.tsx`, `EmptyState.tsx` |
+| Exercise-specific blocks | `src/features/exercises/ui/`: `ExerciseCard`, `ExerciseFeedback`, `ExerciseActionButton` — use these in every exercise component instead of re-styling cards/buttons |
+| Icons | `lucide-react`; brand marks lucide lacks (Google, X, YouTube, stores) in `src/assets/icons/` |
+| Toasts | `toast()` from `sonner`; `<Toaster />` is mounted in `AppRouter` |
+| `@/` alias | → `src/` (vite, tsconfig, jest). Imports from `@/…` are the `internal` ESLint group and go **before** relative imports |
+
+**Tokens** (use classes, not hex): `primary` (brand blue), `foreground`, `muted-foreground`, `border`, `destructive`, plus project colours `success`, `xp` / `xp-foreground` / `xp-muted` / `xp-border`, `streak` / `streak-foreground` / `streak-muted` / `streak-border`.
+
+**Typography recipe** (no `Typography` component): page title `text-3xl font-semibold`, section `text-2xl font-semibold`, card title `text-lg font-medium`, body `text-sm`, hint `text-xs text-muted-foreground`.
+
+**Base UI composition**: primitives have no `asChild`. Use `render={<Link to="…" />}` on `DropdownMenuItem` / triggers; for plain navigation links use `<Link className={cn(buttonVariants({ variant }), extra)}>` so they keep `role="link"` — always wrap in `cn()`: `cva` does not merge conflicting classes, so `outline` would lose its border to the base `border-transparent`.
+
+**Tests**: query by role / label / text. jsdom does not compute Tailwind styles — assert `toHaveClass` or `data-*` attributes, never `toHaveStyle` for class-driven colours. `src/test-utils/jest.setup.ts` shims `Element.prototype.matches` for `:modal` / `:popover-open` (Floating UI probe that is pathologically slow in jsdom).
+
+Historical MUI → shadcn mapping table (useful when porting admin patterns): `docs/plan-web-tailwind-migration.md`.
 
 ---
 
@@ -19,7 +46,7 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 
 ### My Dictionary Page (`/dictionary/my`)
 
-- **Top bar**: search `TextField` + "Add Word" `Button` + (when checkboxes selected) "Assign to Collection" dropdown + "Practice" button
+- **Top bar**: search input + "Add Word" button + (when checkboxes selected) "Assign to Collection" dropdown + "Practice" button
 - **Word list**: infinite scroll with cursor-based pagination (loads on scroll via `IntersectionObserver`)
 - **Each row**:
   ```
@@ -73,11 +100,12 @@ API files by domain: `src/api/auth.ts`, `src/api/content.ts`, `src/api/exercises
 
 ## Route Structure
 
-Defined in `src/app/AppRouter.tsx`. Route guards:
+`src/app/AppRouter.tsx` holds top-level routes and mounts feature sub-routers from `src/app/routes/` (`ExercisesRoutes` at `/exercises/*`, `DictionaryRoutes` at `/dictionary/*`; paths inside are relative). Route guards live in `src/app/guards.tsx`:
 - `AuthGuard` — wraps entire app; calls `fetchMe` on route change if token exists but user not loaded
 - `PrivateRoute` — redirects to `/login` if not authenticated
 - `GuestRoute` — redirects to `/` if already authenticated (used on `/login`)
 - `LanguageGuard` — redirects to `/language-select` if user has no `nativeLanguage` set
+- `ProtectedLayout` — layout route (`<Route element={<ProtectedLayout />}>`) = `PrivateRoute` + `LanguageGuard` + `<Outlet />`; wrap new private routes in it instead of nesting guards per route
 
 | Route | Component | Notes |
 |-------|-----------|-------|

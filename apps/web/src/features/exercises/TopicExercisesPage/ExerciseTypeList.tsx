@@ -1,7 +1,9 @@
-import { Alert, Box, Typography } from '@mui/material';
-import { Layers } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import type { ExerciseType } from '@cro/shared';
+import { LayersIcon } from 'lucide-react';
+
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorAlert } from '@/components/ErrorAlert';
 
 import { ExerciseTypeCard } from './ExerciseTypeCard.tsx';
 
@@ -18,28 +20,9 @@ export function ExerciseTypeList({ exerciseTypes, isPending, isError, onStart }:
   return (
     <>
       {exerciseTypes.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Box
-            sx={{
-              width: 64,
-              height: 64,
-              bgcolor: 'grey.100',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mx: 'auto',
-              mb: 2,
-            }}
-          >
-            <Layers sx={{ fontSize: 32, color: 'grey.400' }} />
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#111827', mb: 0.5 }}>
-            {t('exercises.noTypes')}
-          </Typography>
-        </Box>
+        <EmptyState icon={<LayersIcon />} title={t('exercises.noTypes')} />
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div className="flex flex-col gap-4">
           {exerciseTypes.map((type) => (
             <ExerciseTypeCard
               key={type}
@@ -48,14 +31,10 @@ export function ExerciseTypeList({ exerciseTypes, isPending, isError, onStart }:
               onStart={() => onStart(type)}
             />
           ))}
-        </Box>
+        </div>
       )}
 
-      {isError && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {t('common.error')}
-        </Alert>
-      )}
+      {isError && <ErrorAlert className="mt-4" />}
     </>
   );
 }
