@@ -88,7 +88,7 @@ Each phase is one PR that converts a whole feature folder (ADR invariant #2). Ba
 - [x] Remove the "migration in progress" notes from `apps/web/CLAUDE.md` and the reviewer agent
 - [x] Bundle size: `dist/assets/index-*.js` 1,120 kB / 346 kB gzip (Phase 1, both stacks loaded) → **914 kB / 287 kB gzip** (−18% / −17%); CSS 68 kB → 87 kB (Tailwind utilities + shadcn base). Runtime CSS-in-JS (Emotion) is gone entirely.
 - [ ] Consider `npx shadcn eject` if the `shadcn` runtime dependency (`shadcn/tailwind.css`) is unwanted — left as-is for now
-- [ ] Follow-ups outside the migration scope: `react-hook-form` + `@hookform/resolvers` are installed but unused in web; `exercises.vocabulary.title` i18n key reads "Back"; several pages call `navigate()` during render (`LearnWordsSetupPage`, `LearnWordsPreviewPage`, `LearnWordsResultsPage`, `SpeedQuizPage`) — React warns, should move into `useEffect`
+- [ ] Follow-ups outside the migration scope: `exercises.vocabulary.title` i18n key reads "Back"; several pages call `navigate()` during render (`LearnWordsSetupPage`, `LearnWordsPreviewPage`, `LearnWordsResultsPage`, `SpeedQuizPage`) — React warns, should move into `useEffect`
 
 **Done when:** ADR-001 invariant #5 holds. ✅ (`grep -r "@mui" apps/web/src` is empty; no `@mui/*` / `@emotion/*` in `apps/web/package.json`)
 
