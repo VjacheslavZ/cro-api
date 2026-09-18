@@ -60,6 +60,46 @@ export function AddWordModal({
   initialWord = '',
   collections,
 }: AddWordModalProps) {
+  const translationRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent
+        className="sm:max-w-lg"
+        initialFocus={initialWord ? translationRef : undefined}
+      >
+        <AddWordForm
+          initialWord={initialWord}
+          collections={collections}
+          onClose={onClose}
+          onSuccess={onSuccess}
+          translationRef={translationRef}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface AddWordFormProps extends Pick<
+  AddWordModalProps,
+  'onClose' | 'onSuccess' | 'collections'
+> {
+  initialWord: string;
+  translationRef: React.RefObject<HTMLInputElement | null>;
+}
+
+/**
+ * Form body rendered inside `DialogContent`. The dialog unmounts its content
+ * on close, so the form state is seeded fresh from `initialWord` on every open
+ * and discarded on close — no reset effect needed.
+ */
+function AddWordForm({
+  initialWord,
+  collections,
+  onClose,
+  onSuccess,
+  translationRef,
+}: AddWordFormProps) {
   const { t } = useTranslation();
   const id = useId();
   const [wordHr, setWordHr] = useState(initialWord);
@@ -67,8 +107,6 @@ export function AddWordModal({
   const [translation, setTranslation] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [error, setError] = useState('');
-
-  const translationRef = useRef<HTMLInputElement>(null);
 
   const addWord = useAddWord();
   const { data: suggestions, isLoading: suggestionsLoading } =
@@ -81,16 +119,6 @@ export function AddWordModal({
     const id = setTimeout(() => setDebouncedWord(wordHr), 2000);
     return () => clearTimeout(id);
   }, [wordHr]);
-
-  useEffect(() => {
-    if (open) {
-      setWordHr(initialWord);
-      setDebouncedWord(initialWord);
-      setTranslation('');
-      setCollectionId('');
-      setError('');
-    }
-  }, [open, initialWord]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && wordHr.trim() && translation.trim() && !addWord.isPending) {
@@ -134,96 +162,91 @@ export function AddWordModal({
   );
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent
-        className="sm:max-w-lg"
-        initialFocus={initialWord ? translationRef : undefined}
-      >
-        <DialogHeader>
-          <DialogTitle>{t('dictionary.addWordModal.title')}</DialogTitle>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>{t('dictionary.addWordModal.title')}</DialogTitle>
+      </DialogHeader>
 
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor={`${id}-word`}>{t('dictionary.addWordModal.wordLabel')}</Label>
-            <Input id={`${id}-word`} value={wordHr} onChange={(e) => setWordHr(e.target.value)} />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor={`${id}-translation`}>
-              {t('dictionary.addWordModal.translationLabel')}
-            </Label>
-            <Input
-              id={`${id}-translation`}
-              value={translation}
-              onChange={(e) => setTranslation(e.target.value)}
-              ref={translationRef}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {wordHr.length >= 2 && (
-            <div>
-              <div className="flex flex-wrap items-center gap-1">
-                {suggestionsLoading && <Spinner className="size-5" />}
-                {!suggestionsLoading &&
-                  suggestions?.map((s) =>
-                    suggestionChip(`${s.translation} (${s.count})`, s.translation),
-                  )}
-                {aiLoading && <Spinner className="size-3.5" />}
-                {!aiLoading && aiTranslations.map((tr) => suggestionChip(tr, tr))}
-              </div>
-
-              {!aiLoading && aiSentences.length > 0 && (
-                <div className="mt-2 space-y-1 text-sm">
-                  {aiSentences.map((s) => (
-                    <p key={s.hr}>
-                      {s.hr} - <span className="text-muted-foreground">{s.translation}</span>
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {collections.length > 0 && (
-            <div className="grid gap-2">
-              <Label htmlFor={`${id}-collection`}>
-                {t('dictionary.addWordModal.collectionLabel')}
-              </Label>
-              <Select value={collectionId} onValueChange={(value) => setCollectionId(value ?? '')}>
-                <SelectTrigger id={`${id}-collection`} className="w-full">
-                  <SelectValue>
-                    {(value: string) => collections.find((c) => c.id === value)?.name ?? '—'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">—</SelectItem>
-                  {collections.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {error && <ErrorAlert message={error} />}
+      <div className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor={`${id}-word`}>{t('dictionary.addWordModal.wordLabel')}</Label>
+          <Input id={`${id}-word`} value={wordHr} onChange={(e) => setWordHr(e.target.value)} />
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t('dictionary.addWordModal.cancel')}
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!wordHr.trim() || !translation.trim() || addWord.isPending}
-          >
-            {t('dictionary.addWordModal.add')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div className="grid gap-2">
+          <Label htmlFor={`${id}-translation`}>
+            {t('dictionary.addWordModal.translationLabel')}
+          </Label>
+          <Input
+            id={`${id}-translation`}
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
+            ref={translationRef}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+
+        {wordHr.length >= 2 && (
+          <div>
+            <div className="flex flex-wrap items-center gap-1">
+              {suggestionsLoading && <Spinner className="size-5" />}
+              {!suggestionsLoading &&
+                suggestions?.map((s) =>
+                  suggestionChip(`${s.translation} (${s.count})`, s.translation),
+                )}
+              {aiLoading && <Spinner className="size-3.5" />}
+              {!aiLoading && aiTranslations.map((tr) => suggestionChip(tr, tr))}
+            </div>
+
+            {!aiLoading && aiSentences.length > 0 && (
+              <div className="mt-2 space-y-1 text-sm">
+                {aiSentences.map((s) => (
+                  <p key={s.hr}>
+                    {s.hr} - <span className="text-muted-foreground">{s.translation}</span>
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {collections.length > 0 && (
+          <div className="grid gap-2">
+            <Label htmlFor={`${id}-collection`}>
+              {t('dictionary.addWordModal.collectionLabel')}
+            </Label>
+            <Select value={collectionId} onValueChange={(value) => setCollectionId(value ?? '')}>
+              <SelectTrigger id={`${id}-collection`} className="w-full">
+                <SelectValue>
+                  {(value: string) => collections.find((c) => c.id === value)?.name ?? '—'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">—</SelectItem>
+                {collections.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {error && <ErrorAlert message={error} />}
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          {t('dictionary.addWordModal.cancel')}
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={!wordHr.trim() || !translation.trim() || addWord.isPending}
+        >
+          {t('dictionary.addWordModal.add')}
+        </Button>
+      </DialogFooter>
+    </>
   );
 }
