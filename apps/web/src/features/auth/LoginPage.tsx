@@ -81,6 +81,7 @@ export function LoginPage() {
             </Button>
           ) : (
             <EmailAuthForm
+              key={mode}
               mode={mode}
               loading={loading}
               setLoading={setLoading}

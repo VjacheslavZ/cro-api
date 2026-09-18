@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
 
@@ -61,10 +61,6 @@ export function EmailAuthForm({
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    setFormData({ name: '', email: '', password: '' });
-  }, [mode]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
