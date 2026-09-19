@@ -18,6 +18,7 @@ const user1 = {
   avatarUrl: null,
   role: 'STUDENT',
   nativeLanguage: 'EN',
+  theme: 'SYSTEM',
   xpTotal: 0,
   currentStreak: 0,
 };
@@ -63,5 +64,22 @@ describe('LanguageSelectPage', () => {
     expect(store.getState().auth.user).toBeNull();
 
     consoleSpy.mockRestore();
+  });
+
+  it('lets the user pick a theme and saves it on the profile', async () => {
+    mockedApiClient.patch.mockResolvedValue({ data: { ...user1, theme: 'DARK' } });
+    const user = userEvent.setup();
+
+    const { store } = renderWithProviders(<LanguageSelectPage />, {
+      auth: { loading: false, user: user1 },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Dark' }));
+
+    expect(mockedApiClient.patch).toHaveBeenCalledWith('/users/me', { theme: 'DARK' });
+    await waitFor(() => {
+      expect(store.getState().auth.user?.theme).toBe('DARK');
+    });
+    expect(store.getState().preferences.theme).toBe('DARK');
   });
 });

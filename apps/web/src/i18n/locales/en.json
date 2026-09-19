@@ -42,7 +42,8 @@
     "continueWithEmail": "Continue with email",
     "tagline": "Learn Croatian the smart way",
     "languageSubtitle": "This will determine how translations and explanations are shown throughout the app",
-    "changeLanguageLater": "You can change this later in your settings"
+    "changeLanguageLater": "You can change this later in your settings",
+    "themeHint": "Choose how the app looks"
   },
   "lessons": {
     "subtitle": "Structured learning paths combining grammar exercises and vocabulary",
@@ -72,7 +73,8 @@
     "role": "Role",
     "xp": "Total XP",
     "streak": "Current streak",
-    "nativeLanguage": "Native language"
+    "nativeLanguage": "Native language",
+    "theme": "Theme"
   },
   "footer": {
     "aboutUs": "About us",
@@ -226,6 +228,12 @@
     "speech": {
       "title": "Pronunciation",
       "autoPlay": "Auto-play Croatian pronunciation after each answer"
+    },
+    "theme": {
+      "title": "Appearance",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
     }
   },
   "dictionary": {

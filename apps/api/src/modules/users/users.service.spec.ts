@@ -35,6 +35,7 @@ describe('UsersService', () => {
         avatarUrl: null,
         role: 'STUDENT',
         nativeLanguage: 'RU',
+        theme: 'SYSTEM',
         xpTotal: 100,
         currentStreak: 3,
       }));
@@ -66,6 +67,7 @@ describe('UsersService', () => {
         avatarUrl: null,
         role: 'STUDENT',
         nativeLanguage: data.nativeLanguage,
+        theme: 'SYSTEM',
         xpTotal: 50,
         currentStreak: 1,
       }));
@@ -79,6 +81,28 @@ describe('UsersService', () => {
       assert.deepEqual(callArgs.data, dto);
     });
 
+    it('should update the theme preference', async () => {
+      const dto: UpdateUserDto = { theme: 'DARK' as never };
+      prisma.user.update.mock.mockImplementation(async ({ data }: { data: UpdateUserDto }) => ({
+        id: 'user1',
+        email: 'user@example.com',
+        name: 'Ivan',
+        avatarUrl: null,
+        role: 'STUDENT',
+        nativeLanguage: 'RU',
+        theme: data.theme,
+        xpTotal: 50,
+        currentStreak: 1,
+      }));
+
+      const result = await service.updateProfile('user1', dto);
+
+      assert.equal(result.theme, 'DARK');
+      const callArgs = prisma.user.update.mock.calls[0].arguments[0];
+      assert.deepEqual(callArgs.data, dto);
+      assert.equal(callArgs.select.theme, true);
+    });
+
     it('should handle an empty update payload', async () => {
       prisma.user.update.mock.mockImplementation(async () => ({
         id: 'user1',
@@ -87,6 +111,7 @@ describe('UsersService', () => {
         avatarUrl: null,
         role: 'STUDENT',
         nativeLanguage: 'RU',
+        theme: 'SYSTEM',
         xpTotal: 50,
         currentStreak: 1,
       }));

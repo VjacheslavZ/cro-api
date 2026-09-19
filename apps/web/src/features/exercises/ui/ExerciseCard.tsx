@@ -4,9 +4,9 @@ import { cn } from 'cn';
 type ExerciseCardStatus = 'idle' | 'success' | 'warning';
 
 const statusRing: Record<ExerciseCardStatus, string> = {
-  idle: 'shadow-[0_4px_24px_rgba(0,0,0,0.10)]',
-  success: 'shadow-[0_0_0_3px_#22c55e,0_4px_24px_rgba(0,0,0,0.06)]',
-  warning: 'shadow-[0_0_0_3px_#eab308,0_4px_24px_rgba(0,0,0,0.06)]',
+  idle: 'shadow-[0_4px_24px_rgba(0,0,0,0.10)] dark:ring-1 dark:ring-border',
+  success: 'shadow-[0_0_0_3px_var(--color-success),0_4px_24px_rgba(0,0,0,0.06)]',
+  warning: 'shadow-[0_0_0_3px_var(--color-warning),0_4px_24px_rgba(0,0,0,0.06)]',
 };
 
 interface ExerciseCardProps extends ComponentProps<'div'> {

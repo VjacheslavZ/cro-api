@@ -40,22 +40,22 @@ type ModeTone = 'blue' | 'amber' | 'teal' | 'neutral';
 /** Border / background / icon colours for the featured (tinted) and plain mode cards. */
 const toneClass: Record<ModeTone, { card: string; disc: string; accent: string }> = {
   blue: {
-    card: 'border-2 border-blue-200 bg-blue-50 enabled:hover:border-blue-300',
-    disc: 'bg-blue-100',
+    card: 'border-2 border-info-border bg-info-muted enabled:hover:border-info',
+    disc: 'bg-info-muted',
     accent: 'text-primary',
   },
   amber: {
-    card: 'border-2 border-amber-200 bg-amber-50 enabled:hover:border-amber-400',
-    disc: 'bg-amber-100',
-    accent: 'text-amber-600',
+    card: 'border-2 border-warning-border bg-warning-muted enabled:hover:border-warning',
+    disc: 'bg-warning-muted',
+    accent: 'text-warning',
   },
   teal: {
-    card: 'border-2 border-teal-200 bg-teal-50 enabled:hover:border-teal-300',
-    disc: 'bg-teal-100',
-    accent: 'text-teal-600',
+    card: 'border-2 border-teal-200 bg-teal-50 enabled:hover:border-teal-300 dark:border-teal-500/40 dark:bg-teal-500/15 dark:enabled:hover:border-teal-400',
+    disc: 'bg-teal-100 dark:bg-teal-500/20',
+    accent: 'text-teal-600 dark:text-teal-400',
   },
   neutral: {
-    card: 'border bg-card enabled:hover:border-blue-300',
+    card: 'border bg-card enabled:hover:border-info',
     disc: 'bg-muted',
     accent: 'text-muted-foreground',
   },
@@ -173,7 +173,7 @@ export function VocabularyPage() {
     },
     {
       direction: 'translate-to-word',
-      icon: <TypeIcon className="text-purple-600" />,
+      icon: <TypeIcon className="text-purple-600 dark:text-purple-400" />,
       titleKey: 'exercises.vocabulary.translateToWord',
       descKey: 'exercises.vocabulary.translateToWordDesc',
     },
@@ -185,7 +185,7 @@ export function VocabularyPage() {
     },
     {
       direction: 'matching',
-      icon: <EarIcon className="text-amber-600" />,
+      icon: <EarIcon className="text-warning" />,
       titleKey: 'exercises.vocabulary.matching',
       descKey: 'exercises.vocabulary.matchingDesc',
     },
@@ -206,13 +206,13 @@ export function VocabularyPage() {
           <ErrorAlert message={t('dictionary.practice.noWords')} className="mb-4" />
         )}
         {speedQuizError && (
-          <Alert className="mb-4 border-amber-300 text-amber-800">
+          <Alert className="mb-4 border-warning-border text-warning-muted-foreground">
             <TriangleAlertIcon />
             <AlertTitle>{t('exercises.speedQuiz.notEnoughWords')}</AlertTitle>
           </Alert>
         )}
         {reviewError && (
-          <Alert className="mb-4 border-amber-300 text-amber-800">
+          <Alert className="mb-4 border-warning-border text-warning-muted-foreground">
             <TriangleAlertIcon />
             <AlertTitle>{t('dictionary.review.noWordsDue')}</AlertTitle>
           </Alert>
@@ -251,7 +251,9 @@ export function VocabularyPage() {
               <>
                 {t('exercises.vocabulary.revision')}
                 {!!reviewDueCount && (
-                  <Badge className="bg-teal-600 font-bold text-white">{reviewDueCount}</Badge>
+                  <Badge className="bg-teal-600 font-bold text-white dark:bg-teal-500 dark:text-teal-950">
+                    {reviewDueCount}
+                  </Badge>
                 )}
               </>
             }

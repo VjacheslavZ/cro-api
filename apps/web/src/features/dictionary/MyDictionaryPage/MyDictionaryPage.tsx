@@ -73,7 +73,10 @@ export function MyDictionaryPage() {
       <div className="mb-2 flex items-center gap-3">
         <h1 className="text-3xl font-bold text-foreground">{t('dictionary.title')}</h1>
         {!isLoading && (
-          <Badge variant="outline" className="h-6 border-blue-200 bg-blue-50 text-sm text-blue-700">
+          <Badge
+            variant="outline"
+            className="h-6 border-info-border bg-info-muted text-sm text-info-muted-foreground"
+          >
             {total}
           </Badge>
         )}

@@ -7,7 +7,7 @@
  * Speaks each Croatian word when selected. Calls onComplete once all pairs are matched.
  * @usedBy LearnWordsSessionPage
  */
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryPracticeItem } from '@cro/shared';
 import { CircleCheckIcon, Volume2Icon } from 'lucide-react';
@@ -46,9 +46,10 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
   const { t } = useTranslation();
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const shuffledTranslations = useMemo<TranslationOption[]>(
-    () => shuffle(items.map((item) => ({ wordId: item.wordId, translation: item.translation }))),
-    [],
+  // Shuffled once on mount and kept for the lifetime of the exercise — it is state, not a
+  // derived value, so a re-render with a new `items` array must not reorder the board.
+  const [shuffledTranslations] = useState<TranslationOption[]>(() =>
+    shuffle(items.map((item) => ({ wordId: item.wordId, translation: item.translation }))),
   );
 
   // wordId -> whether it was matched without errors
@@ -117,10 +118,10 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
                 className={cn(
                   tileClass,
                   isMatched
-                    ? 'border-green-500 bg-green-100 text-green-900'
+                    ? 'border-success bg-success-muted text-success-muted-foreground'
                     : isSelected
-                      ? 'border-2 border-primary bg-green-50 text-primary'
-                      : 'hover:bg-green-50',
+                      ? 'border-2 border-primary bg-success-muted text-primary'
+                      : 'hover:bg-success-muted',
                 )}
               >
                 {isMatched ? (
@@ -152,9 +153,9 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
                 className={cn(
                   tileClass,
                   isMatched
-                    ? 'border-green-500 bg-green-100 text-green-900'
+                    ? 'border-success bg-success-muted text-success-muted-foreground'
                     : isFlashWrong
-                      ? 'border-destructive bg-red-100 text-destructive'
+                      ? 'border-destructive bg-destructive-muted text-destructive'
                       : selectedWordId && 'hover:bg-muted',
                 )}
               >
@@ -166,7 +167,7 @@ export function MatchingExercise({ items, onComplete }: MatchingExerciseProps) {
       </div>
 
       {isComplete && (
-        <Alert className="mt-4 border-green-500 text-green-800">
+        <Alert className="mt-4 border-success text-success-muted-foreground">
           <CircleCheckIcon />
           <AlertTitle>{t('exercises.matching.complete')}</AlertTitle>
         </Alert>

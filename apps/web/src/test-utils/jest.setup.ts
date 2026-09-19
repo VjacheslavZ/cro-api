@@ -18,3 +18,19 @@ Element.prototype.matches = function matches(selectors: string) {
   if (TOP_LAYER_PSEUDO.test(selectors)) return false;
   return originalMatches.call(this, selectors);
 };
+
+// jsdom has no `matchMedia`; the theme code resolves SYSTEM against it.
+// Default to a light OS scheme, individual tests can override `matches`.
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});

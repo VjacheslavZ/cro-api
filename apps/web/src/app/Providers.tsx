@@ -7,10 +7,12 @@ import { store } from '@/store';
 
 import { queryClient } from '../api/query-client';
 import i18n from '../i18n';
+import { ThemeEffect } from './ThemeEffect';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ReduxProvider store={store}>
+      <ThemeEffect />
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
       </QueryClientProvider>

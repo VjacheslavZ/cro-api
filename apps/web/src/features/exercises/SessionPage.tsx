@@ -104,7 +104,7 @@ export function SessionPage() {
   const currentItem = items[currentIndex];
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[linear-gradient(135deg,#eff6ff_0%,#e0e7ff_100%)] px-4 py-12">
+    <div className="min-h-[calc(100vh-64px)] bg-page-gradient px-4 py-12">
       <div className="mx-auto max-w-2xl">
         <ExerciseProgressHeader
           currentIndex={currentIndex}

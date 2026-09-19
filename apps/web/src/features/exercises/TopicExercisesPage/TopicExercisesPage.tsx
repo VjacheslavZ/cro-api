@@ -6,7 +6,7 @@
  * (via location.state.autoStartExerciseType).
  * @usedBy AppRouter (/exercises/:topicId)
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -17,12 +17,12 @@ import { ErrorAlert } from '@/components/ErrorAlert';
 import { PageContainer } from '@/components/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAppSelector } from '@/store';
+import { apiClient } from '@/api/client.ts';
+import { useCreateSession } from '@/api/exercises.ts';
+import type { CreateSessionResponse } from '@/api/exercises.ts';
+import { getLocalizedName, getRulesHtml } from '@/shared/lib/content-utils.ts';
 
-import { useAppSelector } from '../../../store';
-import { apiClient } from '../../../api/client.ts';
-import { useCreateSession } from '../../../api/exercises.ts';
-import type { CreateSessionResponse } from '../../../api/exercises.ts';
-import { getLocalizedName, getRulesHtml } from '../../../shared/lib/content-utils.ts';
 import { CycleResetDialog } from '../CycleResetDialog.tsx';
 import { ExerciseTypeList } from './ExerciseTypeList.tsx';
 
@@ -58,30 +58,34 @@ export function TopicExercisesPage() {
     exerciseType: string;
   } | null>(null);
 
-  const handleStartExercise = async (exerciseType: string) => {
-    try {
-      const result: CreateSessionResponse = await createSession.mutateAsync({
-        topicId: topicId!,
-        exerciseType,
-      });
-      if (result.cycleExhausted) {
-        setCycleResetInfo({ topicId: topicId!, exerciseType });
-        return;
-      }
-      if (result.session) {
-        navigate(`/exercises/session/${result.session.id}`, {
-          state: {
-            items: result.session.items,
-            exerciseType: result.session.exerciseType,
-            totalQuestions: result.session.totalQuestions,
-            rulesHtml: getRulesHtml(result.session, user?.nativeLanguage ?? null),
-          },
+  const handleStartExercise = useCallback(
+    (exerciseType: string) => async () => {
+      console.log('handleStartExercise ---- ');
+      try {
+        const result: CreateSessionResponse = await createSession.mutateAsync({
+          topicId: topicId!,
+          exerciseType,
         });
+        if (result.cycleExhausted) {
+          setCycleResetInfo({ topicId: topicId!, exerciseType });
+          return;
+        }
+        if (result.session) {
+          navigate(`/exercises/session/${result.session.id}`, {
+            state: {
+              items: result.session.items,
+              exerciseType: result.session.exerciseType,
+              totalQuestions: result.session.totalQuestions,
+              rulesHtml: getRulesHtml(result.session, user?.nativeLanguage ?? null),
+            },
+          });
+        }
+      } catch {
+        // Error handled by mutation state
       }
-    } catch {
-      // Error handled by mutation state
-    }
-  };
+    },
+    [createSession, navigate, topicId, user],
+  );
 
   useEffect(() => {
     const state = location.state as { autoStartExerciseType?: string } | null;
@@ -90,7 +94,7 @@ export function TopicExercisesPage() {
       navigate(location.pathname, { replace: true, state: null });
       handleStartExercise(state.autoStartExerciseType);
     }
-  }, [location.state]);
+  }, [location.state, handleStartExercise, location.pathname, navigate]);
 
   const autoStartState = location.state as { autoStartExerciseType?: string } | null;
   const isPageLoading = isLoading || !!autoStartState?.autoStartExerciseType;

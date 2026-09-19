@@ -20,7 +20,7 @@ export function ExerciseTypeCard({ type, isPending, onStart }: Props) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-6 rounded-xl border bg-card p-6 transition-[box-shadow,border-color] hover:border-blue-300 hover:shadow-lg">
+    <div className="flex items-center gap-6 rounded-xl border bg-card p-6 transition-[box-shadow,border-color] hover:border-info hover:shadow-lg">
       <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
         {getExerciseTypeIcon(type)}
       </div>

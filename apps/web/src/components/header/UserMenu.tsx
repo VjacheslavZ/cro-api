@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOutIcon, SettingsIcon } from 'lucide-react';
+import { LogOutIcon, SettingsIcon, SunMoonIcon } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { clearAuth } from '@/store/auth.slice.ts';
 import { authClient } from '@/lib/auth-client';
+
+import { ThemeRadioItems } from './ThemeMenu';
 
 export function UserMenu() {
   const { t } = useTranslation();
@@ -57,6 +62,15 @@ export function UserMenu() {
           <SettingsIcon />
           {t('header.settings')}
         </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <SunMoonIcon />
+            {t('header.theme')}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <ThemeRadioItems />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleLogout}>
           <LogOutIcon />

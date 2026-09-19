@@ -21,7 +21,9 @@ For exercise type definitions, payment architecture, and domain models, see `pac
 | Toasts | `toast()` from `sonner`; `<Toaster />` is mounted in `AppRouter` |
 | `@/` alias | → `src/` (vite, tsconfig, jest). Imports from `@/…` are the `internal` ESLint group and go **before** relative imports |
 
-**Tokens** (use classes, not hex): `primary` (brand blue), `foreground`, `muted-foreground`, `border`, `destructive`, plus project colours `success`, `xp` / `xp-foreground` / `xp-muted` / `xp-border`, `streak` / `streak-foreground` / `streak-muted` / `streak-border`.
+**Tokens** (use classes, not hex — every token has light **and** dark values, so hard-coded palette classes like `bg-blue-50` / `text-green-800` are not allowed in feature code): `primary` (brand blue), `foreground`, `muted-foreground`, `border`, `destructive`, plus project tones `info` (blue), `success` (green), `warning` (amber), `destructive` (red), each as `T` (solid / icon / strong border), `T-foreground` (text on solid), `T-muted` (tinted surface), `T-border` (subtle border), `T-muted-foreground` (text on tinted surface); `xp` / `xp-foreground` / `xp-muted` / `xp-border`, `streak` / … likewise; `bg-page-gradient` for the auth / session backdrop. One-off accents (teal, purple) keep palette classes with explicit `dark:` variants.
+
+**Theming** (System / Light / Dark): the `dark` class on `<html>` drives every `dark:` utility (`@custom-variant dark` in `globals.css`). Source of truth is `state.preferences.theme` (`'SYSTEM' | 'LIGHT' | 'DARK'`, persisted in `localStorage` `cro_preferences`); `src/app/ThemeEffect.tsx` applies it and follows `prefers-color-scheme` while SYSTEM. An inline script in `index.html` reads the same key before the first paint (no light flash) — keep it in sync with `src/lib/theme.ts`. For signed-in users the choice is also stored on the profile (`User.theme`) and **the server value wins** whenever the profile is loaded (`fetchMe`) or updated (`setUser`); logout does *not* reset the local theme. All switchers (`ThemeToggleGroup` in Settings and on `/language-select`, `ThemeMenu` for guests, the `UserMenu` submenu) go through `useThemeSetting()` — apply locally first, then `PATCH /users/me { theme }`. `useResolvedTheme()` gives the on-screen `'light' | 'dark'` (used by `Toaster`). Known limitation: a guest who picks Dark and then registers gets the account default (`SYSTEM`) back — hence the switcher on the language-select screen.
 
 **Typography recipe** (no `Typography` component): page title `text-3xl font-semibold`, section `text-2xl font-semibold`, card title `text-lg font-medium`, body `text-sm`, hint `text-xs text-muted-foreground`.
 
@@ -84,7 +86,7 @@ Two slices in `src/store/`:
 | Slice | File | Owns |
 |-------|------|------|
 | `auth` | `auth.slice.ts` | `user: UserProfile \| null`, `loading: boolean`. Populated by `fetchMe` thunk. Cleared on logout or expired refresh token. |
-| `preferences` | `preferences.slice.ts` | `speechEnabled: boolean`. Persisted to `localStorage` (`cro_preferences` key). Not server state — never in TanStack Query. |
+| `preferences` | `preferences.slice.ts` | `speechEnabled: boolean`, `theme: 'SYSTEM' \| 'LIGHT' \| 'DARK'`. Persisted to `localStorage` (`cro_preferences` key). Device preferences — never in TanStack Query. `theme` is mirrored to the profile for signed-in users (see Theming); the slice must stay free of imports from `auth.slice` / `api/*` to avoid an import cycle. |
 
 ---
 

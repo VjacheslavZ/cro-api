@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import { authReducer, setUser, setCredentials, clearAuth, type UserProfile } from './auth.slice';
+import { authReducer, setUser, clearAuth, type UserProfile } from './auth.slice';
+import { preferencesReducer } from './preferences.slice';
 import { fetchMe } from '../api/auth';
 
 const profile: UserProfile = {
@@ -10,12 +11,13 @@ const profile: UserProfile = {
   avatarUrl: null,
   role: 'STUDENT',
   nativeLanguage: 'EN',
+  theme: 'SYSTEM',
   xpTotal: 10,
   currentStreak: 1,
 };
 
 function createTestStore() {
-  return configureStore({ reducer: { auth: authReducer } });
+  return configureStore({ reducer: { auth: authReducer, preferences: preferencesReducer } });
 }
 
 describe('auth.slice', () => {
@@ -30,10 +32,10 @@ describe('auth.slice', () => {
     expect(store.getState().auth.user).toEqual(profile);
   });
 
-  it('setCredentials sets the user in state', () => {
+  it('setUser adopts the theme stored on the profile', () => {
     const store = createTestStore();
-    store.dispatch(setCredentials({ user: profile }));
-    expect(store.getState().auth.user).toEqual(profile);
+    store.dispatch(setUser({ ...profile, theme: 'DARK' }));
+    expect(store.getState().preferences.theme).toBe('DARK');
   });
 
   it('clearAuth clears the user', () => {

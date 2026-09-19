@@ -6,15 +6,15 @@
  * Speaks the word on completion. isCorrect = true only if completed with no errors and no hint.
  * @usedBy LearnWordsSessionPage
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useEffectEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRightIcon, LightbulbIcon } from 'lucide-react';
 import { cn } from 'cn';
 
 import { Button } from '@/components/ui/button';
+import { useSpeech } from '@/shared/hooks/useSpeech.ts';
 
 import { type PoolLetter, buildPool } from './helpers';
-import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 import { ExerciseProgressHeader } from '../ExerciseProgressHeader';
 import { ExerciseActionButton } from '../ui/ExerciseActionButton';
 import { ExerciseCard } from '../ui/ExerciseCard';
@@ -66,66 +66,54 @@ export function LetterPickExercise({
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    setPlaced([]);
-    setPool(buildPool(wordHr));
-    setFlashErrorId(null);
-    setHasError(false);
-    setHintUsed(false);
-    setIsComplete(false);
-  }, [itemId, wordHr]);
-
-  useEffect(() => {
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
       if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
     };
   }, []);
 
-  const processLetter = useCallback(
-    (letter: PoolLetter) => {
-      if (isComplete || letter.used) return;
-      const expectedChar = wordHr.toLowerCase()[placed.length];
-
-      if (letter.char === expectedChar) {
-        const newPlaced = [...placed, letter.char];
-        setPool((prev) => prev.map((l) => (l.id === letter.id ? { ...l, used: true } : l)));
-        setPlaced(newPlaced);
-        if (newPlaced.length === wordHr.length) {
-          setIsComplete(true);
-        }
-      } else {
-        if (!hasError) setHasError(true);
-        if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-        setFlashErrorId(letter.id);
-        flashTimerRef.current = setTimeout(() => setFlashErrorId(null), 500);
-      }
-    },
-    [isComplete, wordHr, placed, hasError],
-  );
-
-  useEffect(() => {
-    if (!isComplete) return;
+  const complete = (withError: boolean) => {
+    setIsComplete(true);
     speak(wordToSpeak ?? wordHr);
-    if (!hasError) {
+    if (!withError) {
       advanceTimerRef.current = setTimeout(() => {
         onAnswer({ itemId, givenAnswer: wordHr, isCorrect: true });
       }, CORRECT_DELAY);
     }
-  }, [isComplete]);
+  };
+
+  const processLetter = (letter: PoolLetter) => {
+    if (isComplete || letter.used) return;
+    const expectedChar = wordHr.toLowerCase()[placed.length];
+
+    if (letter.char === expectedChar) {
+      const newPlaced = [...placed, letter.char];
+      setPool((prev) => prev.map((l) => (l.id === letter.id ? { ...l, used: true } : l)));
+      setPlaced(newPlaced);
+      if (newPlaced.length === wordHr.length) {
+        complete(hasError);
+      }
+    } else {
+      if (!hasError) setHasError(true);
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      setFlashErrorId(letter.id);
+      flashTimerRef.current = setTimeout(() => setFlashErrorId(null), 500);
+    }
+  };
+
+  const handleKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    if (isComplete) return;
+    if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+    const typedChar = e.key.toLowerCase();
+    const letter = pool.find((l) => !l.used && l.char === typedChar);
+    if (letter) processLetter(letter);
+  });
 
   useEffect(() => {
-    if (isComplete) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
-      const typedChar = e.key.toLowerCase();
-      const letter = pool.find((l) => !l.used && l.char === typedChar);
-      if (letter) processLetter(letter);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [pool, isComplete, processLetter]);
+    const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [pool, isComplete]);
 
   const handleHint = () => {
     if (isComplete) return;
@@ -141,9 +129,7 @@ export function LetterPickExercise({
     const newPlaced = [...placed, hintLetter.char];
     setPool((prev) => prev.map((l) => (l.id === hintLetter.id ? { ...l, used: true } : l)));
     setPlaced(newPlaced);
-    if (newPlaced.length === wordHr.length) {
-      setIsComplete(true);
-    }
+    if (newPlaced.length === wordHr.length) complete(true);
   };
 
   const handleReset = () => {
@@ -157,15 +143,15 @@ export function LetterPickExercise({
 
   const getSlotClass = (idx: number) => {
     if (placed[idx] === undefined) {
-      return 'border-neutral-300 bg-neutral-50 text-neutral-400';
+      return 'border-input bg-muted/50 text-muted-foreground/70';
     }
     if (!isComplete) {
-      return 'border-blue-500 bg-blue-100 text-blue-700';
+      return 'border-info bg-info-muted text-info-muted-foreground';
     }
     if (!hasError) {
-      return 'border-green-500 bg-green-100 text-green-700';
+      return 'border-success bg-success-muted text-success-muted-foreground';
     }
-    return 'border-yellow-500 bg-yellow-100 text-yellow-700';
+    return 'border-warning bg-warning-muted text-warning-muted-foreground';
   };
 
   return (
@@ -213,7 +199,7 @@ export function LetterPickExercise({
                 onClick={() => processLetter(letter)}
                 disabled={isComplete}
                 className={cn(
-                  'size-13 rounded-lg border-neutral-300 p-0 text-lg font-bold text-neutral-700 transition-colors hover:border-purple-400 hover:bg-purple-50',
+                  'size-13 rounded-lg border-input p-0 text-lg font-bold text-foreground transition-colors hover:border-purple-400 hover:bg-purple-50 dark:hover:border-purple-500 dark:hover:bg-purple-500/15',
                   flashErrorId === letter.id && 'border-destructive text-destructive',
                 )}
               >

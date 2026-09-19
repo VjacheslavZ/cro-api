@@ -45,7 +45,7 @@ export function DictionaryBatchActions({
   };
 
   return (
-    <div className="fixed bottom-1/6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-neutral-900 px-6 py-3 whitespace-nowrap text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+    <div className="fixed bottom-1/6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-neutral-900 px-6 py-3 whitespace-nowrap text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] dark:bg-neutral-800 dark:ring-1 dark:ring-white/10">
       <span className="text-sm font-medium">
         {t('dictionary.selected', { count: selectedIds.size })}
       </span>

@@ -6,11 +6,10 @@ import { cn } from 'cn';
 import { PageContainer } from '@/components/PageContainer';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
-
-import { useAppSelector } from '../../store';
-import { useTopics } from '../../api/content';
-import { useDictionaryLearnedWordCount, useDictionaryReviewDueCount } from '../../api/dictionary';
-import { useLaunchDictionaryReview } from '../../shared/hooks/useLaunchDictionaryReview.ts';
+import { useAppSelector } from '@/store';
+import { useTopics } from '@/api/content.ts';
+import { useDictionaryLearnedWordCount, useDictionaryReviewDueCount } from '@/api/dictionary.ts';
+import { useLaunchDictionaryReview } from '@/shared/hooks/useLaunchDictionaryReview.ts';
 
 export function HomePage() {
   const { t } = useTranslation();
@@ -23,7 +22,7 @@ export function HomePage() {
   const stats = [
     {
       icon: <BookOpenIcon />,
-      toneClass: 'bg-blue-100 text-primary',
+      toneClass: 'bg-info-muted text-primary',
       value: topics?.length ?? '—',
       label: t('home.statsGrammarTopics'),
     },
@@ -129,7 +128,9 @@ export function HomePage() {
             <div className="mb-2 flex items-center gap-2">
               <h2 className="text-lg font-semibold">{action.title}</h2>
               {!!action.badge && (
-                <Badge className="bg-teal-600 font-bold text-white">{action.badge}</Badge>
+                <Badge className="bg-teal-600 font-bold text-white dark:bg-teal-500 dark:text-teal-950">
+                  {action.badge}
+                </Badge>
               )}
             </div>
             <p className="mb-6 flex-1 text-sm text-muted-foreground">{action.description}</p>

@@ -9,7 +9,7 @@ interface AuthLayoutProps {
 /** Full-screen gradient backdrop with the CroGrammar mark, shared by the pre-app auth screens. */
 export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[linear-gradient(135deg,#eff6ff_0%,#e0e7ff_100%)] p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-page-gradient p-4">
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary">
           <span className="text-[26px] leading-none font-bold text-primary-foreground">C</span>

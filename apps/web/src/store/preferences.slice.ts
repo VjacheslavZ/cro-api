@@ -1,19 +1,38 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-interface PreferencesState {
-  speechEnabled: boolean;
+export const THEME_VALUES = ['SYSTEM', 'LIGHT', 'DARK'] as const;
+export type ThemeValue = (typeof THEME_VALUES)[number];
+
+export function isTheme(value: unknown): value is ThemeValue {
+  return typeof value === 'string' && (THEME_VALUES as readonly string[]).includes(value);
 }
 
+interface PreferencesState {
+  speechEnabled: boolean;
+  theme: ThemeValue;
+}
+
+const DEFAULTS: PreferencesState = { speechEnabled: true, theme: 'SYSTEM' };
+
+// Also read by the pre-hydration script in `index.html` — keep the key and the
+// `{ speechEnabled, theme }` shape in sync with it.
 const STORAGE_KEY = 'cro_preferences';
 
 function loadFromStorage(): PreferencesState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as PreferencesState;
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<PreferencesState>;
+      return {
+        ...DEFAULTS,
+        ...parsed,
+        theme: isTheme(parsed.theme) ? parsed.theme : DEFAULTS.theme,
+      };
+    }
   } catch {
     // ignore
   }
-  return { speechEnabled: true };
+  return { ...DEFAULTS };
 }
 
 function saveToStorage(state: PreferencesState) {
@@ -28,8 +47,13 @@ const preferencesSlice = createSlice({
       state.speechEnabled = action.payload;
       saveToStorage(state);
     },
+    setTheme(state, action: PayloadAction<string>) {
+      if (!isTheme(action.payload) || state.theme === action.payload) return;
+      state.theme = action.payload;
+      saveToStorage(state);
+    },
   },
 });
 
-export const { setSpeechEnabled } = preferencesSlice.actions;
+export const { setSpeechEnabled, setTheme } = preferencesSlice.actions;
 export const preferencesReducer = preferencesSlice.reducer;

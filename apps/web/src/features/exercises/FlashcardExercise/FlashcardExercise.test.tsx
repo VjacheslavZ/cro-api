@@ -77,6 +77,7 @@ describe('FlashcardExercise', () => {
           avatarUrl: null,
           role: 'STUDENT',
           nativeLanguage: 'RU',
+          theme: 'SYSTEM',
           xpTotal: 0,
           currentStreak: 0,
         },

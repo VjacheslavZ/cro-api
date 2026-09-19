@@ -15,7 +15,7 @@ export function ResultBanner({ phase, correctSentence, onRetry }: Props) {
 
   if (phase === 'correct') {
     return (
-      <Alert className="mt-2 border-green-500 text-green-800">
+      <Alert className="mt-2 border-success text-success-muted-foreground">
         <CircleCheckIcon />
         <AlertTitle>{t('exercises.buildSentence.correct')}</AlertTitle>
       </Alert>

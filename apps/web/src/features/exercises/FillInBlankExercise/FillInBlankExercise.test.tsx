@@ -41,6 +41,7 @@ describe('FillInBlankExercise', () => {
           avatarUrl: null,
           role: 'STUDENT',
           nativeLanguage: 'UK',
+          theme: 'SYSTEM',
           xpTotal: 0,
           currentStreak: 0,
         },

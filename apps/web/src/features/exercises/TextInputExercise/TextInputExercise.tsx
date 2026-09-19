@@ -8,7 +8,7 @@
  * Keyboard shortcut: Enter to check (when input is non-empty), Enter again to advance.
  * @usedBy TypeTheAnswerExercise, FillInBlankExercise, LearnWordsSessionPage, DictionaryPracticePage
  */
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, type ReactNode, useEffectEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 import { ArrowRightIcon, LightbulbIcon } from 'lucide-react';
@@ -74,29 +74,32 @@ export function TextInputExercise({
   // Use a ref so handleCheck always reads the latest value synchronously
   const hintUsedRef = useRef(false);
 
+  const handleNext = () => {
+    onAnswer({ itemId, givenAnswer: input, isCorrect });
+  };
+
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
 
+  const handleKeyDownEnter = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNext();
+    }
+  });
+
   useEffect(() => {
     if (!checked || isCorrect) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleNext();
-      }
-    };
-
     // Defer listener so it doesn't catch the same Enter that triggered handleCheck
     const frameId = requestAnimationFrame(() => {
-      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keydown', handleKeyDownEnter);
     });
 
     return () => {
       cancelAnimationFrame(frameId);
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', handleKeyDownEnter);
     };
   }, [checked, isCorrect]);
 
@@ -138,10 +141,6 @@ export function TextInputExercise({
     }
   };
 
-  const handleNext = () => {
-    onAnswer({ itemId, givenAnswer: input, isCorrect });
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter') {
@@ -179,7 +178,7 @@ export function TextInputExercise({
             placeholder={placeholder}
             disabled={checked}
             autoFocus
-            className="h-14 flex-1 rounded-full border-transparent bg-neutral-100 px-5 text-lg shadow-none focus-visible:border-transparent focus-visible:ring-0 md:text-lg"
+            className="h-14 flex-1 rounded-full border-transparent bg-muted px-5 text-lg shadow-none focus-visible:border-transparent focus-visible:ring-0 md:text-lg"
           />
           <Button
             variant="outline"

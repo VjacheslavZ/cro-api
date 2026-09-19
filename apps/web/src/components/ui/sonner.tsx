@@ -8,34 +8,40 @@ import {
   Loader2Icon,
 } from 'lucide-react';
 
-// The app has no dark mode (see ADR-001), so the theme is fixed to light
-// instead of the registry default that reads it from `next-themes`.
-const Toaster = ({ ...props }: ToasterProps) => (
-  <Sonner
-    theme="light"
-    className="toaster group"
-    icons={{
-      success: <CircleCheckIcon className="size-4" />,
-      info: <InfoIcon className="size-4" />,
-      warning: <TriangleAlertIcon className="size-4" />,
-      error: <OctagonXIcon className="size-4" />,
-      loading: <Loader2Icon className="size-4 animate-spin" />,
-    }}
-    style={
-      {
-        '--normal-bg': 'var(--popover)',
-        '--normal-text': 'var(--popover-foreground)',
-        '--normal-border': 'var(--border)',
-        '--border-radius': 'var(--radius)',
-      } as CSSProperties
-    }
-    toastOptions={{
-      classNames: {
-        toast: 'cn-toast',
-      },
-    }}
-    {...props}
-  />
-);
+import { useResolvedTheme } from '@/shared/hooks/useResolvedTheme';
+
+// The registry default reads the theme from `next-themes`; here it comes from
+// the Redux `preferences` slice via `useResolvedTheme`.
+const Toaster = ({ ...props }: ToasterProps) => {
+  const theme = useResolvedTheme();
+
+  return (
+    <Sonner
+      theme={theme}
+      className="toaster group"
+      icons={{
+        success: <CircleCheckIcon className="size-4" />,
+        info: <InfoIcon className="size-4" />,
+        warning: <TriangleAlertIcon className="size-4" />,
+        error: <OctagonXIcon className="size-4" />,
+        loading: <Loader2Icon className="size-4 animate-spin" />,
+      }}
+      style={
+        {
+          '--normal-bg': 'var(--popover)',
+          '--normal-text': 'var(--popover-foreground)',
+          '--normal-border': 'var(--border)',
+          '--border-radius': 'var(--radius)',
+        } as CSSProperties
+      }
+      toastOptions={{
+        classNames: {
+          toast: 'cn-toast',
+        },
+      }}
+      {...props}
+    />
+  );
+};
 
 export { Toaster };

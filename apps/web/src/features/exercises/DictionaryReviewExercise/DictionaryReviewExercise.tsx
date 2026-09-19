@@ -37,7 +37,7 @@ const RATINGS: {
     rating: FsrsRating.HARD,
     labelKey: 'dictionary.review.hard',
     intervalKey: 'hard',
-    className: 'bg-amber-500 text-white hover:bg-amber-500/90',
+    className: 'bg-warning text-warning-foreground hover:bg-warning/90',
   },
   {
     rating: FsrsRating.GOOD,

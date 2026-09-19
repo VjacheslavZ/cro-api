@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -13,16 +13,13 @@ interface Props {
 export function WordOptions({ currentWordIndex, totalWords, options, onOptionClick }: Props) {
   const { t } = useTranslation();
 
-  // Keep a ref so the keydown handler always calls the latest closure without
-  // needing to be re-registered on every render.
-  const onOptionClickRef = useRef(onOptionClick);
-  onOptionClickRef.current = onOptionClick;
+  const handleOptionKey = useEffectEvent((option: string) => onOptionClick(option));
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const num = parseInt(e.key, 10);
       if (num >= 1 && num <= options.length) {
-        onOptionClickRef.current(options[num - 1]);
+        handleOptionKey(options[num - 1]);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
