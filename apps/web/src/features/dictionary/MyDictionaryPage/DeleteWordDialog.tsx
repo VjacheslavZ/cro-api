@@ -11,21 +11,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useDeleteWord } from '@/api/dictionary.ts';
 
 interface DeleteWordDialogProps {
   /** The word pending deletion. Passing `null` closes the dialog. */
   word: DictionaryWord | null;
-  /** Disables the confirm button while the delete request is in-flight. */
-  isPending: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
+  /** Called after the word has been deleted (before `onClose`). */
+  onDeleted: (wordId: string) => void;
+  onClose: () => void;
 }
 
-export function DeleteWordDialog({ word, isPending, onConfirm, onCancel }: DeleteWordDialogProps) {
+/** Confirmation dialog for deleting a single word. Owns the delete mutation. */
+export function DeleteWordDialog({ word, onDeleted, onClose }: DeleteWordDialogProps) {
   const { t } = useTranslation();
+  const deleteWord = useDeleteWord();
+
+  const handleConfirm = async () => {
+    if (!word) return;
+    await deleteWord.mutateAsync(word.id);
+    onDeleted(word.id);
+    onClose();
+  };
 
   return (
-    <AlertDialog open={word !== null} onOpenChange={(open) => !open && onCancel()}>
+    <AlertDialog open={word !== null} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t('dictionary.deleteConfirm.title')}</AlertDialogTitle>
@@ -35,7 +44,11 @@ export function DeleteWordDialog({ word, isPending, onConfirm, onCancel }: Delet
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onConfirm} disabled={isPending}>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={deleteWord.isPending}
+          >
             {t('dictionary.deleteConfirm.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>

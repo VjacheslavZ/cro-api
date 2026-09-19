@@ -1,8 +1,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { authClient } from '@/lib/auth-client.ts';
+
 import { renderWithProviders } from '../../test-utils/renderWithProviders';
-import { authClient } from '../../lib/auth-client';
 import { EmailAuthForm } from './EmailAuthForm';
 
 jest.mock('../../lib/auth-client', () => ({
@@ -27,27 +28,29 @@ describe('EmailAuthForm', () => {
     mockedAuthClient.signIn.email.mockResolvedValue({ error: null });
     const onSuccess = jest.fn();
     const onError = jest.fn();
-    const setFormData = jest.fn();
+    const setLoading = jest.fn();
     const user = userEvent.setup();
 
     renderWithProviders(
       <EmailAuthForm
         mode="login"
         loading={false}
-        setLoading={jest.fn()}
+        setLoading={setLoading}
         onSuccess={onSuccess}
         onError={onError}
-        formData={{ name: '', email: 'a@b.com', password: 'password1' }}
-        setFormData={setFormData}
       />,
     );
 
+    await user.type(screen.getByLabelText(/Email/), 'a@b.com');
+    await user.type(screen.getByLabelText(/Password/), 'password1');
     await user.click(screen.getByRole('button', { name: 'Log in' }));
 
     expect(mockedAuthClient.signIn.email).toHaveBeenCalledWith({
       email: 'a@b.com',
       password: 'password1',
     });
+    expect(setLoading).toHaveBeenCalledWith(true);
+    expect(setLoading).toHaveBeenLastCalledWith(false);
     expect(onSuccess).toHaveBeenCalled();
   });
 
@@ -66,11 +69,11 @@ describe('EmailAuthForm', () => {
         setLoading={jest.fn()}
         onSuccess={onSuccess}
         onError={onError}
-        formData={{ name: '', email: 'a@b.com', password: 'password1' }}
-        setFormData={jest.fn()}
       />,
     );
 
+    await user.type(screen.getByLabelText(/Email/), 'a@b.com');
+    await user.type(screen.getByLabelText(/Password/), 'password1');
     await user.click(screen.getByRole('button', { name: 'Log in' }));
 
     expect(onError).toHaveBeenCalledWith('Invalid credentials');
@@ -89,13 +92,12 @@ describe('EmailAuthForm', () => {
         setLoading={jest.fn()}
         onSuccess={onSuccess}
         onError={jest.fn()}
-        formData={{ name: 'John', email: 'john@b.com', password: 'password1' }}
-        setFormData={jest.fn()}
       />,
     );
 
-    expect(screen.getByLabelText(/Name/)).toBeInTheDocument();
-
+    await user.type(screen.getByLabelText(/Name/), 'John');
+    await user.type(screen.getByLabelText(/Email/), 'john@b.com');
+    await user.type(screen.getByLabelText(/Password/), 'password1');
     await user.click(screen.getByRole('button', { name: 'Register' }));
 
     expect(mockedAuthClient.signUp.email).toHaveBeenCalledWith({
@@ -104,5 +106,38 @@ describe('EmailAuthForm', () => {
       name: 'John',
     });
     expect(onSuccess).toHaveBeenCalled();
+  });
+
+  it('does not render the name field in login mode', () => {
+    renderWithProviders(
+      <EmailAuthForm
+        mode="login"
+        loading={false}
+        setLoading={jest.fn()}
+        onSuccess={jest.fn()}
+        onError={jest.fn()}
+      />,
+    );
+
+    expect(screen.queryByLabelText(/Name/)).not.toBeInTheDocument();
+  });
+
+  it('resets the form fields when mode changes', async () => {
+    const user = userEvent.setup();
+    const props = {
+      loading: false,
+      setLoading: jest.fn(),
+      onSuccess: jest.fn(),
+      onError: jest.fn(),
+    };
+
+    const { rerender } = renderWithProviders(<EmailAuthForm mode="login" {...props} />);
+
+    await user.type(screen.getByLabelText(/Email/), 'a@b.com');
+    expect(screen.getByLabelText(/Email/)).toHaveValue('a@b.com');
+
+    rerender(<EmailAuthForm mode="register" {...props} />);
+
+    expect(screen.getByLabelText(/Email/)).toHaveValue('');
   });
 });

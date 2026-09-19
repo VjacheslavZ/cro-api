@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { DictionaryPracticeItem, SpeedQuizOutcome } from '@cro/shared';
 
-import { useAppDispatch } from '../../../store';
-import { fetchMe } from '../../../api/auth';
-import { useFinishDictionaryPractice } from '../../../api/dictionary';
-import { useSpeech } from '../../../shared/hooks/useSpeech';
+import { useAppDispatch } from '@/store';
+import { fetchMe } from '@/api/auth.ts';
+import { useFinishDictionaryPractice } from '@/api/dictionary.ts';
+import { useSpeech } from '@/shared/hooks/useSpeech.ts';
 
 export type Phase = 'answering' | 'result';
 
@@ -49,24 +49,23 @@ export function useSpeedQuiz(allItems: DictionaryPracticeItem[], sessionId: stri
   const outcomesRef = useRef<SpeedQuizOutcome[]>([]);
   const answersRef = useRef<{ wordId: string; givenAnswer: string; isCorrect: boolean }[]>([]);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentItem = queue[currentIndex] ?? null;
   const [options, setOptions] = useState<string[]>(() =>
     currentItem ? buildOptions(currentItem, allItems) : [],
   );
 
+  // Speak the first question once on mount; later questions are spoken in advanceToNext.
+  const speakFirstQuestion = useEffectEvent(() => {
+    if (currentItem) speak(currentItem.wordHr);
+  });
   useEffect(() => {
-    if (currentItem) {
-      setOptions(buildOptions(currentItem, allItems));
-      speak(currentItem.wordHr);
-    }
-  }, [currentItem?.wordId]);
+    speakFirstQuestion();
+  }, []);
 
   useEffect(() => {
     return () => {
       if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-      if (tickRef.current) clearInterval(tickRef.current);
     };
   }, []);
 
@@ -95,27 +94,29 @@ export function useSpeedQuiz(allItems: DictionaryPracticeItem[], sessionId: stri
 
   const advanceToNext = useCallback(() => {
     const nextIndex = currentIndex + 1;
+    let nextItem: DictionaryPracticeItem;
     if (nextIndex < queue.length) {
+      nextItem = queue[nextIndex];
       setCurrentIndex(nextIndex);
-      setPhase('answering');
-      setSelectedAnswer(null);
-      setTimeLeft(QUESTION_SECONDS);
     } else if (retryQueue.length > 0) {
+      nextItem = retryQueue[0];
       setQueue(retryQueue);
       setRetryQueue([]);
       setCurrentIndex(0);
-      setPhase('answering');
-      setSelectedAnswer(null);
-      setTimeLeft(QUESTION_SECONDS);
     } else {
       void handleSubmit();
+      return;
     }
-  }, [currentIndex, queue.length, retryQueue, handleSubmit]);
+    setOptions(buildOptions(nextItem, allItems));
+    setPhase('answering');
+    setSelectedAnswer(null);
+    setTimeLeft(QUESTION_SECONDS);
+    speak(nextItem.wordHr);
+  }, [currentIndex, queue, retryQueue, allItems, speak, handleSubmit]);
 
   const handleAnswer = useCallback(
     (answer: string | null) => {
       if (phase !== 'answering' || !currentItem) return;
-      if (tickRef.current) clearInterval(tickRef.current);
 
       const isCorrect = answer === currentItem.translation;
       const picked = answer ?? '';
@@ -144,31 +145,24 @@ export function useSpeedQuiz(allItems: DictionaryPracticeItem[], sessionId: stri
     [phase, currentItem, advanceToNext],
   );
 
-  // Reset timer on each new question
-  useEffect(() => {
-    if (phase === 'answering') setTimeLeft(QUESTION_SECONDS);
-  }, [phase, currentItem?.wordId]);
+  // Time is up — counts as a wrong answer. An effect event so the countdown below always
+  // calls the latest handleAnswer without restarting the timer on every render.
+  const onTimeUp = useEffectEvent(() => handleAnswer(null));
 
-  // Countdown interval — paused while stop dialog is open
+  // Countdown: one tick per second while answering, paused while the stop dialog is open.
+  // Leaving the 'answering' phase clears the pending tick via the effect cleanup.
   useEffect(() => {
-    if (phase !== 'answering' || stopOpen) {
-      if (tickRef.current) clearInterval(tickRef.current);
-      return;
-    }
-    tickRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(tickRef.current!);
-          handleAnswer(null);
-          return 0;
-        }
-        return t - 1;
-      });
+    if (phase !== 'answering' || stopOpen) return;
+    const tick = setTimeout(() => {
+      if (timeLeft <= 1) {
+        setTimeLeft(0);
+        onTimeUp();
+      } else {
+        setTimeLeft(timeLeft - 1);
+      }
     }, 1000);
-    return () => {
-      if (tickRef.current) clearInterval(tickRef.current);
-    };
-  }, [phase, currentItem?.wordId, stopOpen]);
+    return () => clearTimeout(tick);
+  }, [phase, stopOpen, timeLeft]);
 
   const totalWords = allItems.length;
   const progressPercent = (doneCount / (totalWords + retryQueue.length)) * 100;
@@ -177,9 +171,9 @@ export function useSpeedQuiz(allItems: DictionaryPracticeItem[], sessionId: stri
     timeLeft <= 1
       ? 'text-destructive'
       : timeLeft <= 2
-        ? 'text-amber-600'
+        ? 'text-warning'
         : timeLeft <= 3
-          ? 'text-amber-400'
+          ? 'text-warning/70'
           : 'text-primary';
 
   return {

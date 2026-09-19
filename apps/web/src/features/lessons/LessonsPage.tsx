@@ -74,7 +74,7 @@ export function LessonsPage() {
                         variant="outline"
                         className={
                           isTopic
-                            ? 'h-6 cursor-pointer border-primary text-primary hover:bg-blue-50'
+                            ? 'h-6 cursor-pointer border-primary text-primary hover:bg-info-muted'
                             : 'h-6 cursor-pointer border-violet-500 text-violet-700 hover:bg-violet-50'
                         }
                         onClick={() =>

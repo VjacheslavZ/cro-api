@@ -9,6 +9,12 @@ export enum NativeLanguage {
   EN = 'EN',
 }
 
+export enum Theme {
+  SYSTEM = 'SYSTEM',
+  LIGHT = 'LIGHT',
+  DARK = 'DARK',
+}
+
 export enum ExerciseType {
   TYPE_THE_ANSWER = 'TYPE_THE_ANSWER',
   FLASHCARDS = 'FLASHCARDS',
@@ -48,6 +54,7 @@ export interface UserProfile {
   avatarUrl: string | null;
   role: UserRole;
   nativeLanguage: NativeLanguage | null;
+  theme: Theme;
   xpTotal: number;
   currentStreak: number;
 }

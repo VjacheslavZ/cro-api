@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryWord } from '@cro/shared';
 import {
@@ -26,7 +27,11 @@ interface WordRowProps {
   onResetProgress: (word: DictionaryWord) => void;
 }
 
-export function WordRow({
+/**
+ * Memoized: DictionaryWordList re-renders on every scroll tick (virtualizer),
+ * so rows must skip re-rendering when their props are unchanged.
+ */
+export const WordRow = memo(function WordRow({
   word,
   selected,
   onSelect,
@@ -127,4 +132,4 @@ export function WordRow({
       </div>
     </div>
   );
-}
+});

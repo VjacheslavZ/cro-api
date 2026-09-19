@@ -10,7 +10,7 @@
  * Uses isStartingRef to prevent duplicate session starts in React 18 StrictMode.
  * @usedBy AppRouter (/exercises/vocabulary/learn/session)
  */
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useEffectEvent, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
@@ -79,90 +79,87 @@ export function LearnWordsSessionPage() {
   // Guard against concurrent calls (React 18 StrictMode double-effect + rapid double-clicks)
   const isStartingRef = useRef(false);
 
-  // Helper: start a session for a specific step index
-  const startStepSession = useCallback(
-    async (stepIndex: number) => {
-      if (isStartingRef.current) return;
-      isStartingRef.current = true;
-      setPhase('loading');
-      try {
-        const result = await startSession.mutateAsync({
-          wordIds,
-          exerciseType: EXERCISE_ORDER[stepIndex],
-        });
+  // Helper: start a session for a specific step index. State is updated only in
+  // promise callbacks so the mount effect below never sets state synchronously.
+  const startStepSession = (stepIndex: number) => {
+    if (isStartingRef.current) return;
+    isStartingRef.current = true;
+    startSession
+      .mutateAsync({ wordIds, exerciseType: EXERCISE_ORDER[stepIndex] })
+      .then((result) => {
         setSessionId(result.sessionId);
         setItems(result.items);
         setCurrentIndex(0);
         setStepAnswers([]);
         setPhase('exercising');
-      } catch {
+      })
+      .catch(() => {
         // Error handled by startSession.isError
-      } finally {
+      })
+      .finally(() => {
         isStartingRef.current = false;
-      }
-    },
-    // wordIds is stable (derived from location state which never changes)
-    [startSession],
-  );
+      });
+  };
 
-  // Start the first session on mount
-  useEffect(() => {
+  // Start the first session on mount. `phase` is already 'loading' initially, so no
+  // setState is needed here; an effect event lets the effect read the latest closure
+  // without listing it as a dependency.
+  const startFirstSession = useEffectEvent(() => {
     if (wordIds.length === 0) return;
-    void startStepSession(0);
+    startStepSession(0);
+  });
+
+  useEffect(() => {
+    startFirstSession();
   }, []);
 
-  const handleStepComplete = useCallback(
-    async (answers: Answer[]) => {
-      if (!sessionId) return;
-      try {
-        const result = await finishSession.mutateAsync({
-          sessionId,
-          answers,
-          exerciseType,
+  const handleStepComplete = async (answers: Answer[]) => {
+    if (!sessionId) return;
+    try {
+      const result = await finishSession.mutateAsync({
+        sessionId,
+        answers,
+        exerciseType,
+      });
+
+      const updated = [...allResults, result];
+      setAllResults(updated);
+
+      if (step === EXERCISE_ORDER.length - 1) {
+        // Refresh user XP/streak only on the final step, just before navigating away.
+        // Calling fetchMe() on intermediate steps sets auth.loading = true, which causes
+        // AuthGuard to unmount this component and lose all exercise state.
+        dispatch(fetchMe());
+        navigate('/exercises/vocabulary/learn/results', {
+          state: { allResults: updated, collectionId: state?.collectionId },
+          replace: true,
         });
-
-        const updated = [...allResults, result];
-        setAllResults(updated);
-
-        if (step === EXERCISE_ORDER.length - 1) {
-          // Refresh user XP/streak only on the final step, just before navigating away.
-          // Calling fetchMe() on intermediate steps sets auth.loading = true, which causes
-          // AuthGuard to unmount this component and lose all exercise state.
-          dispatch(fetchMe());
-          navigate('/exercises/vocabulary/learn/results', {
-            state: { allResults: updated, collectionId: state?.collectionId },
-            replace: true,
-          });
-        } else {
-          const nextStep = step + 1;
-          setStep(nextStep);
-          void startStepSession(nextStep);
-        }
-      } catch {
-        // Error handled by mutation state
-      }
-    },
-    [sessionId, exerciseType, step, allResults, finishSession, dispatch, navigate, state],
-  );
-
-  const handleAnswer = useCallback(
-    (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => {
-      const a: Answer = {
-        wordId: answer.itemId,
-        givenAnswer: answer.givenAnswer,
-        isCorrect: answer.isCorrect,
-      };
-      const updated = [...stepAnswers, a];
-      setStepAnswers(updated);
-
-      if (currentIndex + 1 >= items.length) {
-        handleStepComplete(updated);
       } else {
-        setCurrentIndex((i) => i + 1);
+        const nextStep = step + 1;
+        setStep(nextStep);
+        setPhase('loading');
+        startStepSession(nextStep);
       }
-    },
-    [stepAnswers, currentIndex, items.length, handleStepComplete],
-  );
+    } catch {
+      // Error handled by mutation state
+    }
+  };
+
+  const handleAnswer = (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => {
+    const a: Answer = {
+      wordId: answer.itemId,
+      givenAnswer: answer.givenAnswer,
+      isCorrect: answer.isCorrect,
+    };
+    const updated = [...stepAnswers, a];
+    setStepAnswers(updated);
+
+    if (currentIndex + 1 >= items.length) {
+      void handleStepComplete(updated);
+    } else {
+      setCurrentIndex((i) => i + 1);
+    }
+  };
 
   if (!state || wordIds.length === 0) {
     navigate('/exercises/vocabulary/learn', { replace: true });

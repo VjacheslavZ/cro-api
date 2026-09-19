@@ -89,7 +89,7 @@ export function ExercisesPage() {
           <Link
             key={topic.id}
             to={`/exercises/${topic.id}`}
-            className="block h-full rounded-xl border bg-card p-6 transition-[box-shadow,border-color] outline-none hover:border-blue-300 hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="block h-full rounded-xl border bg-card p-6 transition-[box-shadow,border-color] outline-none hover:border-info hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <h2 className="mb-4 text-lg leading-snug font-semibold text-foreground">
               {getLocalizedName(topic, user?.nativeLanguage ?? null)}
@@ -101,7 +101,7 @@ export function ExercisesPage() {
                 <Badge
                   key={type}
                   variant="outline"
-                  className="border-blue-200 bg-blue-50 text-blue-700"
+                  className="border-info-border bg-info-muted text-info-muted-foreground"
                 >
                   {exerciseTypeIcons[type]}
                   {getExerciseTypeLabel(type, t)}

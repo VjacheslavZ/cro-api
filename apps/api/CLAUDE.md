@@ -8,6 +8,7 @@
 User
   id, email, name, avatarUrl, role (STUDENT|ADMIN)
   nativeLanguage (RU|UK|EN)
+  theme (SYSTEM|LIGHT|DARK, default SYSTEM) — web colour scheme preference
   passwordHash, googleId, appleId, emailVerified
   xpTotal, currentStreak, longestStreak, lastPracticeDate
   expoPushToken
@@ -204,8 +205,7 @@ POST /admin/auth/logout
 
 ```
 GET    /users/me
-PATCH  /users/me
-POST   /users/me/push-token
+PATCH  /users/me            body: { name?, nativeLanguage?, theme? }
 DELETE /users/me
 ```
 

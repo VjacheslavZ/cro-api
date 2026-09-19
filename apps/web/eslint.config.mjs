@@ -1,8 +1,10 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import-x';
+import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
+  reactHooks.configs.flat.recommended,
   {
     basePath: import.meta.dirname,
     files: ['src/**/*.{ts,tsx}'],

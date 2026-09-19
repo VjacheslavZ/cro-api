@@ -4,16 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from 'cn';
 
 import { Spinner } from '@/components/Spinner';
+import { ThemeToggleGroup } from '@/components/ThemeToggleGroup';
+import { useAppDispatch } from '@/store';
+import { setUser } from '@/store/auth.slice.ts';
+import { apiClient } from '@/api/client.ts';
 
-import { useAppDispatch } from '../../store';
-import { setUser } from '../../store/auth.slice';
-import { apiClient } from '../../api/client';
 import i18n from '../../i18n';
 import { AuthLayout } from './AuthLayout';
 
 type LanguageCode = 'RU' | 'UK' | 'EN';
 
-// TODO move to const and reuse in SettingsPage.tsx
 const languages: { code: LanguageCode; nativeName: string; name: string; flag: string }[] = [
   { code: 'UK', nativeName: 'Українська', name: 'Ukrainian', flag: '🇺🇦' },
   { code: 'EN', nativeName: 'English', name: 'English', flag: '🇬🇧' },
@@ -58,8 +58,8 @@ export function LanguageSelectPage() {
               aria-pressed={isSelected}
               className={cn(
                 'rounded-xl border bg-card p-8 text-center transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-                'enabled:hover:scale-[1.03] enabled:hover:border-blue-300 enabled:hover:shadow-lg',
-                isSelected && 'border-2 border-primary bg-blue-50 enabled:hover:border-primary',
+                'enabled:hover:scale-[1.03] enabled:hover:border-info enabled:hover:shadow-lg',
+                isSelected && 'border-2 border-primary bg-info-muted enabled:hover:border-primary',
                 isDisabled && 'opacity-50',
                 loading && 'cursor-default',
               )}
@@ -77,7 +77,12 @@ export function LanguageSelectPage() {
         })}
       </div>
 
-      <p className="mt-8 text-sm text-neutral-400">{t('auth.changeLanguageLater')}</p>
+      <p className="mt-8 text-sm text-muted-foreground/70">{t('auth.changeLanguageLater')}</p>
+
+      <div className="mt-8 flex flex-col items-center gap-2">
+        <p className="text-sm text-muted-foreground">{t('auth.themeHint')}</p>
+        <ThemeToggleGroup />
+      </div>
     </AuthLayout>
   );
 }

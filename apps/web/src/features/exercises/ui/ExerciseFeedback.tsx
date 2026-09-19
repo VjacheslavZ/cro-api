@@ -7,7 +7,7 @@ type FeedbackKind = 'correct' | 'incorrect' | 'warning';
 const kindClass: Record<FeedbackKind, string> = {
   correct: 'text-success',
   incorrect: 'text-destructive',
-  warning: 'text-amber-600',
+  warning: 'text-warning',
 };
 
 interface ExerciseFeedbackProps {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useId, useRef } from 'react';
+import { useState, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryWord } from '@cro/shared';
 
@@ -36,25 +36,38 @@ interface EditWordModalProps {
 }
 
 export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
+  const wordRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-lg" initialFocus={wordRef}>
+        {word && <EditWordForm word={word} onClose={onClose} wordRef={wordRef} />}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface EditWordFormProps {
+  word: DictionaryWord;
+  onClose: () => void;
+  wordRef: React.RefObject<HTMLInputElement | null>;
+}
+
+/**
+ * Form body rendered inside `DialogContent`. The dialog unmounts its content
+ * on close, so the fields are seeded from `word` on every open — no reset
+ * effect needed.
+ */
+function EditWordForm({ word, onClose, wordRef }: EditWordFormProps) {
   const { t } = useTranslation();
   const id = useId();
-  const [wordHr, setWordHr] = useState('');
-  const [translation, setTranslation] = useState('');
+  const [wordHr, setWordHr] = useState(word.wordHr);
+  const [translation, setTranslation] = useState(word.translation);
   const [error, setError] = useState('');
-  const wordRef = useRef<HTMLInputElement>(null);
 
   const updateWord = useUpdateWord();
 
-  useEffect(() => {
-    if (open && word) {
-      setWordHr(word.wordHr);
-      setTranslation(word.translation);
-      setError('');
-    }
-  }, [open, word]);
-
   const handleSubmit = async () => {
-    if (!word) return;
     setError('');
     try {
       await updateWord.mutateAsync({
@@ -79,50 +92,48 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
     wordHr.trim().length > 0 &&
     translation.trim().length > 0 &&
     !updateWord.isPending &&
-    (wordHr.trim() !== word?.wordHr || translation.trim() !== word?.translation);
+    (wordHr.trim() !== word.wordHr || translation.trim() !== word.translation);
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-lg" initialFocus={wordRef}>
-        <DialogHeader>
-          <DialogTitle>{t('dictionary.editWordModal.title')}</DialogTitle>
-        </DialogHeader>
+    <>
+      <DialogHeader>
+        <DialogTitle>{t('dictionary.editWordModal.title')}</DialogTitle>
+      </DialogHeader>
 
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor={`${id}-word`}>{t('dictionary.editWordModal.wordLabel')}</Label>
-            <Input
-              id={`${id}-word`}
-              value={wordHr}
-              onChange={(e) => setWordHr(e.target.value)}
-              ref={wordRef}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor={`${id}-translation`}>
-              {t('dictionary.editWordModal.translationLabel')}
-            </Label>
-            <Input
-              id={`${id}-translation`}
-              value={translation}
-              onChange={(e) => setTranslation(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && canSave) void handleSubmit();
-              }}
-            />
-          </div>
-          {error && <ErrorAlert message={error} />}
+      <div className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor={`${id}-word`}>{t('dictionary.editWordModal.wordLabel')}</Label>
+          <Input
+            id={`${id}-word`}
+            value={wordHr}
+            onChange={(e) => setWordHr(e.target.value)}
+            ref={wordRef}
+          />
         </div>
+        <div className="grid gap-2">
+          <Label htmlFor={`${id}-translation`}>
+            {t('dictionary.editWordModal.translationLabel')}
+          </Label>
+          <Input
+            id={`${id}-translation`}
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canSave) void handleSubmit();
+            }}
+          />
+        </div>
+        {error && <ErrorAlert message={error} />}
+      </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t('dictionary.editWordModal.cancel')}
-          </Button>
-          <Button onClick={handleSubmit} disabled={!canSave}>
-            {t('dictionary.editWordModal.save')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          {t('dictionary.editWordModal.cancel')}
+        </Button>
+        <Button onClick={handleSubmit} disabled={!canSave}>
+          {t('dictionary.editWordModal.save')}
+        </Button>
+      </DialogFooter>
+    </>
   );
 }

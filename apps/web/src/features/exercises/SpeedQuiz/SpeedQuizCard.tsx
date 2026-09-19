@@ -58,8 +58,10 @@ export function SpeedQuizCard({
               data-result={result}
               className={cn(
                 'h-12 w-full justify-start text-left text-base disabled:opacity-100',
-                result === 'correct' && 'border-green-400 bg-green-50 text-green-800',
-                result === 'wrong' && 'border-red-300 bg-red-50 text-red-800',
+                result === 'correct' &&
+                  'border-success bg-success-muted text-success-muted-foreground',
+                result === 'wrong' &&
+                  'border-destructive-border bg-destructive-muted text-destructive-muted-foreground',
                 !result && 'disabled:opacity-50',
               )}
             >

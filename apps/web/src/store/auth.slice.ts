@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Dispatch } from 'redux';
 
 import { fetchMe } from '../api/auth';
+import { setTheme } from './preferences.slice';
 
 export interface UserProfile {
   id: string;
@@ -11,6 +12,7 @@ export interface UserProfile {
   avatarUrl: string | null;
   role: string;
   nativeLanguage: string | null;
+  theme: string;
   xpTotal: number;
   currentStreak: number;
 }
@@ -52,15 +54,11 @@ const authSlice = createSlice({
   },
 });
 
-export function setCredentials(payload: { user: UserProfile }) {
-  return (dispatch: Dispatch) => {
-    dispatch(authSlice.actions._setUser(payload.user));
-  };
-}
-
+/** Stores the profile and adopts its persisted theme — the server value wins over the local one. */
 export function setUser(user: UserProfile) {
   return (dispatch: Dispatch) => {
     dispatch(authSlice.actions._setUser(user));
+    dispatch(setTheme(user.theme));
   };
 }
 

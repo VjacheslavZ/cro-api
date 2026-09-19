@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { NativeLanguage } from '@prisma/client';
+import { NativeLanguage, Theme } from '@prisma/client';
 
 export class UpdateUserDto {
   @ApiPropertyOptional()
@@ -12,4 +12,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEnum(NativeLanguage)
   nativeLanguage?: NativeLanguage;
+
+  @ApiPropertyOptional({ enum: Theme })
+  @IsOptional()
+  @IsEnum(Theme)
+  theme?: Theme;
 }

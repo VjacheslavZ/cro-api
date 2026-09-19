@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 
+import { ProtectedLayout } from '../guards';
 import { MyDictionaryPage } from '../../features/dictionary/MyDictionaryPage/MyDictionaryPage.tsx';
 import { CollectionsPage } from '../../features/dictionary/CollectionsPage';
 import { WordSetsPage } from '../../features/dictionary/WordSetsPage';
@@ -8,7 +9,6 @@ import { DictionaryPracticePage } from '../../features/dictionary/DictionaryPrac
 import { DictionaryPracticeResultsPage } from '../../features/dictionary/DictionaryPractice/DictionaryPracticeResultsPage.tsx';
 import { DictionaryReviewPage } from '../../features/dictionary/Review/DictionaryReviewPage.tsx';
 import { DictionaryReviewResultsPage } from '../../features/dictionary/Review/DictionaryReviewResultsPage.tsx';
-import { ProtectedLayout } from '../guards';
 
 /** Mounted at `/dictionary/*` — all paths below are relative to that prefix. */
 export function DictionaryRoutes() {

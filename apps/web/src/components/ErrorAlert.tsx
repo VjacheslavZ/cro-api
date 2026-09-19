@@ -12,7 +12,6 @@ interface ErrorAlertProps {
   className?: string;
 }
 
-/** Replacement for MUI `<Alert severity="error">`. */
 export function ErrorAlert({ message, action, className }: ErrorAlertProps) {
   const { t } = useTranslation();
 

@@ -15,6 +15,7 @@ const user1 = {
   avatarUrl: null,
   role: 'STUDENT',
   nativeLanguage: 'EN',
+  theme: 'SYSTEM',
   xpTotal: 120,
   currentStreak: 7,
 };

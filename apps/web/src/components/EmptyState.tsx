@@ -13,7 +13,7 @@ interface EmptyStateProps {
 export function EmptyState({ icon, title, description, className }: EmptyStateProps) {
   return (
     <div className={cn('py-16 text-center', className)}>
-      <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-muted text-neutral-400 [&_svg]:size-8">
+      <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground/70 [&_svg]:size-8">
         {icon}
       </div>
       <h3 className="mb-1 text-lg font-semibold text-foreground">{title}</h3>

@@ -18,19 +18,19 @@ export function WordProgressRow({ phase, selectedWords, sortedWords, onUndo }: P
   const { t } = useTranslation();
 
   return (
-    <div className="mb-4 flex min-h-10 flex-wrap gap-2 rounded-lg border border-dashed bg-neutral-50 p-3">
+    <div className="mb-4 flex min-h-10 flex-wrap gap-2 rounded-lg border border-dashed bg-muted/50 p-3">
       {phase === 'selecting' &&
         selectedWords.map((word, idx) => {
           const canUndo = idx === selectedWords.length - 1 && Boolean(onUndo);
           return (
-            <Badge key={idx} variant="outline" className="h-6 bg-blue-50 text-sm">
+            <Badge key={idx} variant="outline" className="h-6 bg-info-muted text-sm">
               {word}
               {canUndo && (
                 <button
                   type="button"
                   onClick={onUndo}
                   aria-label={t('common.undo')}
-                  className="-mr-1 ml-0.5 rounded-full p-0.5 hover:bg-blue-200"
+                  className="-mr-1 ml-0.5 rounded-full p-0.5 hover:bg-info-border"
                 >
                   <XIcon className="size-3" />
                 </button>
@@ -54,8 +54,8 @@ export function WordProgressRow({ phase, selectedWords, sortedWords, onUndo }: P
                 variant="outline"
                 className={
                   isWrong
-                    ? 'h-6 border-transparent bg-red-100 text-sm text-red-800 line-through'
-                    : 'h-6 border-transparent bg-green-100 text-sm text-green-800'
+                    ? 'h-6 border-transparent bg-destructive-muted text-sm text-destructive-muted-foreground line-through'
+                    : 'h-6 border-transparent bg-success-muted text-sm text-success-muted-foreground'
                 }
               >
                 {chosen}

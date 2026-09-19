@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ErrorAlert } from '@/components/ErrorAlert';
 import { PageContainer } from '@/components/PageContainer';
+import { ThemeToggleGroup } from '@/components/ThemeToggleGroup';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
@@ -69,6 +70,11 @@ export function SettingsPage() {
         </ToggleGroup>
 
         {error && <ErrorAlert message={error} className="mt-4" />}
+
+        <Separator className="my-4" />
+
+        <h2 className="mb-2 font-medium">{t('settings.theme.title')}</h2>
+        <ThemeToggleGroup className="w-full *:flex-1" />
 
         <Separator className="my-4" />
 

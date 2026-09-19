@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 
 import { buttonVariants } from '@/components/ui/button';
+import { useAppSelector } from '@/store';
 
-import { useAppSelector } from '../store';
 import { LanguageMenu } from './header/LanguageMenu';
+import { ThemeMenu } from './header/ThemeMenu';
 import { DictionaryMenu } from './header/DictionaryMenu';
 import { ExercisesMenu } from './header/ExercisesMenu';
 import { UserMenu } from './header/UserMenu';
@@ -53,7 +54,10 @@ export function Header() {
             </div>
           </>
         ) : (
-          <LanguageMenu />
+          <div className="flex items-center">
+            <ThemeMenu />
+            <LanguageMenu />
+          </div>
         )}
       </div>
     </header>

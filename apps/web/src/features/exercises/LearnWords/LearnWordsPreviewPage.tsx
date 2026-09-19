@@ -29,6 +29,7 @@ interface LocationState {
  */
 export function LearnWordsPreviewPage() {
   const { t } = useTranslation();
+
   const navigate = useNavigate();
   const location = useLocation();
   const { words, collectionId } = (location.state as LocationState) ?? {};
@@ -37,12 +38,15 @@ export function LearnWordsPreviewPage() {
   const [stopOpen, setStopOpen] = useState(false);
   const { speak } = useSpeech();
 
+  // Speak the current word whenever it changes (or when speech gets enabled); cancel any
+  // in-flight utterance before the next one starts or on unmount.
+  const currentWordHr = words?.[index]?.wordHr;
   useEffect(() => {
-    if (words?.[index]?.wordHr) speak(words[index].wordHr);
+    if (currentWordHr) speak(currentWordHr);
     return () => {
       window.speechSynthesis?.cancel();
     };
-  }, [index]);
+  }, [currentWordHr, speak]);
 
   if (!words || words.length === 0) {
     navigate('/exercises/vocabulary/learn', { replace: true });
@@ -88,7 +92,7 @@ export function LearnWordsPreviewPage() {
             key={i}
             className={cn(
               'size-2 rounded-full',
-              i === index ? 'bg-primary' : i < index ? 'bg-primary/40' : 'bg-neutral-300',
+              i === index ? 'bg-primary' : i < index ? 'bg-primary/40' : 'bg-border',
             )}
           />
         ))}

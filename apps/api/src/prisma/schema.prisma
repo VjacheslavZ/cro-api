@@ -18,6 +18,12 @@ enum NativeLanguage {
   EN
 }
 
+enum Theme {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
 enum ExerciseType {
   TYPE_THE_ANSWER
   FLASHCARDS
@@ -57,6 +63,7 @@ model User {
   avatarUrl        String?
   role             UserRole        @default(STUDENT)
   nativeLanguage   NativeLanguage?
+  theme            Theme           @default(SYSTEM)
   passwordHash     String?
   googleId         String?         @unique
   appleId          String?         @unique
