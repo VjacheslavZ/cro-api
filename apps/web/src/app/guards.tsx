@@ -52,6 +52,19 @@ export function LanguageGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** `/` is the public landing page for guests and the home page for signed-in users. */
+export function HomeOrLanding({
+  home,
+  landing,
+}: {
+  home: React.ReactNode;
+  landing: React.ReactNode;
+}) {
+  const user = useAppSelector((state) => state.auth.user);
+  if (!user) return <>{landing}</>;
+  return <LanguageGuard>{home}</LanguageGuard>;
+}
+
 /** Layout route: PrivateRoute + LanguageGuard for every nested <Route>. */
 export function ProtectedLayout() {
   return (

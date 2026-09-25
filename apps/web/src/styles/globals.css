@@ -2,12 +2,14 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
+@import '@fontsource-variable/piazzolla/opsz.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Piazzolla Variable', Georgia, 'Times New Roman', serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -228,4 +230,9 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Landing page display setting: Piazzolla at its largest optical size. */
+@utility display-hero {
+  font-variation-settings: 'opsz' 30;
 }

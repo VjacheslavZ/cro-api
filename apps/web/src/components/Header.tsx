@@ -54,9 +54,12 @@ export function Header() {
             </div>
           </>
         ) : (
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             <ThemeMenu />
             <LanguageMenu />
+            <Link to="/login" className={cn(buttonVariants({ variant: 'outline' }))}>
+              {t('auth.login')}
+            </Link>
           </div>
         )}
       </div>

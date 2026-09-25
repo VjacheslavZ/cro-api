@@ -45,6 +45,7 @@ Target setup (per current shadcn docs for Vite):
 - **No visual redesign in this migration.** The goal is technology parity: each migrated screen must look and behave the same (or trivially better) as the MUI version. Redesign per `docs/design-web.md` is a separate effort that builds on the new stack. Accepted parity deviations: the shadcn preset look (Geist font, radii, button hover), and the header "Exercises" / "Dictionary" menus open on **click** instead of hover (standard `DropdownMenu` behaviour, keyboard/touch accessible).
 - **No changes to state, data fetching, routing, i18n, auth.** Redux Toolkit, TanStack Query, React Router, i18next, better-auth are untouched.
 - **No changes to `@cro/shared`.**
+- **No dark mode in the migration itself.** The shadcn `.dark` token block was generated but left inactive. *Update (2026-09-18): a System / Light / Dark theme was added afterwards — see the "Theming" section in `apps/web/CLAUDE.md`.*
 - **No custom component library package.** shadcn components live in `apps/web/src/components/ui/`; they are not extracted into `packages/` until a second consumer exists.
 
 ## Alternatives considered

@@ -37,6 +37,18 @@ describe('LoginPage', () => {
     );
   });
 
+  it('shows the login error when the Google sign-in throws', async () => {
+    mockedAuthClient.signIn.social.mockRejectedValue(new Error('popup closed'));
+    const user = userEvent.setup();
+
+    renderWithProviders(<LoginPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Sign in with Google' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Login failed. Please try again.');
+    expect(screen.getByRole('button', { name: 'Sign in with Google' })).toBeEnabled();
+  });
+
   it('reveals the email form fields when clicking "Continue with email"', async () => {
     const user = userEvent.setup();
 

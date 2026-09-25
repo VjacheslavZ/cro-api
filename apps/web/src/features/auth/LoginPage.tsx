@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
 
@@ -16,28 +16,30 @@ type AuthMode = 'login' | 'register';
 
 export function LoginPage() {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<AuthMode>('login');
   const [showEmailForm, setShowEmailForm] = useState(false);
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await authClient.signIn.social({
-        provider: 'google',
-        callbackURL: `${window.location.origin}/`,
-      });
-    } catch {
-      setError(t('auth.loginFailed'));
-      setLoading(false);
-    }
+  const [{ error }, signInWithGoogle, googlePending] = useActionState<{ error: string | null }>(
+    async () => {
+      try {
+        await authClient.signIn.social({
+          provider: 'google',
+          callbackURL: `${window.location.origin}/`,
+        });
+        return { error: null };
+      } catch {
+        return { error: t('auth.loginFailed') };
+      }
+    },
+    { error: null },
+  );
+
+  const handleGoogleLogin = () => {
+    startTransition(() => signInWithGoogle());
   };
 
   const toggleMode = () => {
     setMode((prev) => (prev === 'login' ? 'register' : 'login'));
-    setError(null);
   };
 
   return (
@@ -58,9 +60,9 @@ export function LoginPage() {
             size="lg"
             className="w-full"
             onClick={handleGoogleLogin}
-            disabled={loading}
+            disabled={googlePending}
           >
-            {loading ? <Loader2Icon className="animate-spin" /> : <GoogleIcon />}
+            {googlePending ? <Loader2Icon className="animate-spin" /> : <GoogleIcon />}
             {t('auth.signInWithGoogle')}
           </Button>
 
@@ -75,23 +77,16 @@ export function LoginPage() {
               variant="ghost"
               className="w-full"
               onClick={() => setShowEmailForm(true)}
-              disabled={loading}
+              disabled={googlePending}
             >
               {t('auth.continueWithEmail')}
             </Button>
           ) : (
-            <EmailAuthForm
-              key={mode}
-              mode={mode}
-              loading={loading}
-              setLoading={setLoading}
-              onSuccess={() => setError(null)}
-              onError={(msg) => setError(msg || null)}
-            />
+            <EmailAuthForm key={mode} mode={mode} />
           )}
 
           <div className="mt-4 text-center">
-            <Button variant="link" size="sm" onClick={toggleMode} disabled={loading}>
+            <Button variant="link" size="sm" onClick={toggleMode} disabled={googlePending}>
               {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
             </Button>
           </div>

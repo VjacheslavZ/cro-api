@@ -349,5 +349,112 @@
     "close": "Close",
     "cancel": "Cancel",
     "undo": "Undo"
+  },
+  "landing": {
+    "hero": {
+      "title": "Seven cases, drilled one ending at a time.",
+      "lead": "Short Croatian grammar exercises for people who need the language every day. The rule is one tap away, explanations are in English, and your own words come back for revision before you forget them."
+    },
+    "cta": {
+      "startFree": "Start 7 days free",
+      "noCard": "Google or email. No card needed.",
+      "login": "Log in"
+    },
+    "drill": {
+      "title": "Try a drill",
+      "singular": "singular",
+      "placeholder": "Type the form",
+      "check": "Check",
+      "next": "Next",
+      "finish": "Finish",
+      "correct": "Correct · +{{xp}} XP",
+      "wrong": "Not quite — it's {{answer}}.",
+      "xpTotal": "{{xp}} XP",
+      "finished": "Six cases in about a minute — the rest is practice.",
+      "casesLabel": "The seven Croatian cases"
+    },
+    "cases": {
+      "N": "Nominative",
+      "G": "Genitive",
+      "D": "Dative",
+      "A": "Accusative",
+      "V": "Vocative",
+      "L": "Locative",
+      "I": "Instrumental"
+    },
+    "language": {
+      "title": "In your language, not in linguistics.",
+      "body": "The interface, the rules and every translation are in Russian, Ukrainian or English. Pick once when you sign up, change it any time in settings.",
+      "ru": "Russian",
+      "uk": "Ukrainian",
+      "en": "English",
+      "word": {
+        "ru": "город",
+        "uk": "місто",
+        "en": "city"
+      }
+    },
+    "modes": {
+      "title": "What a session looks like",
+      "body": "A topic is one grammar point — say, the locative of masculine nouns. You drill it with the exercise you choose, and the rule stays one tap away while you practise.",
+      "grammar": "Grammar topics",
+      "words": "Your dictionary",
+      "typeAnswer": {
+        "name": "Type the answer",
+        "desc": "See the base form, type the ending."
+      },
+      "fillBlank": {
+        "name": "Fill in the blank",
+        "desc": "Complete a real sentence."
+      },
+      "buildSentence": {
+        "name": "Build a sentence",
+        "desc": "Put the words in order."
+      },
+      "flashcards": {
+        "name": "Flashcards",
+        "desc": "Knew it or didn't — you decide."
+      },
+      "wordTranslation": {
+        "name": "Word and translation",
+        "desc": "Both directions, typed."
+      },
+      "buildWord": {
+        "name": "Build the word",
+        "desc": "Assemble it letter by letter."
+      },
+      "listeningMatch": {
+        "name": "Listening match",
+        "desc": "Hear it, find it."
+      },
+      "speedQuiz": {
+        "name": "Speed quiz",
+        "desc": "Twelve words, no time to translate in your head."
+      }
+    },
+    "revision": {
+      "title": "Your words, back before you forget them.",
+      "body": "Add any word to your dictionary. Revision uses spaced repetition (FSRS): you rate how well you recalled a word, and its next review lands just before it would slip.",
+      "timelineLabel": "Review intervals growing from one day to three months",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "rating": {
+        "again": "Again",
+        "hard": "Hard",
+        "good": "Good",
+        "easy": "Easy"
+      }
+    },
+    "progress": {
+      "body": "Ten XP for every correct answer. A day counts toward your streak once you've practised. That is all the gamification there is.",
+      "xp": "10 XP",
+      "streak": "Day streak"
+    },
+    "pricing": {
+      "title": "7 days free. Then one plan.",
+      "body": "The trial starts the moment you sign in — no card. After that it's a single subscription you can cancel any time from your account."
+    }
   }
 }

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { cn } from 'cn';
 
+import { ErrorAlert } from '@/components/ErrorAlert';
 import { Spinner } from '@/components/Spinner';
 import { ThemeToggleGroup } from '@/components/ThemeToggleGroup';
 import { useAppDispatch } from '@/store';
@@ -25,23 +26,26 @@ export function LanguageSelectPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleSelect = async (code: LanguageCode) => {
-    if (loading) return;
-    setSelectedLanguage(code);
-    setLoading(true);
-    try {
-      const { data } = await apiClient.patch('/users/me', { nativeLanguage: code });
-      dispatch(setUser(data));
-      i18n.changeLanguage(code.toLowerCase());
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Failed to set language:', error);
-      setLoading(false);
-      setSelectedLanguage(null);
-    }
-  };
+  const [{ error }, selectLanguage, loading] = useActionState<
+    { error: string | null },
+    LanguageCode
+  >(
+    async (_prev, code) => {
+      setSelectedLanguage(code);
+      try {
+        const { data } = await apiClient.patch('/users/me', { nativeLanguage: code });
+        dispatch(setUser(data));
+        i18n.changeLanguage(code.toLowerCase());
+        navigate('/', { replace: true });
+        return { error: null };
+      } catch {
+        setSelectedLanguage(null);
+        return { error: t('common.error') };
+      }
+    },
+    { error: null },
+  );
 
   return (
     <AuthLayout title={t('auth.selectLanguage')} subtitle={t('auth.languageSubtitle')}>
@@ -53,7 +57,7 @@ export function LanguageSelectPage() {
             <button
               key={lang.code}
               type="button"
-              onClick={() => handleSelect(lang.code)}
+              onClick={() => startTransition(() => selectLanguage(lang.code))}
               disabled={loading}
               aria-pressed={isSelected}
               className={cn(
@@ -76,6 +80,8 @@ export function LanguageSelectPage() {
           );
         })}
       </div>
+
+      {error && <ErrorAlert message={error} className="mt-6 w-full max-w-[680px]" />}
 
       <p className="mt-8 text-sm text-muted-foreground/70">{t('auth.changeLanguageLater')}</p>
 

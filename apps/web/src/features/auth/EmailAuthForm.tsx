@@ -1,7 +1,8 @@
-import { useId, useState } from 'react';
+import { startTransition, useActionState, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
 
+import { ErrorAlert } from '@/components/ErrorAlert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,59 +12,49 @@ type AuthMode = 'login' | 'register';
 
 interface EmailAuthFormProps {
   mode: AuthMode;
-  loading: boolean;
-  setLoading: (loading: boolean) => void;
-  onSuccess: () => void;
-  onError: (message: string) => void;
 }
 
-export function EmailAuthForm({
-  mode,
-  loading,
-  setLoading,
-  onSuccess,
-  onError,
-}: EmailAuthFormProps) {
+interface FormValues {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface FormState {
+  error: string | null;
+}
+
+export function EmailAuthForm({ mode }: EmailAuthFormProps) {
   const { t } = useTranslation();
   const id = useId();
 
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  // Inputs stay controlled so a failed attempt keeps what was typed.
+  const [formData, setFormData] = useState<FormValues>({ name: '', email: '', password: '' });
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    onError('');
-    try {
-      if (mode === 'register') {
-        const result = await authClient.signUp.email({
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-        });
-        if (result.error) {
-          onError(result.error.message || t('auth.registrationFailed'));
-          return;
-        }
-      } else {
-        const result = await authClient.signIn.email({
-          email: formData.email,
-          password: formData.password,
-        });
-        if (result.error) {
-          onError(result.error.message || t('auth.loginFailed'));
-          return;
-        }
+  const [{ error }, submit, isPending] = useActionState<FormState, FormValues>(
+    async (_prev, values) => {
+      const fallback = mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed');
+      try {
+        const result =
+          mode === 'register'
+            ? await authClient.signUp.email(values)
+            : await authClient.signIn.email({ email: values.email, password: values.password });
+        return { error: result.error ? result.error.message || fallback : null };
+      } catch {
+        return { error: fallback };
       }
-      onSuccess();
-    } catch {
-      onError(mode === 'register' ? t('auth.registrationFailed') : t('auth.loginFailed'));
-    } finally {
-      setLoading(false);
-    }
+    },
+    { error: null },
+  );
+
+  const handleSubmit = (e: React.SubmitEvent) => {
+    e.preventDefault();
+    startTransition(() => submit(formData));
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {error && <ErrorAlert message={error} />}
       {mode === 'register' && (
         <div className="grid gap-2">
           <Label htmlFor={`${id}-name`}>{t('auth.name')}</Label>
@@ -72,7 +63,7 @@ export function EmailAuthForm({
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
-            disabled={loading}
+            disabled={isPending}
           />
         </div>
       )}
@@ -84,7 +75,7 @@ export function EmailAuthForm({
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
-          disabled={loading}
+          disabled={isPending}
         />
       </div>
       <div className="grid gap-2">
@@ -96,11 +87,11 @@ export function EmailAuthForm({
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           required
           minLength={8}
-          disabled={loading}
+          disabled={isPending}
         />
       </div>
-      <Button type="submit" size="lg" className="w-full" disabled={loading}>
-        {loading && <Loader2Icon className="animate-spin" />}
+      <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+        {isPending && <Loader2Icon className="animate-spin" />}
         {mode === 'register' ? t('auth.register') : t('auth.login')}
       </Button>
     </form>
