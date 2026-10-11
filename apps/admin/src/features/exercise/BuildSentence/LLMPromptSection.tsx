@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import {
   Alert,
   Box,
@@ -65,7 +65,7 @@ export function LLMPromptSection({ topicId, onGenerate }: Props) {
     () => localStorage.getItem(FIXED_KEY) ?? DEFAULT_FIXED_PROMPT,
   );
   const [fixedExpanded, setFixedExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,37 +77,38 @@ export function LLMPromptSection({ topicId, onGenerate }: Props) {
   }, [fixedPrompt]);
 
   const handleGenerate = async () => {
-    setIsLoading(true);
     setError(null);
-    try {
-      const { data: raw } = await apiClient.post<{ response: string }>('/admin/llm/generate', {
-        prompt: `${userPrompt}\n\n${fixedPrompt}`,
-        options: { temperature: 1, top_p: 0.9, repeat_penalty: 1.2 },
-      });
-      const data: LLMRawResponse = JSON.parse(raw.response);
+    startTransition(async () => {
+      try {
+        const { data: raw } = await apiClient.post<{ response: string }>('/admin/llm/generate', {
+          prompt: `${userPrompt}\n\n${fixedPrompt}`,
+          options: { temperature: 1, top_p: 0.9, repeat_penalty: 1.2 },
+        });
+        const data: LLMRawResponse = JSON.parse(raw.response);
 
-      const tokens = data.sentence
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((w) => w.replace(/[.,!?;:]+$/, ''));
+        startTransition(() => {
+          const tokens = data.sentence
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((w) => w.replace(/[.,!?;:]+$/, ''));
 
-      onGenerate({
-        sentenceHr: tokens.join(' '),
-        translationRu: data.translationRu,
-        translationUk: data.translationUk,
-        translationEn: data.translationEn,
-        words: tokens.map((wordHr, idx) => ({
-          wordHr,
-          position: idx,
-          distractors: [],
-        })),
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate');
-    } finally {
-      setIsLoading(false);
-    }
+          onGenerate({
+            sentenceHr: tokens.join(' '),
+            translationRu: data.translationRu,
+            translationUk: data.translationUk,
+            translationEn: data.translationEn,
+            words: tokens.map((wordHr, idx) => ({
+              wordHr,
+              position: idx,
+              distractors: [],
+            })),
+          });
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to generate');
+      }
+    });
   };
 
   return (
