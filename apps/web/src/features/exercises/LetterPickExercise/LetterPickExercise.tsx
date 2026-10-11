@@ -113,7 +113,7 @@ export function LetterPickExercise({
     const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [pool, isComplete]);
+  }, []);
 
   const handleHint = () => {
     if (isComplete) return;
