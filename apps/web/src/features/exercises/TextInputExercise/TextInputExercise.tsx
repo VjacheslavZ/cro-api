@@ -15,9 +15,9 @@ import { ArrowRightIcon, LightbulbIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { normalizeAnswer } from '@/shared/lib/content-utils.ts';
+import { useSpeech } from '@/shared/hooks/useSpeech.ts';
 
-import { normalizeAnswer } from '../../../shared/lib/content-utils.ts';
-import { useSpeech } from '../../../shared/hooks/useSpeech.ts';
 import { ExerciseProgressHeader } from '../ExerciseProgressHeader';
 import { ExerciseActionButton } from '../ui/ExerciseActionButton';
 import { ExerciseCard } from '../ui/ExerciseCard';

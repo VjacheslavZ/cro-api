@@ -1,12 +1,4 @@
-/**
- * @module TopicExercisesPage
- * @description Exercise type selector for a single topic. Fetches the topic, lists enabled
- * exercise types, creates a session on click, and handles cycle exhaustion via CycleResetDialog.
- * Supports auto-starting an exercise type when navigated back from SessionResultsPage
- * (via location.state.autoStartExerciseType).
- * @usedBy AppRouter (/exercises/:topicId)
- */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useEffectEvent } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -58,43 +50,43 @@ export function TopicExercisesPage() {
     exerciseType: string;
   } | null>(null);
 
-  const handleStartExercise = useCallback(
-    (exerciseType: string) => async () => {
-      console.log('handleStartExercise ---- ');
-      try {
-        const result: CreateSessionResponse = await createSession.mutateAsync({
-          topicId: topicId!,
-          exerciseType,
-        });
-        if (result.cycleExhausted) {
-          setCycleResetInfo({ topicId: topicId!, exerciseType });
-          return;
-        }
-        if (result.session) {
-          navigate(`/exercises/session/${result.session.id}`, {
-            state: {
-              items: result.session.items,
-              exerciseType: result.session.exerciseType,
-              totalQuestions: result.session.totalQuestions,
-              rulesHtml: getRulesHtml(result.session, user?.nativeLanguage ?? null),
-            },
-          });
-        }
-      } catch {
-        // Error handled by mutation state
+  const handleStartExercise = async (exerciseType: string) => {
+    try {
+      const result: CreateSessionResponse = await createSession.mutateAsync({
+        topicId: topicId!,
+        exerciseType,
+      });
+      if (result.cycleExhausted) {
+        setCycleResetInfo({ topicId: topicId!, exerciseType });
+        return;
       }
-    },
-    [createSession, navigate, topicId, user],
-  );
+      if (result.session) {
+        navigate(`/exercises/session/${result.session.id}`, {
+          state: {
+            items: result.session.items,
+            exerciseType: result.session.exerciseType,
+            totalQuestions: result.session.totalQuestions,
+            rulesHtml: getRulesHtml(result.session, user?.nativeLanguage ?? null),
+          },
+        });
+      }
+    } catch {
+      // Error handled by mutation state
+    }
+  };
+
+  const onAutoStart = useEffectEvent((exerciseType: string) => {
+    autoStarted.current = true;
+    navigate(location.pathname, { replace: true, state: null });
+    handleStartExercise(exerciseType);
+  });
 
   useEffect(() => {
     const state = location.state as { autoStartExerciseType?: string } | null;
     if (state?.autoStartExerciseType && !autoStarted.current) {
-      autoStarted.current = true;
-      navigate(location.pathname, { replace: true, state: null });
-      handleStartExercise(state.autoStartExerciseType);
+      onAutoStart(state.autoStartExerciseType);
     }
-  }, [location.state, handleStartExercise, location.pathname, navigate]);
+  }, [location.state, location.pathname, navigate]);
 
   const autoStartState = location.state as { autoStartExerciseType?: string } | null;
   const isPageLoading = isLoading || !!autoStartState?.autoStartExerciseType;

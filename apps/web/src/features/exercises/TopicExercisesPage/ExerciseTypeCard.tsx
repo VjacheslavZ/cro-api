@@ -3,11 +3,8 @@ import type { ExerciseType } from '@cro/shared';
 import { ArrowRightIcon, Loader2Icon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { getExerciseTypeLabel, getExerciseTypeDescription } from '@/shared/lib/exercise-utils.ts';
 
-import {
-  getExerciseTypeLabel,
-  getExerciseTypeDescription,
-} from '../../../shared/lib/exercise-utils.ts';
 import { getExerciseTypeIcon } from './exerciseTypeIcon.tsx';
 
 interface Props {
