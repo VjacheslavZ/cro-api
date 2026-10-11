@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId, useState, useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorAlert } from '@/components/ErrorAlert';
@@ -8,12 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-
-import i18n from '../../i18n';
-import { useAppSelector, useAppDispatch } from '../../store';
-import { setUser } from '../../store/auth.slice';
-import { setSpeechEnabled } from '../../store/preferences.slice';
-import { apiClient } from '../../api/client';
+import i18n from '@/i18n';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { setUser } from '@/store/auth.slice.ts';
+import { setSpeechEnabled } from '@/store/preferences.slice';
+import { apiClient } from '@/api/client';
 
 const languages = [
   { code: 'RU', label: 'Русский' },
@@ -26,7 +25,7 @@ export function SettingsPage() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const speechEnabled = useAppSelector((state) => state.preferences.speechEnabled);
-  const [saving, setSaving] = useState(false);
+  const [saving, startTransition] = useTransition();
   const [error, setError] = useState('');
 
   const speechId = useId();
@@ -34,17 +33,18 @@ export function SettingsPage() {
   const handleLanguageChange = async (value: string | undefined) => {
     if (!value || value === user?.nativeLanguage) return;
 
-    setSaving(true);
     setError('');
-    try {
-      const { data } = await apiClient.patch('/users/me', { nativeLanguage: value });
-      dispatch(setUser(data));
-      i18n.changeLanguage(value.toLowerCase());
-    } catch {
-      setError(t('common.error'));
-    } finally {
-      setSaving(false);
-    }
+    startTransition(async () => {
+      try {
+        const { data } = await apiClient.patch('/users/me', { nativeLanguage: value });
+        startTransition(() => {
+          dispatch(setUser(data));
+          i18n.changeLanguage(value.toLowerCase());
+        });
+      } catch {
+        setError(t('common.error'));
+      }
+    });
   };
 
   return (

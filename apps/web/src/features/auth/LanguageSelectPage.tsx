@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { cn } from 'cn';
@@ -25,22 +25,24 @@ export function LanguageSelectPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
 
   const handleSelect = async (code: LanguageCode) => {
     if (loading) return;
     setSelectedLanguage(code);
-    setLoading(true);
-    try {
-      const { data } = await apiClient.patch('/users/me', { nativeLanguage: code });
-      dispatch(setUser(data));
-      i18n.changeLanguage(code.toLowerCase());
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Failed to set language:', error);
-      setLoading(false);
-      setSelectedLanguage(null);
-    }
+    startTransition(async () => {
+      try {
+        const { data } = await apiClient.patch('/users/me', { nativeLanguage: code });
+        startTransition(() => {
+          dispatch(setUser(data));
+          i18n.changeLanguage(code.toLowerCase());
+          navigate('/', { replace: true });
+        });
+      } catch (error) {
+        console.error('Failed to set language:', error);
+        setSelectedLanguage(null);
+      }
+    });
   };
 
   return (
