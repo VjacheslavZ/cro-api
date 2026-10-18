@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Выбор родного языка</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 1060px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 796px; box-sizing: border-box; padding: 16px; background-image: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)">
+<div style="margin-bottom: 32px; text-align: center">
+<div style="display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 16px; background: #2563eb">
+<span style="font-size: 26px; line-height: 1; font-weight: 700; color: #ffffff">C</span>
+</div>
+<h1 style="margin: 0 0 4px; font-size: 24px; font-weight: 700; color: #0f172a">Выберите ваш родной язык</h1>
+<p style="margin: 0 auto; max-width: 420px; font-size: 14px; color: #525252">Это определит, как в приложении будут отображаться переводы и объяснения</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; max-width: 680px">
+<a href="Home.dc.html" aria-label="Українська" style="display: block; padding: 32px; box-sizing: border-box; border: 1px solid #e5e5e5; border-radius: 14px; background: #ffffff; text-align: center; text-decoration: none; color: #0f172a">
+<svg width="64" height="44" viewBox="0 0 64 44" aria-hidden="true" style="display: block; margin: 0 auto 12px; border-radius: 4px"><rect width="64" height="22" fill="#0057B7"/><rect y="22" width="64" height="22" fill="#FFD700"/></svg>
+<div style="margin-bottom: 4px; font-size: 16px; font-weight: 600">Українська</div>
+<div style="font-size: 14px; color: #737373">Ukrainian</div>
+</a>
+<a href="Home.dc.html" aria-label="English" style="display: block; padding: 32px; box-sizing: border-box; border: 1px solid #e5e5e5; border-radius: 14px; background: #ffffff; text-align: center; text-decoration: none; color: #0f172a">
+<svg width="64" height="44" viewBox="0 0 64 44" aria-hidden="true" style="display: block; margin: 0 auto 12px; border-radius: 4px"><rect width="64" height="44" fill="#012169"/><path d="M0 0 L64 44 M64 0 L0 44" stroke="#ffffff" stroke-width="9"/><path d="M0 0 L64 44 M64 0 L0 44" stroke="#C8102E" stroke-width="3"/><path d="M32 0 V44 M0 22 H64" stroke="#ffffff" stroke-width="14"/><path d="M32 0 V44 M0 22 H64" stroke="#C8102E" stroke-width="8"/></svg>
+<div style="margin-bottom: 4px; font-size: 16px; font-weight: 600">English</div>
+<div style="font-size: 14px; color: #737373">English</div>
+</a>
+<a href="Home.dc.html" aria-label="Русский" style="display: block; padding: 32px; box-sizing: border-box; border: 2px solid #2563eb; border-radius: 14px; background: #eff6ff; text-align: center; text-decoration: none; color: #0f172a">
+<svg width="64" height="44" viewBox="0 0 64 44" aria-hidden="true" style="display: block; margin: 0 auto 12px; border-radius: 4px"><rect width="64" height="15" fill="#ffffff" stroke="#e5e5e5"/><rect y="14.67" width="64" height="14.67" fill="#0039A6"/><rect y="29.33" width="64" height="14.67" fill="#D52B1E"/></svg>
+<div style="margin-bottom: 4px; font-size: 16px; font-weight: 600">Русский</div>
+<div style="font-size: 14px; color: #737373">Russian</div>
+</a>
+</div>
+<p style="margin: 32px 0 0; font-size: 14px; color: #525252">Вы можете изменить это позже в настройках</p>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 32px">
+<p style="margin: 0; font-size: 14px; color: #525252">Выберите оформление приложения</p>
+<div role="group" aria-label="Оформление" style="display: flex">
+<sc-for list="{{ themes }}" as="th" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{ th.pressed }}" onClick="{{ th.pick }}" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; margin-right: -1px; padding: 0 12px; border: 1px solid #d4d4d4; background: {{ th.bg }}; font: inherit; font-size: 14px; font-weight: 500; color: #0f172a">{{ th.label }}</button>
+</sc-for>
+</div>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: 'SYSTEM' };
+}
+renderVals() {
+const self = this;
+const defs = [['SYSTEM', 'Системная'], ['LIGHT', 'Светлая'], ['DARK', 'Тёмная']];
+return {
+themes: defs.map(function (d) {
+const on = self.state.theme === d[0];
+return { label: d[1], pressed: on ? 'true' : 'false', bg: on ? '#f5f5f5' : '#ffffff', pick: function () { self.setState({ theme: d[0] }); } };
+})
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Учить слова — просмотр</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 864px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 600px">
+<div style="max-width: 600px; margin: 0 auto; box-sizing: border-box; padding: 32px 24px">
+<a href="LearnSetup.dc.html" style="display: inline-flex; align-items: center; gap: 6px; height: 32px; margin-bottom: 16px; padding: 0 10px 0 8px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #dc2626; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Стоп</a>
+<h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 600">Слова для изучения</h1>
+<div aria-hidden="true" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 24px">
+<sc-for list="{{ dots }}" as="d" hint-placeholder-count="5">
+<span style="width: 8px; height: 8px; border-radius: 999px; background: {{ d.color }}"></span>
+</sc-for>
+</div>
+<p style="margin: 0 0 16px; font-size: 14px; color: #737373">{{ counter }}</p>
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 16px; min-height: 180px; box-sizing: border-box; padding: 32px; border-radius: 14px; background: #ffffff; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 0 0 1px rgba(15,23,42,0.1)">
+<p style="margin: 0; font-size: 36px; font-weight: 700">{{ word }}</p>
+<p style="margin: 0; font-size: 24px; color: #737373">{{ translation }}</p>
+</div>
+<div style="margin-top: 24px">
+<sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ next }}" style="width: 100%; height: 40px; border: 0; border-radius: 10px; background: #2563eb; font: inherit; font-size: 14px; font-weight: 500; color: #ffffff">Далее</button>
+</sc-if>
+<sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
+<a href="LearnSession.dc.html" style="display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 10px; background: #2563eb; font-size: 14px; font-weight: 500; color: #ffffff; text-decoration: none">Начать упражнения</a>
+</sc-if>
+</div>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":864}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { index: 0 };
+}
+renderVals() {
+const words = [['kruh', 'хлеб'], ['voda', 'вода'], ['jabuka', 'яблоко'], ['mačka', 'кошка'], ['pas', 'собака']];
+const i = this.state.index;
+const isLast = i === words.length - 1;
+const dots = words.map(function (_, k) {
+return { color: k === i ? '#2563eb' : (k < i ? 'rgba(37,99,235,0.4)' : '#e5e5e5') };
+});
+return {
+dots: dots,
+counter: (i + 1) + ' / ' + words.length,
+word: words[i][0],
+translation: words[i][1],
+isLast: isLast,
+notLast: !isLast,
+next: () => this.setState({ index: Math.min(i + 1, words.length - 1) })
+};
+}
+}
+</script>
+</body>
+</html>
