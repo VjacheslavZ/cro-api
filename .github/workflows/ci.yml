@@ -6,9 +6,19 @@ on:
   pull_request:
     branches: [main, staging]
 
+permissions:
+  contents: read
+
+# A new push to a pull request cancels its older run. Pushes to main and staging
+# get a unique group through run_id, so every commit there gets a result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     env:
       DATABASE_URL: postgresql://cro:cro_ci_password@localhost:5432/cro_ci?schema=public
