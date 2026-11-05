@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { ADMIN_URL, WEB_URL, loginAsAdmin, registerStudentAndSelectLanguage } from './helpers';
+import { WEB_URL, loginAsAdmin, registerStudentAndSelectLanguage } from './helpers';
 
 /**
  * Admin golden path per root CLAUDE.md's "Verification" section (steps 7-9):

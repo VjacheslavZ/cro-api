@@ -5,12 +5,17 @@
   "scripts": {
     "e2e": "playwright test",
     "cleanup": "ts-node tests/cleanup.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@prisma/client": "^6.19.2",
     "@types/node": "^24.13.3",
+    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/parser": "^8.70.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-import-x": "^4.17.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3"
   }
