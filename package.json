@@ -41,9 +41,20 @@
     "apps/admin/src/**/*.{ts,tsx}": [
       "eslint --config apps/admin/eslint.config.mjs --fix --max-warnings=0",
       "prettier --write"
+    ],
+    "packages/shared/src/**/*.ts": [
+      "eslint --config packages/shared/eslint.config.mjs --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "apps/e2e/{tests/**/*.ts,playwright.config.ts}": [
+      "eslint --config apps/e2e/eslint.config.mjs --fix --max-warnings=0",
+      "prettier --write"
     ]
   },
   "overrides": {
-    "multer": "^2.4.0"
+    "multer": "^2.4.0",
+    "@prisma/config": {
+      "deepmerge-ts": "^8.0.2"
+    }
   }
 }
