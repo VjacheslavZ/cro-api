@@ -59,7 +59,7 @@ cro/
 ├── packages/
 │   └── shared/     # @cro/shared — TS types, constants, utilities shared by all apps
 ├── docs/           # ADRs (docs/intent), PRDs, plans, feature docs
-├── docker-compose.yml   # PostgreSQL (:5434) + Redis (:6379) for local dev
+├── docker-compose.yml   # PostgreSQL (:5666) + Redis (:6379) for local dev
 └── turbo.json      # Turborepo task pipeline
 ```
 

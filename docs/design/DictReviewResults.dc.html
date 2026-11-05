@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Повторение завершено</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 864px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 600px">
+<div style="max-width: 600px; margin: 0 auto; box-sizing: border-box; padding: 32px 24px; text-align: center">
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: block; margin: 0 auto 16px"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>
+<h1 style="margin: 0 0 16px; font-size: 30px; font-weight: 600">Повторение завершено!</h1>
+<p style="margin: 0 0 8px; font-size: 24px">Результат: [N] / [N]</p>
+<p style="margin: 0 0 8px; font-size: 18px; font-weight: 500; color: #2563eb">+[N] XP</p>
+<p style="margin: 0 0 32px; font-size: 16px; color: #737373">Текущая серия: [N] дней</p>
+<div style="display: flex; justify-content: center; gap: 16px">
+<a href="Vocabulary.dc.html" style="display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 12px; border-radius: 8px; background: #2563eb; font-size: 14px; font-weight: 500; color: #ffffff; text-decoration: none">Назад</a>
+</div>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":864}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

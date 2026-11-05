@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Выбор языка — вариант «Лаванда»</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button:focus-visible,a:focus-visible{outline:1px solid #4E3F7A;outline-offset:3px}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 980px; background: #F5F3F8; font-family: 'Jost', ui-sans-serif, system-ui, sans-serif; color: #251E33">
+<dc-import name="LavHeader" variant="auth" hint-size="100%,80px"></dc-import>
+<main style="flex: 1 1 auto; padding: 96px 48px 96px; text-align: center">
+<h1 lang="hr" style="margin: 0 0 12px; font-family: 'Bodoni Moda', Didot, Georgia, serif; font-size: 64px; line-height: 1.05; font-weight: 400; font-style: italic">Vaš jezik</h1>
+<p style="margin: 0 auto 72px; max-width: 480px; font-size: 16px; font-weight: 300; line-height: 1.6; color: #6B6478">Выберите родной язык — на нём будут переводы и объяснения. Его можно сменить в настройках.</p>
+<div role="radiogroup" aria-label="Родной язык" style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 960px; margin: 0 auto 80px; border-top: 1px solid #E4DFEB; border-bottom: 1px solid #E4DFEB">
+<sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{ l.checked }}" onClick="{{ l.pick }}" style="flex: 1 1 260px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 24px 40px; border: 0; border-left: 1px solid #E4DFEB; background: {{ l.bg }}; font: inherit; color: #251E33">
+<span style="font-family: 'Bodoni Moda', Didot, Georgia, serif; font-size: 40px; line-height: 1.1; font-weight: 400">{{ l.name }}</span>
+<span style="font-size: 13px; font-weight: 300; color: #6B6478">{{ l.english }}</span>
+<span aria-hidden="true" style="width: 40px; height: 1px; margin-top: 8px; background: {{ l.mark }}"></span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 40px">
+<div role="radiogroup" aria-label="Оформление" style="display: flex; gap: 32px; font-size: 14px">
+<sc-for list="{{ themes }}" as="t" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{ t.checked }}" onClick="{{ t.pick }}" style="padding: 4px 0; border: 0; border-bottom: 1px solid {{ t.line }}; background: transparent; font: inherit; color: {{ t.color }}">{{ t.label }}</button>
+</sc-for>
+</div>
+<a href="LavHome.dc.html" style="display: inline-flex; align-items: center; justify-content: center; height: 54px; padding: 0 56px; border-radius: 2px; background: #4E3F7A; font-size: 15px; font-weight: 500; letter-spacing: 0.02em; color: #FFFFFF; text-decoration: none">Продолжить</a>
+</div>
+</main>
+<dc-import name="LavFooter" hint-size="100%,180px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { lang: 'RU', theme: 'SYSTEM' }; }
+renderVals() {
+const self = this;
+const langs = [['UK', 'Українська', 'Ukrainian'], ['EN', 'English', 'English'], ['RU', 'Русский', 'Russian']].map(function (d) {
+const on = self.state.lang === d[0];
+return { name: d[1], english: d[2], checked: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', mark: on ? '#8A6F43' : 'transparent', pick: function () { self.setState({ lang: d[0] }); } };
+});
+const themes = [['SYSTEM', 'Как в системе'], ['LIGHT', 'Светлая'], ['DARK', 'Тёмная']].map(function (d) {
+const on = self.state.theme === d[0];
+return { label: d[1], checked: on ? 'true' : 'false', line: on ? '#251E33' : 'transparent', color: on ? '#251E33' : '#6B6478', pick: function () { self.setState({ theme: d[0] }); } };
+});
+return { langs: langs, themes: themes };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Учить слова — упражнение 4: соотнести на слух</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 900px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 636px">
+<div style="max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 32px 24px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px">
+<span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border: 1px solid #16a34a; border-radius: 999px; font-size: 12px; font-weight: 500; color: #16a34a">1</span>
+<span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border: 1px solid #16a34a; border-radius: 999px; font-size: 12px; font-weight: 500; color: #16a34a">2</span>
+<span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border: 1px solid #16a34a; border-radius: 999px; font-size: 12px; font-weight: 500; color: #16a34a">3</span>
+<span style="display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #2563eb; font-size: 12px; font-weight: 500; color: #ffffff">4</span>
+</div>
+<p style="margin: 0 0 16px; font-size: 14px; color: #737373">Упражнение 4 из 4</p>
+<p style="margin: 0 0 16px; font-size: 14px; color: #737373">{{ progressText }}</p>
+<div style="display: flex; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px; flex: 1 1 0; min-width: 0">
+<sc-for list="{{ words }}" as="w" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{ w.pressed }}" aria-label="{{ w.aria }}" onClick="{{ w.pick }}" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; box-sizing: border-box; border: {{ w.border }}; border-radius: 10px; background: {{ w.bg }}; font: inherit; font-size: 14px; text-align: left; color: {{ w.color }}">
+<sc-if value="{{ w.matched }}" hint-placeholder-val="{{ false }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 16px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+</sc-if>
+<sc-if value="{{ w.notMatched }}" hint-placeholder-val="{{ true }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ w.iconColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 16px"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+</sc-if>
+<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ w.label }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; flex: 1 1 0; min-width: 0">
+<sc-for list="{{ translations }}" as="t" hint-placeholder-count="5">
+<button type="button" onClick="{{ t.pick }}" style="display: flex; align-items: center; width: 100%; padding: 12px 16px; box-sizing: border-box; border: 1px solid {{ t.border }}; border-radius: 10px; background: {{ t.bg }}; font: inherit; font-size: 14px; text-align: left; color: {{ t.color }}">{{ t.label }}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{ complete }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 10px 14px; border: 1px solid #16a34a; border-radius: 10px; background: #ffffff; font-size: 14px; font-weight: 500; color: #166534"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 16px; margin-top: 2px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>Все слова сопоставлены!</span></div>
+<a href="LearnResults.dc.html" style="display: block; margin-top: 16px; text-align: center; font-size: 13px; color: #525252; text-decoration: none">Переход к итогам сессии…</a>
+</sc-if>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"initialState":{"editor":"enum","options":["idle","inProgress","complete"],"default":"idle"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.items = [['w1', 'kruh', 'хлеб'], ['w2', 'voda', 'вода'], ['w3', 'jabuka', 'яблоко'], ['w4', 'mačka', 'кошка'], ['w5', 'pas', 'собака']];
+this.shuffled = ['w4', 'w1', 'w5', 'w2', 'w3'];
+const init = props.initialState ?? 'idle';
+let matched = {}, selected = null, errors = {};
+if (init === 'inProgress') { matched = { w1: true, w3: true }; errors = { w2: true }; selected = 'w2'; }
+if (init === 'complete') { matched = { w1: true, w2: false, w3: true, w4: true, w5: true }; }
+this.state = { matched: matched, selected: selected, errors: errors, flash: null };
+}
+renderVals() {
+const self = this;
+const st = this.state;
+const count = Object.keys(st.matched).length;
+const byId = {};
+this.items.forEach(function (it) { byId[it[0]] = it; });
+const words = this.items.map(function (it) {
+const id = it[0];
+const isMatched = id in st.matched;
+const isSelected = st.selected === id;
+let border = '1px solid #e5e5e5', bg = '#ffffff', color = '#0f172a', iconColor = '#737373';
+if (isMatched) { border = '1px solid #16a34a'; bg = '#dcfce7'; color = '#166534'; }
+else if (isSelected) { border = '2px solid #2563eb'; bg = '#dcfce7'; color = '#2563eb'; iconColor = '#2563eb'; }
+return {
+label: isMatched ? it[1] : '*************',
+aria: isMatched ? it[1] : 'Прослушать слово',
+pressed: isSelected ? 'true' : 'false',
+matched: isMatched, notMatched: !isMatched,
+border: border, bg: bg, color: color, iconColor: iconColor,
+pick: function () { if (!(id in self.state.matched)) self.setState({ selected: id }); }
+};
+});
+const translations = this.shuffled.map(function (id) {
+const isMatched = id in st.matched;
+const flashing = st.flash === id;
+let border = '#e5e5e5', bg = '#ffffff', color = '#0f172a';
+if (isMatched) { border = '#16a34a'; bg = '#dcfce7'; color = '#166534'; }
+else if (flashing) { border = '#fca5a5'; bg = '#fee2e2'; color = '#dc2626'; }
+return {
+label: byId[id][2], border: border, bg: bg, color: color,
+pick: function () {
+const s = self.state;
+if (!s.selected || id in s.matched) return;
+if (id === s.selected) {
+const m = Object.assign({}, s.matched);
+m[id] = !s.errors[id];
+self.setState({ matched: m, selected: null });
+} else {
+const e = Object.assign({}, s.errors);
+e[s.selected] = true;
+self.setState({ errors: e, flash: id });
+setTimeout(function () { self.setState({ flash: null }); }, 500);
+}
+}
+};
+});
+return {
+words: words,
+translations: translations,
+progressText: count + ' / ' + this.items.length + ' совпадений',
+complete: count === this.items.length
+};
+}
+}
+</script>
+</body>
+</html>

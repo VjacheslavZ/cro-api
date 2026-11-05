@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Главная — редизайн</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D5C68}a:hover{color:#164A54}
+button:focus-visible,a:focus-visible{outline:2px solid #1D5C68;outline-offset:2px}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 1280px; background: #F6F7F4; font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; color: #1C2B30">
+<dc-import name="LuxHeader" variant="auth" hint-size="100%,72px"></dc-import>
+<main style="flex: 1 1 auto">
+<div style="max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 96px 40px 104px">
+<h1 lang="hr" style="margin: 0 0 16px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 80px; line-height: 1; font-weight: 500; letter-spacing: -0.015em">Dobro došli</h1>
+<p style="margin: 0 0 72px; max-width: 560px; font-size: 18px; line-height: 1.6; color: #3F5156">Добро пожаловать. Осваивайте хорватскую грамматику и лексику в своём темпе — по одному упражнению за раз.</p>
+<section aria-label="Ваш прогресс" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 80px; padding: 32px 0; border-top: 1px solid #E2E6E1; border-bottom: 1px solid #E2E6E1">
+<div style="padding: 0 32px 0 0">
+<p style="margin: 0 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; line-height: 1; font-weight: 500">[N]</p>
+<p style="margin: 0; font-size: 13px; color: #5F6C6F">Темы грамматики</p>
+</div>
+<div style="padding: 0 32px; border-left: 1px solid #E2E6E1">
+<p style="margin: 0 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; line-height: 1; font-weight: 500">[N]</p>
+<p style="margin: 0; font-size: 13px; color: #5F6C6F">Слов выучено</p>
+</div>
+<div style="padding: 0 32px; border-left: 1px solid #E2E6E1">
+<p style="margin: 0 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; line-height: 1; font-weight: 500; color: #7E6236">[N]</p>
+<p style="margin: 0; font-size: 13px; color: #5F6C6F">Дней подряд</p>
+</div>
+<div style="padding: 0 32px; border-left: 1px solid #E2E6E1">
+<p style="margin: 0 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; line-height: 1; font-weight: 500; color: #7E6236">[N]</p>
+<p style="margin: 0; font-size: 13px; color: #5F6C6F">Всего XP</p>
+</div>
+</section>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
+<a href="LuxGrammar.dc.html" style="display: flex; flex-direction: column; min-height: 240px; padding: 36px; box-sizing: border-box; border-radius: 24px; background: #1D5C68; text-decoration: none; color: #FFFFFF">
+<span lang="hr" style="margin-bottom: 4px; font-size: 13px; color: #CFE0DD">Gramatika</span>
+<span style="margin-bottom: 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; line-height: 1.1; font-weight: 500">Грамматика</span>
+<span style="flex: 1 1 auto; max-width: 380px; font-size: 15px; line-height: 1.6; color: #E1ECEA">Темы грамматики с упражнениями разных видов — от простого к сложному.</span>
+<span style="margin-top: 24px; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px">Начать учиться</span>
+</a>
+<a href="MyDictionary.dc.html" style="display: flex; flex-direction: column; min-height: 240px; padding: 36px; box-sizing: border-box; border: 1px solid #E2E6E1; border-radius: 24px; background: #FFFFFF; text-decoration: none; color: #1C2B30">
+<span lang="hr" style="margin-bottom: 4px; font-size: 13px; color: #5F6C6F">Rječnik</span>
+<span style="margin-bottom: 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; line-height: 1.1; font-weight: 500">Словарный запас</span>
+<span style="flex: 1 1 auto; max-width: 380px; font-size: 15px; line-height: 1.6; color: #5F6C6F">Ваш личный словарь и практика с наборами слов.</span>
+<span style="margin-top: 24px; font-size: 14px; font-weight: 600; color: #1D5C68; text-decoration: underline; text-underline-offset: 4px">Мой словарь</span>
+</a>
+<a href="WordSets.dc.html" style="display: flex; flex-direction: column; min-height: 240px; padding: 36px; box-sizing: border-box; border: 1px solid #E2E6E1; border-radius: 24px; background: #FFFFFF; text-decoration: none; color: #1C2B30">
+<span lang="hr" style="margin-bottom: 4px; font-size: 13px; color: #5F6C6F">Zbirke riječi</span>
+<span style="margin-bottom: 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; line-height: 1.1; font-weight: 500">Наборы слов</span>
+<span style="flex: 1 1 auto; max-width: 380px; font-size: 15px; line-height: 1.6; color: #5F6C6F">Готовые подборки слов по распространённым темам и ситуациям.</span>
+<span style="margin-top: 24px; font-size: 14px; font-weight: 600; color: #1D5C68; text-decoration: underline; text-underline-offset: 4px">Смотреть наборы</span>
+</a>
+<a href="DictReview.dc.html" style="display: flex; flex-direction: column; min-height: 240px; padding: 36px; box-sizing: border-box; border: 1px solid #E2E6E1; border-radius: 24px; background: #FFFFFF; text-decoration: none; color: #1C2B30">
+<span style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px"><span lang="hr" style="font-size: 13px; color: #5F6C6F">Ponavljanje</span><span title="Слов к повторению" style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border: 1px solid #D9C9AC; border-radius: 999px; background: #F7F1E6; font-size: 12px; font-weight: 600; color: #7E6236">[N] к повторению</span></span>
+<span style="margin-bottom: 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; line-height: 1.1; font-weight: 500">Повторение</span>
+<span style="flex: 1 1 auto; max-width: 380px; font-size: 15px; line-height: 1.6; color: #5F6C6F">Слова возвращаются именно тогда, когда вы начинаете их забывать.</span>
+<span style="margin-top: 24px; font-size: 14px; font-weight: 600; color: #1D5C68; text-decoration: underline; text-underline-offset: 4px">Начать повторение</span>
+</a>
+</div>
+</div>
+</main>
+<dc-import name="LuxFooter" hint-size="100%,160px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1280}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

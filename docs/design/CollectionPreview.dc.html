@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Набор слов — просмотр</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 904px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 640px">
+<div style="max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 32px 24px">
+<a href="WordSets.dc.html" style="display: inline-flex; align-items: center; gap: 6px; height: 32px; margin-bottom: 16px; padding: 0 10px 0 8px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #0f172a; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Коллекции</a>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px">
+<div>
+<h1 style="margin: 0; font-size: 30px; font-weight: 600">Еда</h1>
+<p style="margin: 0; font-size: 14px; color: #737373">[Описание набора]</p>
+<p style="margin: 0; font-size: 14px; color: #737373">6 слов в наборе</p>
+</div>
+<button type="button" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 10px; border: 0; border-radius: 10px; background: {{ addBg }}; font: inherit; font-size: 14px; font-weight: 500; color: #ffffff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>{{ addLabel }}</button>
+</div>
+<div style="overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 14px">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="border-bottom: 1px solid #e5e5e5">
+<th style="width: 48px; height: 40px; padding: 0 8px 0 16px; text-align: left"><input type="checkbox" aria-label="Выбрать все" checked="{{ allSelected }}" onChange="{{ toggleAll }}" style="width: 16px; height: 16px; margin: 0"></th>
+<th style="height: 40px; padding: 0 8px; text-align: left; font-weight: 500">Хорватское слово</th>
+<th style="height: 40px; padding: 0 8px; text-align: left; font-weight: 500">Перевод</th>
+<th style="width: 48px"></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+<tr style="border-bottom: 1px solid #f0f0f0; background: {{ r.bg }}">
+<td style="padding: 8px 8px 8px 16px"><input type="checkbox" aria-label="{{ r.hr }}" checked="{{ r.selected }}" onChange="{{ r.toggle }}" style="width: 16px; height: 16px; margin: 0"></td>
+<td style="padding: 8px">{{ r.hr }}</td>
+<td style="padding: 8px">{{ r.tr }}</td>
+<td style="padding: 8px"><button type="button" aria-label="Прослушать" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":904}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { selected: { kruh: true, voda: true } };
+}
+renderVals() {
+const self = this;
+const words = [['kruh', 'хлеб'], ['voda', 'вода'], ['jabuka', 'яблоко'], ['mlijeko', 'молоко'], ['sir', 'сыр'], ['jaje', 'яйцо']];
+const sel = this.state.selected;
+const count = words.filter(function (w) { return sel[w[0]]; }).length;
+const all = count === words.length;
+return {
+rows: words.map(function (w) {
+const on = !!sel[w[0]];
+return {
+hr: w[0], tr: w[1], selected: on, bg: on ? '#f5f5f5' : '#ffffff',
+toggle: function () { const next = Object.assign({}, self.state.selected); next[w[0]] = !on; self.setState({ selected: next }); }
+};
+}),
+allSelected: all,
+toggleAll: function () { const next = {}; if (!all) words.forEach(function (w) { next[w[0]] = true; }); self.setState({ selected: next }); },
+addLabel: 'Добавить в мой словарь (' + count + ')',
+addBg: count === 0 ? 'rgba(37,99,235,0.5)' : '#2563eb'
+};
+}
+}
+</script>
+</body>
+</html>
