@@ -53,7 +53,8 @@ jobs:
       - name: Security audit (npm)
         run: npm audit --audit-level=high --omit=dev
 
-      - run: npm run prisma:generate
+      - name: Prisma generate
+        run: npm run prisma:generate
 
       # Applies every migration to an empty database, as a first deploy would.
       - name: Apply migrations
@@ -68,8 +69,11 @@ jobs:
           --to-schema-datamodel apps/api/src/prisma/schema.prisma
           --exit-code
 
-      - run: npx turbo run lint typecheck --continue
+      - name: Lint
+        run: npx turbo run lint typecheck --continue
 
-      - run: npx turbo run test:coverage --continue
+      - name: Test
+        run: npx turbo run test:coverage --continue
 
-      - run: npx turbo run build --continue
+      - name: Build
+        run: npx turbo run build --continue
