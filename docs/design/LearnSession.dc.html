@@ -28,7 +28,7 @@ a{color:#2563eb}a:hover{color:#1d4ed8}
 <span>Упражнение 2 из 4</span>
 <span>Вопрос 2 из 5</span>
 </div>
-<div style="height: 8px; margin-bottom: 24px; border-radius: 999px; background: #e5e5e5"><div style="width: 40%; height: 8px; border-radius: 999px; background: #2563eb"></div></div>
+<div role="progressbar" aria-label="Вопрос 2 из 5" style="height: 8px; margin-bottom: 24px; border-radius: 999px; background: #e5e5e5"><div style="width: 40%; height: 8px; border-radius: 999px; background: #2563eb"></div></div>
 <div style="padding: 40px; border-radius: 18px; background: #ffffff; box-shadow: {{ ring }}">
 <div style="margin-bottom: 16px">
 <p style="margin: 0; font-size: 14px; color: #737373">Введите перевод:</p>
@@ -36,19 +36,25 @@ a{color:#2563eb}a:hover{color:#1d4ed8}
 </div>
 <div style="display: flex; gap: 12px; margin-bottom: 16px">
 <label for="answer" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)">Перевод</label>
-<input id="answer" type="text" placeholder="Введите перевод..." style="flex: 1 1 auto; min-width: 0; height: 56px; box-sizing: border-box; padding: 0 20px; border: 0; border-radius: 999px; background: #f5f5f5; font: inherit; font-size: 18px; color: #0f172a">
-<button type="button" aria-label="Подсказка" title="Подсказка" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; height: 56px; border: 1px solid #e5e5e5; border-radius: 10px; background: #ffffff; color: #0f172a"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></button>
+<input id="answer" type="text" placeholder="Введите перевод..." value="{{ input }}" onChange="{{ onInput }}" disabled="{{ checked }}" style="flex: 1 1 auto; min-width: 0; height: 56px; box-sizing: border-box; padding: 0 20px; border: 0; border-radius: 999px; background: #f5f5f5; font: inherit; font-size: 18px; color: {{ inputColor }}">
+<button type="button" aria-label="Подсказка" title="Подсказка" onClick="{{ hint }}" style="display: flex; align-items: center; justify-content: center; flex: 0 0 56px; height: 56px; border: 1px solid #e5e5e5; border-radius: 10px; background: #ffffff; color: #0f172a; visibility: {{ hintVisibility }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></button>
 </div>
 <div style="display: flex; align-items: center; justify-content: center; min-height: 64px; margin-bottom: 16px">
-<sc-if value="{{ checked }}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; align-items: center; gap: 8px; color: #16a34a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span style="font-size: 18px; font-weight: 600">Правильно!</span></div>
+<sc-if value="{{ isCorrect }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: flex-start; gap: 8px; color: #16a34a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 28px; margin-top: 2px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span style="font-size: 18px; font-weight: 600">Правильно!</span></div>
+</sc-if>
+<sc-if value="{{ isIncorrect }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; align-items: flex-start; gap: 8px; color: #dc2626"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 28px; margin-top: 2px"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><span style="margin-top: 4px; font-size: 16px; font-weight: 500">Неправильно. Правильный ответ: вода</span></div>
 </sc-if>
 </div>
-<sc-if value="{{ notChecked }}" hint-placeholder-val="{{ true }}">
-<button type="button" onClick="{{ check }}" style="width: 100%; height: 56px; border: 0; border-radius: 10px; background: #0f172a; font: inherit; font-size: 16px; font-weight: 600; color: #ffffff">Проверить</button>
+<sc-if value="{{ isIdle }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ check }}" disabled="{{ empty }}" style="width: 100%; height: 56px; border: 0; border-radius: 10px; background: {{ checkBg }}; font: inherit; font-size: 16px; font-weight: 600; color: {{ checkColor }}">Проверить</button>
 </sc-if>
-<sc-if value="{{ checked }}" hint-placeholder-val="{{ false }}">
-<a href="LearnResults.dc.html" style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 10px; background: #0f172a; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none">Далее</a>
+<sc-if value="{{ isIncorrect }}" hint-placeholder-val="{{ false }}">
+<a href="LearnMatching.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 56px; border-radius: 10px; background: #0f172a; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none">Далее<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+</sc-if>
+<sc-if value="{{ isCorrect }}" hint-placeholder-val="{{ false }}">
+<a href="LearnMatching.dc.html" style="display: block; text-align: center; font-size: 13px; color: #525252; text-decoration: none">Автопереход к следующему вопросу…</a>
 </sc-if>
 </div>
 </div>
@@ -56,19 +62,54 @@ a{color:#2563eb}a:hover{color:#1d4ed8}
 <dc-import name="Footer" hint-size="100%,200px"></dc-import>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":944}}'>
+<script type="text/x-dc" data-dc-script data-props='{"initialState":{"editor":"enum","options":["idle","correct","incorrect"],"default":"idle"},"$preview":{"width":1440,"height":944}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { checked: false };
+const init = props.initialState ?? 'idle';
+this.state = {
+status: init,
+input: init === 'correct' ? 'вода' : (init === 'incorrect' ? 'водка' : ''),
+hintUsed: false
+};
 }
 renderVals() {
-const checked = this.state.checked;
+const self = this;
+const answer = 'вода';
+const status = this.state.status;
+const input = this.state.input;
+const checked = status !== 'idle';
+const empty = input.trim() === '';
+const evaluate = function (value, hintUsed) {
+const ok = !hintUsed && value.trim().toLowerCase() === answer;
+self.setState({ status: ok ? 'correct' : 'incorrect' });
+};
 return {
+input: input,
 checked: checked,
-notChecked: !checked,
-ring: checked ? '0 0 0 3px #16a34a, 0 4px 24px rgba(0,0,0,0.06)' : '0 4px 24px rgba(0,0,0,0.10)',
-check: () => this.setState({ checked: true })
+empty: empty,
+isIdle: status === 'idle',
+isCorrect: status === 'correct',
+isIncorrect: status === 'incorrect',
+ring: status === 'correct' ? '0 0 0 3px #16a34a, 0 4px 24px rgba(0,0,0,0.06)' : '0 4px 24px rgba(0,0,0,0.10)',
+inputColor: checked ? '#737373' : '#0f172a',
+hintVisibility: checked ? 'hidden' : 'visible',
+checkBg: empty ? 'rgba(15,23,42,0.1)' : '#0f172a',
+checkColor: empty ? 'rgba(15,23,42,0.3)' : '#ffffff',
+onInput: function (e) {
+const value = e.target.value;
+self.setState({ input: value });
+if (value.trim().toLowerCase() === answer && !self.state.hintUsed) self.setState({ input: value, status: 'correct' });
+},
+hint: function () {
+if (checked) return;
+let n = 0;
+while (n < input.length && n < answer.length && input[n].toLowerCase() === answer[n]) n++;
+const next = answer.slice(0, n + 1);
+self.setState({ input: next, hintUsed: true });
+if (next === answer) evaluate(next, true);
+},
+check: function () { if (!empty) evaluate(input, self.state.hintUsed); }
 };
 }
 }

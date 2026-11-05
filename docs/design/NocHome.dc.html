@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Главная — вариант «Ночь в Дубровнике»</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:focus-visible{outline:2px solid #C8A76A;outline-offset:3px}
+.noc-arch:hover{border-color:#C8A76A}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 1200px; background: #121B2A; font-family: 'Karla', ui-sans-serif, system-ui, sans-serif; color: #ECE6DA">
+<dc-import name="NocHeader" variant="auth" hint-size="100%,76px"></dc-import>
+<main style="flex: 1 1 auto; padding: 88px 48px 104px">
+<div style="max-width: 1160px; margin: 0 auto">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 72px">
+<div>
+<h1 lang="hr" style="margin: 0 0 14px; font-family: 'Marcellus', Georgia, serif; font-size: 76px; line-height: 1; font-weight: 400">Dobra večer</h1>
+<p style="margin: 0; max-width: 460px; font-size: 17px; line-height: 1.6; color: #A3A9B5">Добрый вечер. Самое время для пары упражнений.</p>
+</div>
+<dl style="display: flex; flex-wrap: wrap; gap: 40px; margin: 0">
+<div><dt style="font-size: 13px; color: #A3A9B5">Темы</dt><dd style="margin: 4px 0 0; font-family: 'Marcellus', Georgia, serif; font-size: 36px">[N]</dd></div>
+<div><dt style="font-size: 13px; color: #A3A9B5">Слов выучено</dt><dd style="margin: 4px 0 0; font-family: 'Marcellus', Georgia, serif; font-size: 36px">[N]</dd></div>
+<div><dt style="font-size: 13px; color: #A3A9B5">Дней подряд</dt><dd style="margin: 4px 0 0; font-family: 'Marcellus', Georgia, serif; font-size: 36px; color: #D9BC84">[N]</dd></div>
+<div><dt style="font-size: 13px; color: #A3A9B5">Всего XP</dt><dd style="margin: 4px 0 0; font-family: 'Marcellus', Georgia, serif; font-size: 36px; color: #D9BC84">[N]</dd></div>
+</dl>
+</div>
+<nav aria-label="Разделы" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px">
+<a class="noc-arch" href="NocGrammar.dc.html" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; height: 440px; box-sizing: border-box; padding: 36px 32px; border: 1px solid #C8A76A; border-radius: 160px 160px 8px 8px; background: #1E2B45; text-decoration: none; color: #ECE6DA">
+<span lang="hr" style="font-size: 13px; color: #D9BC84">Gramatika</span>
+<span style="font-family: 'Marcellus', Georgia, serif; font-size: 32px; line-height: 1.1">Грамматика</span>
+<span style="font-size: 15px; line-height: 1.55; color: #A3A9B5">Темы с упражнениями разных видов</span>
+<span style="margin-top: 16px; font-size: 14px; font-weight: 600; color: #D9BC84">Начать учиться</span>
+</a>
+<a class="noc-arch" href="MyDictionary.dc.html" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; height: 440px; box-sizing: border-box; padding: 36px 32px; border: 1px solid #2A3753; border-radius: 160px 160px 8px 8px; background: #18233A; text-decoration: none; color: #ECE6DA">
+<span lang="hr" style="font-size: 13px; color: #A3A9B5">Rječnik</span>
+<span style="font-family: 'Marcellus', Georgia, serif; font-size: 32px; line-height: 1.1">Словарный запас</span>
+<span style="font-size: 15px; line-height: 1.55; color: #A3A9B5">Личный словарь и практика</span>
+<span style="margin-top: 16px; font-size: 14px; font-weight: 600; color: #D9BC84">Мой словарь</span>
+</a>
+<a class="noc-arch" href="WordSets.dc.html" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; height: 440px; box-sizing: border-box; padding: 36px 32px; border: 1px solid #2A3753; border-radius: 160px 160px 8px 8px; background: #18233A; text-decoration: none; color: #ECE6DA">
+<span lang="hr" style="font-size: 13px; color: #A3A9B5">Zbirke riječi</span>
+<span style="font-family: 'Marcellus', Georgia, serif; font-size: 32px; line-height: 1.1">Наборы слов</span>
+<span style="font-size: 15px; line-height: 1.55; color: #A3A9B5">Подборки по темам и ситуациям</span>
+<span style="margin-top: 16px; font-size: 14px; font-weight: 600; color: #D9BC84">Смотреть наборы</span>
+</a>
+<a class="noc-arch" href="DictReview.dc.html" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; height: 440px; box-sizing: border-box; padding: 36px 32px; border: 1px solid #2A3753; border-radius: 160px 160px 8px 8px; background: #18233A; text-decoration: none; color: #ECE6DA">
+<span lang="hr" style="font-size: 13px; color: #A3A9B5">Ponavljanje</span>
+<span style="font-family: 'Marcellus', Georgia, serif; font-size: 32px; line-height: 1.1">Повторение</span>
+<span style="font-size: 15px; line-height: 1.55; color: #A3A9B5">[N] слов ждут повторения</span>
+<span style="margin-top: 16px; font-size: 14px; font-weight: 600; color: #D9BC84">Начать повторение</span>
+</a>
+</nav>
+</div>
+</main>
+<dc-import name="NocFooter" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

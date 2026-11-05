@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Темы грамматики — редизайн</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D5C68}a:hover{color:#164A54}
+a:focus-visible{outline:2px solid #1D5C68;outline-offset:2px}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 960px; background: #F6F7F4; font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; color: #1C2B30">
+<dc-import name="LuxHeader" variant="auth" active="exercises" hint-size="100%,72px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 728px">
+<div style="max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 88px 40px 104px">
+<h1 lang="hr" style="margin: 0 0 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; line-height: 1.05; font-weight: 500; letter-spacing: -0.01em">Gramatika</h1>
+<p style="margin: 0 0 8px; font-size: 20px; font-weight: 500">Темы грамматики</p>
+<p style="margin: 0 0 56px; max-width: 520px; font-size: 15px; line-height: 1.6; color: #5F6C6F">Выберите тему для практики. Внутри темы — несколько видов упражнений.</p>
+<nav aria-label="Темы" style="border-top: 1px solid #E2E6E1">
+<a href="LuxTopic.dc.html" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 28px 8px; border-bottom: 1px solid #E2E6E1; text-decoration: none; color: #1C2B30">
+<span style="flex: 1 1 320px; min-width: 0">
+<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; line-height: 1.15; font-weight: 500">Падежи</span>
+<span lang="hr" style="display: block; margin-top: 2px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-style: italic; color: #5F6C6F">Padeži</span>
+</span>
+<span style="flex: 0 1 auto; font-size: 13px; line-height: 1.6; color: #5F6C6F">Впишите ответ, карточки, заполни пропуск</span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D5C68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 20px"><path d="m9 18 6-6-6-6"/></svg>
+</a>
+<a href="LuxTopic.dc.html" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 28px 8px; border-bottom: 1px solid #E2E6E1; text-decoration: none; color: #1C2B30">
+<span style="flex: 1 1 320px; min-width: 0">
+<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; line-height: 1.15; font-weight: 500">Единственное и множественное число</span>
+<span lang="hr" style="display: block; margin-top: 2px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-style: italic; color: #5F6C6F">Jednina i množina</span>
+</span>
+<span style="flex: 0 1 auto; font-size: 13px; line-height: 1.6; color: #5F6C6F">Впишите ответ, карточки</span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D5C68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 20px"><path d="m9 18 6-6-6-6"/></svg>
+</a>
+<a href="LuxTopic.dc.html" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 28px 8px; border-bottom: 1px solid #E2E6E1; text-decoration: none; color: #1C2B30">
+<span style="flex: 1 1 320px; min-width: 0">
+<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; line-height: 1.15; font-weight: 500">[Название темы]</span>
+<span lang="hr" style="display: block; margin-top: 2px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-style: italic; color: #5F6C6F">[Naziv teme]</span>
+</span>
+<span style="flex: 0 1 auto; font-size: 13px; line-height: 1.6; color: #5F6C6F">Составить предложение</span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D5C68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 20px"><path d="m9 18 6-6-6-6"/></svg>
+</a>
+</nav>
+</div>
+</main>
+<dc-import name="LuxFooter" hint-size="100%,160px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
