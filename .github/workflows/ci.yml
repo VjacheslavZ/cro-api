@@ -10,6 +10,24 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://cro:cro_ci_password@localhost:5432/cro_ci?schema=public
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: cro
+          POSTGRES_PASSWORD: cro_ci_password
+          POSTGRES_DB: cro_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v7
 
@@ -26,6 +44,19 @@ jobs:
         run: npm audit --audit-level=high --omit=dev
 
       - run: npm run prisma:generate
+
+      # Applies every migration to an empty database, as a first deploy would.
+      - name: Apply migrations
+        run: npx prisma migrate deploy --schema=apps/api/src/prisma/schema.prisma
+
+      # Fails if the migrated database differs from schema.prisma, for example
+      # when a schema change was made without a migration.
+      - name: Check for schema drift
+        run: >-
+          npx prisma migrate diff
+          --from-url "$DATABASE_URL"
+          --to-schema-datamodel apps/api/src/prisma/schema.prisma
+          --exit-code
 
       - run: npx turbo run lint typecheck --continue
 
