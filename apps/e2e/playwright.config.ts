@@ -7,7 +7,7 @@ import { defineConfig } from '@playwright/test';
  * Prerequisites for a live run (none of this happens automatically):
  *   1. `npx playwright install --with-deps chromium` (once, from apps/e2e — no browser
  *      binaries are bundled with the @playwright/test package install)
- *   2. `docker compose up -d` (Postgres on 5434, Redis on 6379 — see root docker-compose.yml)
+ *   2. `docker compose up -d` (Postgres on 5666, Redis on 6379 — see root docker-compose.yml)
  *   3. `npm run -w cro-api prisma:migrate` (apply pending migrations)
  *   4. `npm run -w cro-api seed` (seeds the default admin — test@gmail.com / zxcv1234 — plus
  *      the "Food"/"Animals"/etc. topics with Flashcards/TypeTheAnswer/FillInBlank items that

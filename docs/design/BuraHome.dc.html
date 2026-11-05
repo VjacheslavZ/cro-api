@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Главная — вариант «Бура»</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:focus-visible{outline:2px solid #2443B5;outline-offset:2px}
+.bura-tile:hover{background:#EBEEF5}
+</style>
+</helmet>
+<div style="display: flex; min-height: 960px; background: #FFFFFF; font-family: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif; color: #121826">
+<dc-import name="BuraSidebar" active="home" hint-size="264px,100%"></dc-import>
+<main style="flex: 1 1 auto; min-width: 0; padding: 64px 64px 72px">
+<div style="max-width: 1000px">
+<h1 lang="hr" style="margin: 0 0 12px; font-size: 72px; line-height: 1; font-weight: 300; letter-spacing: -0.035em">Bok, [Ime]</h1>
+<p style="margin: 0 0 48px; font-size: 18px; line-height: 1.6; color: #5B6475">Привет! Выберите, чем заняться сегодня.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+<a href="BuraGrammar.dc.html" style="grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; min-height: 260px; box-sizing: border-box; padding: 40px; border-radius: 32px; background: #2443B5; text-decoration: none; color: #FFFFFF">
+<span style="max-width: 460px"><span lang="hr" style="display: block; margin-bottom: 8px; font-size: 15px; color: #C9D3F5">Gramatika</span><span style="display: block; margin-bottom: 12px; font-size: 48px; line-height: 1.05; font-weight: 300; letter-spacing: -0.03em">Грамматика</span><span style="display: block; font-size: 16px; line-height: 1.6; color: #DDE3F8">Темы грамматики с упражнениями разных видов — от простого к сложному.</span></span>
+<span style="display: inline-flex; align-items: center; height: 52px; padding: 0 28px; border-radius: 16px; background: #FFFFFF; font-size: 15px; font-weight: 600; color: #2443B5">Начать учиться</span>
+</a>
+<a class="bura-tile" href="MyDictionary.dc.html" style="display: flex; flex-direction: column; min-height: 220px; box-sizing: border-box; padding: 32px; border-radius: 28px; background: #F3F5F9; text-decoration: none; color: #121826">
+<span lang="hr" style="margin-bottom: 6px; font-size: 14px; color: #5B6475">Rječnik</span>
+<span style="margin-bottom: 10px; font-size: 28px; font-weight: 400; letter-spacing: -0.02em">Словарный запас</span>
+<span style="flex: 1 1 auto; font-size: 15px; line-height: 1.55; color: #5B6475">Личный словарь и практика с наборами слов</span>
+<span style="margin-top: 20px; font-size: 14px; font-weight: 600; color: #2443B5">Мой словарь</span>
+</a>
+<a class="bura-tile" href="WordSets.dc.html" style="display: flex; flex-direction: column; min-height: 220px; box-sizing: border-box; padding: 32px; border-radius: 28px; background: #F3F5F9; text-decoration: none; color: #121826">
+<span lang="hr" style="margin-bottom: 6px; font-size: 14px; color: #5B6475">Zbirke riječi</span>
+<span style="margin-bottom: 10px; font-size: 28px; font-weight: 400; letter-spacing: -0.02em">Наборы слов</span>
+<span style="flex: 1 1 auto; font-size: 15px; line-height: 1.55; color: #5B6475">Готовые подборки по темам и ситуациям</span>
+<span style="margin-top: 20px; font-size: 14px; font-weight: 600; color: #2443B5">Смотреть наборы</span>
+</a>
+<a class="bura-tile" href="DictReview.dc.html" style="display: flex; flex-direction: column; min-height: 220px; box-sizing: border-box; padding: 32px; border-radius: 28px; background: #F3F5F9; text-decoration: none; color: #121826">
+<span style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px"><span lang="hr" style="font-size: 14px; color: #5B6475">Ponavljanje</span><span style="height: 26px; padding: 0 10px; border-radius: 999px; background: #FBF4E6; font-size: 13px; font-weight: 600; line-height: 26px; color: #8A5A12">[N] слов</span></span>
+<span style="margin-bottom: 10px; font-size: 28px; font-weight: 400; letter-spacing: -0.02em">Повторение</span>
+<span style="flex: 1 1 auto; font-size: 15px; line-height: 1.55; color: #5B6475">Слова возвращаются, когда начинаете их забывать</span>
+<span style="margin-top: 20px; font-size: 14px; font-weight: 600; color: #2443B5">Начать повторение</span>
+</a>
+</div>
+<section aria-label="Ваш прогресс" style="display: flex; flex-wrap: wrap; gap: 48px; margin-top: 48px; padding-top: 32px; border-top: 1px solid #E6E9F0">
+<div><p style="margin: 0; font-size: 40px; font-weight: 300; letter-spacing: -0.02em">[N]</p><p style="margin: 2px 0 0; font-size: 14px; color: #5B6475">тем грамматики</p></div>
+<div><p style="margin: 0; font-size: 40px; font-weight: 300; letter-spacing: -0.02em">[N]</p><p style="margin: 2px 0 0; font-size: 14px; color: #5B6475">слов выучено</p></div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

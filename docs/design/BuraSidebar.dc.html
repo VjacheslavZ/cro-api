@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Sidebar — вариант «Бура»</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:focus-visible,button:focus-visible{outline:2px solid #2443B5;outline-offset:2px}
+.bura-nav:hover{background:#F3F5F9}
+</style>
+</helmet>
+<aside style="display: flex; flex-direction: column; width: 264px; min-height: 960px; height: 100%; box-sizing: border-box; padding: 32px 20px 28px; background: #FFFFFF; border-right: 1px solid #E6E9F0; font-family: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif; color: #121826">
+<a href="BuraHome.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 0 12px; margin-bottom: 48px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: #121826; text-decoration: none"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: #2443B5; box-shadow: inset -8px -8px 0 0 #6E86E0"></span>CroGrammar</a>
+<nav aria-label="Основная навигация" style="display: flex; flex-direction: column; gap: 4px">
+<a class="bura-nav" href="BuraHome.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 14px; border-radius: 14px; background: {{ homeBg }}; font-size: 15px; font-weight: 500; color: {{ homeColor }}; text-decoration: none">Главная</a>
+<a class="bura-nav" href="BuraGrammar.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 14px; border-radius: 14px; background: {{ exBg }}; font-size: 15px; font-weight: 500; color: {{ exColor }}; text-decoration: none">Упражнения</a>
+<a class="bura-nav" href="MyDictionary.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 14px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #121826; text-decoration: none">Словарь</a>
+<a class="bura-nav" href="Lessons.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 14px; border-radius: 14px; font-size: 15px; font-weight: 500; color: #121826; text-decoration: none">Уроки</a>
+</nav>
+<div style="flex: 1 1 auto"></div>
+<div style="display: flex; gap: 8px; margin-bottom: 20px">
+<div title="Дней подряд" style="flex: 1 1 0; padding: 14px; border-radius: 16px; background: #FBF4E6"><p style="margin: 0; font-size: 24px; font-weight: 300; color: #8A5A12">[N]</p><p style="margin: 2px 0 0; font-size: 12px; color: #8A5A12">дней подряд</p></div>
+<div title="Всего XP" style="flex: 1 1 0; padding: 14px; border-radius: 16px; background: #E8ECFA"><p style="margin: 0; font-size: 24px; font-weight: 300; color: #2443B5">[N]</p><p style="margin: 2px 0 0; font-size: 12px; color: #2443B5">XP</p></div>
+</div>
+<button type="button" aria-label="Меню пользователя" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; background: #F3F5F9; font: inherit; text-align: left; color: #121826"><span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 999px; background: #121826; font-size: 14px; font-weight: 600; color: #FFFFFF">V</span><span style="font-size: 14px; font-weight: 500">[Имя]</span></button>
+<p style="margin: 20px 12px 0; font-size: 12px; line-height: 1.8; color: #5B6475"><a href="#" style="color: #5B6475">О нас</a>&nbsp;&nbsp; <a href="#" style="color: #5B6475">Партнёрам</a>&nbsp;&nbsp; <a href="#" style="color: #5B6475">Контакты</a></p>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","exercises"],"default":"home"},"$preview":{"width":264,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+const active = this.props.active ?? 'home';
+const on = { bg: '#E8ECFA', color: '#2443B5' };
+const off = { bg: 'transparent', color: '#121826' };
+const h = active === 'home' ? on : off;
+const e = active === 'exercises' ? on : off;
+return { homeBg: h.bg, homeColor: h.color, exBg: e.bg, exColor: e.color };
+}
+}
+</script>
+</body>
+</html>

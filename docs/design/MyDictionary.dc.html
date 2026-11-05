@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Мой словарь</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2563eb}a:hover{color:#1d4ed8}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 964px; background: #ffffff; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: #0f172a">
+<dc-import name="Header" variant="auth" hint-size="100%,64px"></dc-import>
+<main style="flex: 1 1 auto; min-height: 700px">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 8px 24px 32px">
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px">
+<h1 style="margin: 0; font-size: 30px; font-weight: 700">Мой словарь</h1>
+<span style="display: inline-flex; align-items: center; height: 24px; padding: 0 8px; box-sizing: border-box; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; font-size: 14px; font-weight: 500; color: #1d4ed8">[N]</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px">
+<button type="button" aria-label="Сортировка" style="display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 180px; height: 36px; padding: 0 10px; box-sizing: border-box; border: 1px solid #e5e5e5; border-radius: 10px; background: #ffffff; font: inherit; font-size: 14px; color: #0f172a">Сначала новые<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<div style="position: relative; flex: 1 1 200px; min-width: 200px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 10px; top: 10px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+<input type="search" aria-label="Поиск слов" placeholder="Поиск слов..." style="width: 100%; height: 36px; box-sizing: border-box; padding: 0 10px 0 32px; border: 1px solid #e5e5e5; border-radius: 10px; font: inherit; font-size: 14px; color: #0f172a">
+</div>
+<button type="button" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 10px; border: 0; border-radius: 10px; background: #2563eb; font: inherit; font-size: 14px; font-weight: 500; color: #ffffff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Добавить слово</button>
+<a href="DictPractice.dc.html" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 10px; box-sizing: border-box; border: 1px solid #e5e5e5; border-radius: 10px; background: #ffffff; font-size: 14px; font-weight: 500; color: #0f172a; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></svg>Практика</a>
+<div style="display: flex; align-items: center; gap: 8px">
+<input id="hideLearned" type="checkbox" style="width: 16px; height: 16px; margin: 0">
+<label for="hideLearned" style="font-size: 14px">Скрыть выученные слова</label>
+</div>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 720px">
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 10px 16px; border: 1px solid #e5e5e5; border-radius: 10px; background: #fafafa; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #737373">
+<input type="checkbox" aria-label="Выбрать все" style="width: 16px; height: 16px; margin: 0">
+<span style="flex: 1 1 auto">Хорватское слово</span>
+<span style="flex: 0 0 140px">Коллекция</span>
+<span style="flex: 0 0 152px">Прогресс</span>
+<span style="flex: 0 0 140px"></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{ words }}" as="w" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border: 1px solid #e5e5e5; border-radius: 10px; background: #ffffff">
+<input type="checkbox" aria-label="{{ w.hr }}" style="width: 16px; height: 16px; margin: 0">
+<div style="flex: 1 1 auto; min-width: 0">
+<p style="margin: 0; font-size: 14px; font-weight: 600">{{ w.hr }}</p>
+<p style="margin: 0; font-size: 12px; color: #737373">{{ w.tr }}</p>
+</div>
+<p style="flex: 0 0 140px; margin: 0; font-size: 13px; color: #737373">{{ w.collection }}</p>
+<div style="display: flex; align-items: center; gap: 8px; flex: 0 0 152px">
+<sc-if value="{{ w.learned }}" hint-placeholder-val="{{ false }}">
+<span style="display: inline-flex; align-items: center; height: 20px; padding: 0 8px; box-sizing: border-box; border: 1px solid #16a34a; border-radius: 999px; font-size: 11px; font-weight: 500; color: #15803d">Изучено</span>
+</sc-if>
+<sc-if value="{{ w.notLearned }}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1 1 auto; height: 6px; border-radius: 999px; background: #e5e5e5"><div style="width: {{ w.pct }}; height: 6px; border-radius: 999px; background: #2563eb"></div></div>
+<span style="min-width: 32px; font-size: 12px; text-align: right; color: #737373; font-variant-numeric: tabular-nums">{{ w.pct }}</span>
+</sc-if>
+</div>
+<div style="display: flex; align-items: center; flex: 0 0 140px">
+<button type="button" aria-label="Отметить как выученное" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></button>
+<button type="button" aria-label="Сбросить прогресс" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></button>
+<button type="button" aria-label="Редактировать слово" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></button>
+<button type="button" aria-label="Прослушать" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg></button>
+<button type="button" aria-label="Удалить" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #dc2626"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</main>
+<dc-import name="Footer" hint-size="100%,200px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":964}}'>
+class Component extends DCLogic {
+renderVals() {
+const rows = [
+['kruh', 'хлеб', 'Еда', 75],
+['voda', 'вода', 'Еда', -1],
+['jabuka', 'яблоко', 'Еда', 40],
+['mačka', 'кошка', 'Животные', 0],
+['pas', 'собака', 'Животные', 20],
+['crvena', 'красный', 'Цвета', 0]
+];
+return {
+words: rows.map(function (r) {
+return { hr: r[0], tr: r[1], collection: r[2], learned: r[3] < 0, notLearned: r[3] >= 0, pct: Math.max(r[3], 0) + '%' };
+})
+};
+}
+}
+</script>
+</body>
+</html>

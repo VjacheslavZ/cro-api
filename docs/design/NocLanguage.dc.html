@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Выбор языка — вариант «Ночь в Дубровнике»</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button:focus-visible,a:focus-visible{outline:2px solid #C8A76A;outline-offset:3px}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 960px; background: #121B2A; font-family: 'Karla', ui-sans-serif, system-ui, sans-serif; color: #ECE6DA">
+<dc-import name="NocHeader" variant="auth" hint-size="100%,76px"></dc-import>
+<main style="flex: 1 1 auto; padding: 88px 48px 88px">
+<div style="max-width: 1040px; margin: 0 auto">
+<h1 lang="hr" style="margin: 0 0 12px; font-family: 'Marcellus', Georgia, serif; font-size: 60px; line-height: 1.05; font-weight: 400">Odaberite jezik</h1>
+<p style="margin: 0 0 56px; max-width: 520px; font-size: 17px; line-height: 1.6; color: #A3A9B5">Выберите родной язык — на нём будут переводы и объяснения правил. Сменить можно в настройках.</p>
+<div role="radiogroup" aria-label="Родной язык" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 64px">
+<sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{ l.checked }}" onClick="{{ l.pick }}" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; height: 280px; box-sizing: border-box; padding: 32px; border: {{ l.border }}; border-radius: 160px 160px 8px 8px; background: {{ l.bg }}; font: inherit; text-align: left; color: #ECE6DA">
+<span style="font-family: 'Marcellus', Georgia, serif; font-size: 36px; line-height: 1.1">{{ l.name }}</span>
+<span style="font-size: 13px; color: {{ l.subColor }}">{{ l.sub }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding-top: 32px; border-top: 1px solid #2A3753">
+<div role="radiogroup" aria-label="Оформление" style="display: inline-flex; gap: 4px; padding: 4px; border: 1px solid #2A3753; border-radius: 999px">
+<sc-for list="{{ themes }}" as="t" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{ t.checked }}" onClick="{{ t.pick }}" style="height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: {{ t.bg }}; font: inherit; font-size: 13px; font-weight: 500; color: {{ t.color }}">{{ t.label }}</button>
+</sc-for>
+</div>
+<a href="NocHome.dc.html" style="display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 40px; border-radius: 10px; background: #C8A76A; font-size: 15px; font-weight: 600; color: #1A1408; text-decoration: none">Продолжить</a>
+</div>
+</div>
+</main>
+<dc-import name="NocFooter" hint-size="100%,140px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { lang: 'RU', theme: 'DARK' }; }
+renderVals() {
+const self = this;
+const langs = [['UK', 'Українська', 'Ukrainian'], ['EN', 'English', 'English'], ['RU', 'Русский', 'Russian']].map(function (d) {
+const on = self.state.lang === d[0];
+return { name: d[1], sub: on ? 'Выбрано' : d[2], subColor: on ? '#D9BC84' : '#A3A9B5', checked: on ? 'true' : 'false', border: on ? '1.5px solid #C8A76A' : '1px solid #2A3753', bg: on ? '#1E2B45' : '#18233A', pick: function () { self.setState({ lang: d[0] }); } };
+});
+const themes = [['SYSTEM', 'Системная'], ['LIGHT', 'Светлая'], ['DARK', 'Тёмная']].map(function (d) {
+const on = self.state.theme === d[0];
+return { label: d[1], checked: on ? 'true' : 'false', bg: on ? '#1E2B45' : 'transparent', color: on ? '#D9BC84' : '#A3A9B5', pick: function () { self.setState({ theme: d[0] }); } };
+});
+return { langs: langs, themes: themes };
+}
+}
+</script>
+</body>
+</html>
