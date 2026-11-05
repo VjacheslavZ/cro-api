@@ -45,6 +45,11 @@ jobs:
 
       - run: npm ci
 
+      # Fails the build on high/critical vulnerabilities in production dependencies.
+      # devDependencies are excluded (--omit=dev) since they never ship to users.
+      - name: Security audit (npm)
+        run: npm audit --audit-level=high --omit=dev
+
       - run: npx turbo run build --filter=@cro/shared
 
       - run: npx prisma generate --schema=apps/api/src/prisma/schema.prisma
