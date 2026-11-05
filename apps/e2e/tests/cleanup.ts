@@ -26,7 +26,6 @@ export async function cleanupE2eData(): Promise<void> {
     const { count: usersDeleted } = await prisma.user.deleteMany({
       where: { email: { startsWith: 'e2e-', endsWith: '@e2e.local' } },
     });
-    // eslint-disable-next-line no-console
     console.log(`[e2e cleanup] removed ${topicsDeleted} topic(s), ${usersDeleted} user(s)`);
   } finally {
     await prisma.$disconnect();
@@ -53,7 +52,6 @@ if (require.main === module) {
   cleanupE2eData()
     .then(() => process.exit(0))
     .catch((err) => {
-      // eslint-disable-next-line no-console
       console.error(err);
       process.exit(1);
     });

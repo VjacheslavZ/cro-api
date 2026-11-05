@@ -2,35 +2,38 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels its older run. Pushes to main and staging
+# get a unique group through run_id, so every commit there gets a result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DATABASE_URL: postgresql://cro:cro_ci_password@localhost:5432/cro_ci?schema=public
 
     services:
       postgres:
         image: postgres:17
         env:
           POSTGRES_USER: cro
-          POSTGRES_PASSWORD: cro_dev_password
-          POSTGRES_DB: cro_grammar
+          POSTGRES_PASSWORD: cro_ci_password
+          POSTGRES_DB: cro_ci
         ports:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -40,32 +43,37 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
 
-      # Fails the build on high/critical vulnerabilities in production dependencies.
+      # Fails on high/critical vulnerabilities in production dependencies.
       # devDependencies are excluded (--omit=dev) since they never ship to users.
       - name: Security audit (npm)
         run: npm audit --audit-level=high --omit=dev
 
-      - run: npx turbo run build --filter=@cro/shared
+      - name: Prisma generate
+        run: npm run prisma:generate
 
-      - run: npx prisma generate --schema=apps/api/src/prisma/schema.prisma
+      # Applies every migration to an empty database, as a first deploy would.
+      - name: Apply migrations
+        run: npx prisma migrate deploy --schema=apps/api/src/prisma/schema.prisma
 
-      - run: npx turbo run lint typecheck
+      # Fails if the migrated database differs from schema.prisma, for example
+      # when a schema change was made without a migration.
+      - name: Check for schema drift
+        run: >-
+          npx prisma migrate diff
+          --from-url "$DATABASE_URL"
+          --to-schema-datamodel apps/api/src/prisma/schema.prisma
+          --exit-code
 
-      # Runs tests with coverage reporting for apps/api, apps/web, apps/admin, and
-      # packages/shared. No coverage thresholds are enforced anywhere in these scripts,
-      # so this step only fails on actual test failures — coverage numbers are reported
-      # in the log for visibility, never blocking the merge.
-      - run: npx turbo run test:coverage
-        env:
-          DATABASE_URL: postgresql://cro:cro_dev_password@localhost:5432/cro_grammar?schema=public
-          REDIS_URL: redis://localhost:6379
-          JWT_SECRET: ci-test-secret-min-16-chars
-          JWT_REFRESH_SECRET: ci-test-refresh-secret-min-16
-          GOOGLE_CLIENT_ID: ci-test-client-id
-          GOOGLE_CLIENT_SECRET: ci-test-client-secret
-          GOOGLE_CALLBACK_URL: http://localhost:3000/auth/google/callback
+      - name: Lint
+        run: npx turbo run lint typecheck --continue
+
+      - name: Test
+        run: npx turbo run test:coverage --continue
+
+      - name: Build
+        run: npx turbo run build --continue
