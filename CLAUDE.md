@@ -181,7 +181,7 @@ Priorities:
 | Admin panel | Vercel (separate project)                     |
 | Mobile      | Expo EAS Build + EAS Submit                   |
 | Mobile dev  | Expo Go (scan QR code)                        |
-| Local dev   | Docker Compose (postgres:5434 + redis:6379)   |
+| Local dev   | Docker Compose (postgres:5666 + redis:6379)   |
 
 ### EAS Mobile CI/CD
 
