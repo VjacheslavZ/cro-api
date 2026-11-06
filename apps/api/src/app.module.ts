@@ -14,6 +14,7 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
 import { DictionaryModule } from './modules/dictionary/dictionary.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { LessonsModule } from './modules/lessons/lessons.module';
     ExercisesModule,
     DictionaryModule,
     LessonsModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
