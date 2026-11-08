@@ -77,3 +77,27 @@ jobs:
 
       - name: Build
         run: npx turbo run build --continue
+
+  # Runs in parallel with the ci job. Builds the API image from a fresh checkout,
+  # so a broken Dockerfile or a missing file fails the pull request.
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Builds without pushing anywhere. Layers are cached in the GitHub Actions
+      # cache, so later runs only rebuild the stages whose inputs changed.
+      - name: Build API image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          platforms: linux/amd64
+          tags: cro-api:ci
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max

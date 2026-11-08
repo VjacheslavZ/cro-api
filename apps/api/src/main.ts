@@ -74,6 +74,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
+  // Runs onModuleDestroy on SIGTERM, so a deploy closes connections cleanly.
+  app.enableShutdownHooks();
+
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
 
