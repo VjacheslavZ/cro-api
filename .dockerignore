@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/coverage
+**/.turbo
+**/.env*
+**/*.tsbuildinfo
+.git
+.github
+.husky
+.claude
+.agents
+.idea
+.playwright-mcp
+docs
+apps/e2e/test-results
