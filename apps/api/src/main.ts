@@ -10,10 +10,15 @@ import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { initAuth } from './auth';
 import { logAddresses } from './common/log-addresses';
+import { trustLoadBalancer } from './common/trust-load-balancer';
 
 async function bootstrap() {
   // bodyParser: false so we can mount better-auth before any body parsing
   const app = await NestFactory.create(AppModule, { bodyParser: false });
+
+  // In AWS every request comes through the ALB. Rate limiting counts requests
+  // by req.ip, which must be the client's address, not the ALB's.
+  trustLoadBalancer(app);
 
   const configService = app.get(ConfigService);
   const webUrl = configService.get<string>('WEB_URL', 'http://localhost:5173');

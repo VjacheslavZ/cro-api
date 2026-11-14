@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { envSchema } from './config/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
@@ -36,5 +37,8 @@ import { HealthModule } from './modules/health/health.module';
     LessonsModule,
     HealthModule,
   ],
+  // Applies the ThrottlerModule limits to every route. Without a guard,
+  // @Throttle and @SkipThrottle on controllers have no effect.
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
