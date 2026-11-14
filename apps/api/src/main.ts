@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
 import { toNodeHandler } from 'better-auth/node';
@@ -10,6 +9,7 @@ import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { initAuth } from './auth';
 import { logAddresses } from './common/log-addresses';
+import { setupSwagger } from './common/swagger';
 import { trustLoadBalancer } from './common/trust-load-balancer';
 
 async function bootstrap() {
@@ -69,15 +69,7 @@ async function bootstrap() {
     }),
   );
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Croatian Grammar API')
-    .setDescription('API for Croatian Grammar learning application')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  const swaggerEnabled = setupSwagger(app, configService.getOrThrow<string>('NODE_ENV'));
 
   // Runs onModuleDestroy on SIGTERM, so a deploy closes connections cleanly.
   app.enableShutdownHooks();
@@ -85,7 +77,7 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
 
-  logAddresses({ port, webUrl, adminUrl });
+  logAddresses({ port, webUrl, adminUrl, swaggerEnabled });
 }
 
 bootstrap();
