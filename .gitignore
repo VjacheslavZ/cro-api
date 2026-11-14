@@ -16,3 +16,10 @@ apps/e2e/blob-report/
 
 # Claude Code worktrees (temporary isolated agent copies)
 .claude/worktrees/
+
+# Local AWS planning notes
+docs/aws-*.md
+
+# Records of the AWS resources: account ID, endpoints and ARNs. Kept local
+# because the repository is public.
+infra/
