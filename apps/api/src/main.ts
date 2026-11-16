@@ -8,6 +8,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { initAuth } from './auth';
+import { enableCors } from './common/cors';
 import { logAddresses } from './common/log-addresses';
 import { setupSwagger } from './common/swagger';
 import { trustLoadBalancer } from './common/trust-load-balancer';
@@ -21,29 +22,15 @@ async function bootstrap() {
   trustLoadBalancer(app);
 
   const configService = app.get(ConfigService);
+  const nodeEnv = configService.getOrThrow<string>('NODE_ENV');
   const webUrl = configService.get<string>('WEB_URL', 'http://localhost:5173');
   const adminUrl = configService.get<string>('ADMIN_URL', 'http://localhost:5174');
-  const allowedOrigins = [webUrl, adminUrl];
 
   // CORS must be registered BEFORE the better-auth Express handler,
   // otherwise /api/auth/* routes bypass NestJS middleware entirely.
-  app.enableCors({
-    origin: (
-      origin: string | undefined,
-      callback: (err: Error | null, allow?: boolean) => void,
-    ) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        (process.env.NODE_ENV !== 'production' &&
-          /^http:\/\/(localhost|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+):\d+$/.test(origin))
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
+  enableCors(app, {
+    origins: [webUrl, adminUrl],
+    allowLocalNetwork: nodeEnv !== 'production',
   });
 
   const prisma = app.get(PrismaService);
@@ -69,7 +56,7 @@ async function bootstrap() {
     }),
   );
 
-  const swaggerEnabled = setupSwagger(app, configService.getOrThrow<string>('NODE_ENV'));
+  const swaggerEnabled = setupSwagger(app, nodeEnv);
 
   // Runs onModuleDestroy on SIGTERM, so a deploy closes connections cleanly.
   app.enableShutdownHooks();
