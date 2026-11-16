@@ -68,6 +68,7 @@
     "lessons": "Lessons"
   },
   "header": {
+    "openMenu": "Open menu",
     "settings": "Settings",
     "logout": "Log out",
     "role": "Role",

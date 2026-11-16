@@ -68,6 +68,7 @@
     "lessons": "Уроки"
   },
   "header": {
+    "openMenu": "Відкрити меню",
     "settings": "Налаштування",
     "logout": "Вийти",
     "role": "Роль",
