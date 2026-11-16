@@ -239,6 +239,7 @@
     }
   },
   "dictionary": {
+    "actions": "Действия",
     "title": "Мой словарь",
     "addWord": "Добавить слово",
     "searchPlaceholder": "Поиск слов...",

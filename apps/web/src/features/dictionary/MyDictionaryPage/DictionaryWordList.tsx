@@ -135,10 +135,17 @@ export function DictionaryWordList({
           className="shrink-0"
           aria-label="Select all"
         />
-        <span className={`${COLUMN_HEADER_CLASS} flex-1`}>{t('dictionary.word')}</span>
-        <span className={`${COLUMN_HEADER_CLASS} w-35`}>{t('dictionary.collection')}</span>
-        <span className={`${COLUMN_HEADER_CLASS} w-38`}>{t('dictionary.progress')}</span>
-        <div className="w-35 shrink-0" />
+        <span className={`${COLUMN_HEADER_CLASS} min-w-0 flex-1 truncate`}>
+          {t('dictionary.word')}
+        </span>
+        <span className={`${COLUMN_HEADER_CLASS} hidden w-35 shrink-0 md:block`}>
+          {t('dictionary.collection')}
+        </span>
+        <span className={`${COLUMN_HEADER_CLASS} w-18 shrink-0 md:w-38`}>
+          {t('dictionary.progress')}
+        </span>
+        {/* Spacer over the actions: five buttons from `actions:` up, one "more" button below */}
+        <div className="w-7 shrink-0 actions:w-35" />
       </div>
 
       {/* Fixed-height scroll container — page height never changes as pages load */}

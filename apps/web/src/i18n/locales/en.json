@@ -238,6 +238,7 @@
     }
   },
   "dictionary": {
+    "actions": "Actions",
     "title": "My Dictionary",
     "addWord": "Add Word",
     "searchPlaceholder": "Search words...",

@@ -9,8 +9,11 @@
  * Layout breakpoints between Tailwind's sm (640px) and lg (1024px):
  * - `nav:` / `max-nav:` — below 850px the header nav does not fit (horizontal scroll from ~768px),
  *   so the Header swaps it for the slide-out MobileNav.
+ * - `actions:` / `max-actions:` — below 650px a dictionary WordRow shows one "more" button with
+ *   its five actions in a popover, leaving the room to the word.
  */
 @theme {
+  --breakpoint-actions: 650px;
   --breakpoint-nav: 850px;
 }
 
