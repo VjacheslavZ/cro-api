@@ -90,6 +90,13 @@ Clicking a collection opens its word list. An **Add Word** button toggles the in
 - **Edit mode**: clicking a row's edit action pre-populates the form; on successful update the form resets back to create mode.
 - **Prompt injection protection**: `word` is validated server-side with `@Matches(/^[\p{L}\-\s]+$/u)` + `@MaxLength(50)` — requests with special characters are rejected with 422 before reaching the LLM.
 
+**CSV import** (`ImportWordsDialog`, opened by the **Import CSV** button in `WordsToolbar`):
+- Code lives in `words/csv-import/`: pure parsing/validation in `csvImport.ts`; `useImportRows` (file → editable, validated rows) and `useWordsImport` (batched upload, progress, result); `ImportWordsDialog` only composes the step components (`CsvFormatHint`, `CsvFilePicker`, `ImportPreview` + `ImportPreviewTable`, `ImportProgressBar`, `ImportResultAlert`, `ImportDialogActions`).
+- Columns in fixed order: `Hrvatski, Русский, Українська, English`. Header row optional (detected by first cell `Hrvatski`/`Croatian`/… or fourth cell `English`); extra columns ignored; blank lines dropped.
+- Parsed in the browser (`csvImport.ts`): delimiter auto-detected (tab / `;` / `,`), RFC 4180 quoting, UTF-8 (BOM ok) or UTF-16 with BOM; any other encoding is rejected with a "save as CSV UTF-8" message. No file size limit on our side.
+- Preview is an editable, paginated table (`ImportPreviewTable`). Each row is `ok`, `skip` (word already in the collection, or repeats an earlier line — exact match) or `error` (empty / too long, same limits as the API). Errors block the import; "Remove rows with errors" and "Show only rows with issues" help with big files.
+- Import sends `ok` rows in sequential batches of 500 to `POST /admin/dictionary-collections/:id/words/import`, with a progress bar. A failed batch stops the run; already-sent batches stay, and re-importing skips them. Invalidates both collection query keys on settle.
+
 ---
 
 ## Feature Modules

@@ -1,3 +1,10 @@
+/**
+ * @module DictionaryCollectionsService
+ * @description Dictionary collections for students (predefined + personal) and for admins
+ * (predefined collection CRUD and their PredefinedDictionaryWord lists, including batched CSV
+ * import). Predefined collections are the ones with isPublic: true.
+ * @usedBy DictionaryController, AdminDictionaryController
+ */
 import {
   ConflictException,
   ForbiddenException,
@@ -13,6 +20,7 @@ import { AdminCreateCollectionDto } from './dto/admin-create-collection.dto';
 import { AdminUpdateCollectionDto } from './dto/admin-update-collection.dto';
 import { CreatePredefinedWordDto } from './dto/create-predefined-word.dto';
 import { UpdatePredefinedWordDto } from './dto/update-predefined-word.dto';
+import { ImportPredefinedWordsDto } from './dto/import-predefined-words.dto';
 
 @Injectable()
 export class DictionaryCollectionsService {
@@ -213,6 +221,48 @@ export class DictionaryCollectionsService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Bulk-inserts one batch of CSV rows into a predefined collection. New words are appended after
+   * the collection's current highest sortOrder, in batch order. Words already in the collection, and
+   * repeats of the same wordHr inside the batch, are skipped rather than updated, so re-sending a
+   * batch after a failed import is safe.
+   * @param collectionId - Target predefined collection
+   * @param dto - ImportPredefinedWordsDto with up to IMPORT_PREDEFINED_WORDS_MAX_BATCH trimmed rows
+   * @returns `{ created, skipped }` — rows inserted and rows skipped as duplicates
+   */
+  async adminImportCollectionWords(collectionId: string, dto: ImportPredefinedWordsDto) {
+    const collection = await this.prisma.dictionaryCollection.findUnique({
+      where: { id: collectionId },
+    });
+    if (!collection) throw new NotFoundException('Collection not found');
+    if (!collection.isPublic) throw new ForbiddenException('Not an admin collection');
+
+    const uniqueRows = new Map<string, ImportPredefinedWordsDto['words'][number]>();
+    for (const row of dto.words) {
+      if (!uniqueRows.has(row.wordHr)) uniqueRows.set(row.wordHr, row);
+    }
+
+    const { _max } = await this.prisma.predefinedDictionaryWord.aggregate({
+      where: { collectionId },
+      _max: { sortOrder: true },
+    });
+    const firstSortOrder = (_max.sortOrder ?? -1) + 1;
+
+    const { count } = await this.prisma.predefinedDictionaryWord.createMany({
+      data: [...uniqueRows.values()].map((row, index) => ({
+        collectionId,
+        wordHr: row.wordHr,
+        translationRu: row.translationRu,
+        translationUk: row.translationUk,
+        translationEn: row.translationEn,
+        sortOrder: firstSortOrder + index,
+      })),
+      skipDuplicates: true,
+    });
+
+    return { created: count, skipped: dto.words.length - count };
   }
 
   async adminUpdateCollectionWord(wordId: string, dto: UpdatePredefinedWordDto) {

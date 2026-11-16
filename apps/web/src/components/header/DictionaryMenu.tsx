@@ -10,25 +10,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { DICTIONARY_NAV } from './navLinks';
+
 export function DictionaryMenu() {
   const { t } = useTranslation();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" />}>
-        {t('nav.dictionary')}
+        {t(DICTIONARY_NAV.titleKey)}
         <ChevronDownIcon data-icon="inline-end" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem render={<Link to="/dictionary/my" />}>
-          {t('nav.myDictionary')}
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/dictionary/my-collections" />}>
-          {t('nav.collections')}
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/dictionary/recommended-word-sets" />}>
-          {t('nav.wordSets')}
-        </DropdownMenuItem>
+        {DICTIONARY_NAV.links.map(({ to, labelKey }) => (
+          <DropdownMenuItem key={to} render={<Link to={to} />}>
+            {t(labelKey)}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

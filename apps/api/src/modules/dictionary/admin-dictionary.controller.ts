@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { AdminGuard } from '../admin-auth/guards/admin.guard';
 import { CurrentAdmin, AdminPayload } from '../../common/decorators/current-admin.decorator';
@@ -23,6 +24,7 @@ import { AdminUpdateCollectionDto } from './dto/admin-update-collection.dto';
 import { CreatePredefinedWordDto } from './dto/create-predefined-word.dto';
 import { UpdatePredefinedWordDto } from './dto/update-predefined-word.dto';
 import { GetAiTranslationQueryDto } from './dto/get-ai-translation-query.dto';
+import { ImportPredefinedWordsDto } from './dto/import-predefined-words.dto';
 
 @ApiTags('Admin Dictionary')
 @Controller('admin/dictionary-collections')
@@ -86,6 +88,23 @@ export class AdminDictionaryController {
     @Body() dto: CreatePredefinedWordDto,
   ) {
     return this.collectionsService.adminAddCollectionWord(id, dto);
+  }
+
+  // A large CSV arrives as many sequential batches, so this route gets a higher limit than the
+  // global 100 requests/minute.
+  @Post(':id/words/import')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60_000, limit: 200 } })
+  @ApiOperation({
+    summary: 'Bulk-import a batch of words (from CSV) into a predefined collection',
+    description:
+      'Existing words and in-batch duplicates are skipped. Returns { created, skipped }.',
+  })
+  async importCollectionWords(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ImportPredefinedWordsDto,
+  ) {
+    return this.collectionsService.adminImportCollectionWords(id, dto);
   }
 
   @Patch('words/:wordId')

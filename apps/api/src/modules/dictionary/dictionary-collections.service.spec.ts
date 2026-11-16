@@ -24,6 +24,8 @@ function createMockPrisma() {
       update: mock.fn() as MockFn,
       delete: mock.fn() as MockFn,
       findUnique: mock.fn() as MockFn,
+      aggregate: mock.fn() as MockFn,
+      createMany: mock.fn() as MockFn,
     },
   };
 }
@@ -500,6 +502,110 @@ describe('DictionaryCollectionsService', () => {
       await assert.rejects(() => service.adminAddCollectionWord('col1', dto), {
         message: 'boom',
       });
+    });
+  });
+
+  describe('adminImportCollectionWords', () => {
+    const row = (wordHr: string) => ({
+      wordHr,
+      translationRu: `${wordHr}-ru`,
+      translationUk: `${wordHr}-uk`,
+      translationEn: `${wordHr}-en`,
+    });
+
+    beforeEach(() => {
+      prisma.dictionaryCollection.findUnique.mock.mockImplementation(async () => ({
+        id: 'col1',
+        isPublic: true,
+      }));
+      prisma.predefinedDictionaryWord.aggregate.mock.mockImplementation(async () => ({
+        _max: { sortOrder: 4 },
+      }));
+    });
+
+    it('should append rows after the highest sortOrder and report created/skipped', async () => {
+      prisma.predefinedDictionaryWord.createMany.mock.mockImplementation(async () => ({
+        count: 1,
+      }));
+
+      const result = await service.adminImportCollectionWords('col1', {
+        words: [row('kruh'), row('voda')],
+      });
+
+      const args = prisma.predefinedDictionaryWord.createMany.mock.calls[0].arguments[0];
+      assert.equal(args.skipDuplicates, true);
+      assert.deepEqual(
+        args.data.map((d: { wordHr: string; sortOrder: number; collectionId: string }) => [
+          d.wordHr,
+          d.sortOrder,
+          d.collectionId,
+        ]),
+        [
+          ['kruh', 5, 'col1'],
+          ['voda', 6, 'col1'],
+        ],
+      );
+      assert.deepEqual(result, { created: 1, skipped: 1 });
+    });
+
+    it('should start at sortOrder 0 for an empty collection', async () => {
+      prisma.predefinedDictionaryWord.aggregate.mock.mockImplementation(async () => ({
+        _max: { sortOrder: null },
+      }));
+      prisma.predefinedDictionaryWord.createMany.mock.mockImplementation(async () => ({
+        count: 1,
+      }));
+
+      await service.adminImportCollectionWords('col1', { words: [row('kruh')] });
+
+      const args = prisma.predefinedDictionaryWord.createMany.mock.calls[0].arguments[0];
+      assert.equal(args.data[0].sortOrder, 0);
+    });
+
+    it('should keep only the first occurrence of a word repeated within the batch', async () => {
+      prisma.predefinedDictionaryWord.createMany.mock.mockImplementation(async () => ({
+        count: 2,
+      }));
+
+      const result = await service.adminImportCollectionWords('col1', {
+        words: [row('kruh'), { ...row('kruh'), translationEn: 'loaf' }, row('voda')],
+      });
+
+      const args = prisma.predefinedDictionaryWord.createMany.mock.calls[0].arguments[0];
+      assert.deepEqual(
+        args.data.map((d: { wordHr: string; translationEn: string }) => [
+          d.wordHr,
+          d.translationEn,
+        ]),
+        [
+          ['kruh', 'kruh-en'],
+          ['voda', 'voda-en'],
+        ],
+      );
+      assert.deepEqual(result, { created: 2, skipped: 1 });
+    });
+
+    it('should throw NotFoundException when collection does not exist', async () => {
+      prisma.dictionaryCollection.findUnique.mock.mockImplementation(async () => null);
+
+      await assert.rejects(
+        () => service.adminImportCollectionWords('missing', { words: [row('kruh')] }),
+        { name: 'NotFoundException' },
+      );
+      assert.equal(prisma.predefinedDictionaryWord.createMany.mock.callCount(), 0);
+    });
+
+    it('should throw ForbiddenException when collection is not public', async () => {
+      prisma.dictionaryCollection.findUnique.mock.mockImplementation(async () => ({
+        id: 'col1',
+        isPublic: false,
+      }));
+
+      await assert.rejects(
+        () => service.adminImportCollectionWords('col1', { words: [row('kruh')] }),
+        { name: 'ForbiddenException' },
+      );
+      assert.equal(prisma.predefinedDictionaryWord.createMany.mock.callCount(), 0);
     });
   });
 

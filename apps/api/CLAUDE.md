@@ -257,6 +257,7 @@ POST/PATCH/DELETE /admin/dictionary-collections  # manage predefined collections
 GET  /admin/dictionary-collections
 GET  /admin/dictionary-collections/:id/words     # list predefined words in collection
 POST /admin/dictionary-collections/:id/words     # add predefined word to collection
+POST /admin/dictionary-collections/:id/words/import  # bulk-import a CSV batch { words: [{ wordHr, translationRu, translationUk, translationEn }] } (≤1000 rows, trimmed); existing + in-batch duplicate words skipped, new words appended after max sortOrder; returns { created, skipped }; own throttle 1000 req/min
 PATCH  /admin/dictionary-collections/words/:wordId  # update predefined word
 DELETE /admin/dictionary-collections/words/:wordId  # delete predefined word
 ```
