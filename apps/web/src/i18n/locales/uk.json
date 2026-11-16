@@ -68,6 +68,7 @@
     "lessons": "Уроки"
   },
   "header": {
+    "openMenu": "Відкрити меню",
     "settings": "Налаштування",
     "logout": "Вийти",
     "role": "Роль",
@@ -238,6 +239,7 @@
     }
   },
   "dictionary": {
+    "actions": "Дії",
     "title": "Мій словник",
     "addWord": "Додати слово",
     "searchPlaceholder": "Пошук слів...",

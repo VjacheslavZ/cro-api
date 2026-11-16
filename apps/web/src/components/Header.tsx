@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { FlameIcon, StarIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 
@@ -10,46 +9,47 @@ import { LanguageMenu } from './header/LanguageMenu';
 import { ThemeMenu } from './header/ThemeMenu';
 import { DictionaryMenu } from './header/DictionaryMenu';
 import { ExercisesMenu } from './header/ExercisesMenu';
+import { MobileNav } from './header/MobileNav';
+import { LESSONS_LINK } from './header/navLinks';
+import { StatPills } from './header/StatPills';
 import { UserMenu } from './header/UserMenu';
 
+/**
+ * Sticky app header. From the `nav` breakpoint (850px) up it shows the full navigation; below it
+ * the navigation moves into MobileNav (burger + slide-out menu), and below `sm` the XP / streak
+ * pills move there too.
+ */
 export function Header() {
   const { t } = useTranslation();
   const user = useAppSelector((state) => state.auth.user);
-  const isAuthenticated = Boolean(user);
+  const xp = user?.xpTotal ?? 0;
+  const streak = user?.currentStreak ?? 0;
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
-        <Link
-          to="/"
-          className="w-[212px] text-lg font-bold text-primary transition-colors hover:text-primary/80"
-        >
-          CroGrammar
-        </Link>
+        <div className="flex items-center gap-1">
+          {user && <MobileNav xp={xp} streak={streak} />}
+          <Link
+            to="/"
+            className="text-lg font-bold text-primary transition-colors hover:text-primary/80 nav:w-[212px]"
+          >
+            CroGrammar
+          </Link>
+        </div>
 
-        {isAuthenticated ? (
+        {user ? (
           <>
-            <nav className="flex items-center gap-1">
+            <nav className="hidden items-center gap-1 nav:flex">
               <ExercisesMenu />
               <DictionaryMenu />
-              <Link to="/lessons" className={cn(buttonVariants({ variant: 'ghost' }))}>
-                {t('nav.lessons')}
+              <Link to={LESSONS_LINK.to} className={cn(buttonVariants({ variant: 'ghost' }))}>
+                {t(LESSONS_LINK.labelKey)}
               </Link>
             </nav>
 
             <div className="flex items-center">
-              {/* XP pill */}
-              <span className="mx-1 inline-flex items-center gap-1.5 rounded-full border border-xp-border bg-xp-muted px-3 py-1.5 text-sm font-medium text-xp-foreground">
-                <StarIcon className="size-4 text-xp" />
-                {user?.xpTotal ?? 0}
-              </span>
-
-              {/* Streak pill */}
-              <span className="mx-1 inline-flex items-center gap-1.5 rounded-full border border-streak-border bg-streak-muted px-3 py-1.5 text-sm font-medium text-streak-foreground">
-                <FlameIcon className="size-4 text-streak" />
-                {user?.currentStreak ?? 0}
-              </span>
-
+              <StatPills xp={xp} streak={streak} className="hidden sm:flex" />
               <UserMenu />
             </div>
           </>

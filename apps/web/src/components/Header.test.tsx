@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../test-utils/renderWithProviders';
@@ -66,5 +66,46 @@ describe('Header', () => {
     );
     expect(screen.getByRole('menuitem', { name: 'Log out' })).toBeInTheDocument();
     expect(screen.getByText('a@b.com')).toBeInTheDocument();
+  });
+
+  it('has no burger menu for guests', () => {
+    renderWithProviders(<Header />, { auth: { loading: false, user: null } });
+
+    expect(screen.queryByRole('button', { name: 'Open menu' })).not.toBeInTheDocument();
+  });
+
+  it('hides the inline nav below the nav breakpoint and shows the burger only there', () => {
+    renderWithProviders(<Header />, { auth: { loading: false, user: user1 } });
+
+    expect(screen.getByRole('link', { name: 'Lessons' }).closest('nav')).toHaveClass(
+      'hidden',
+      'nav:flex',
+    );
+    expect(screen.getByRole('button', { name: 'Open menu' })).toHaveClass('nav:hidden');
+  });
+
+  it('opens the slide-out menu with every nav link and closes it on navigation', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Header />, { auth: { loading: false, user: user1 } });
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const menu = await screen.findByRole('dialog');
+    const hrefs = within(menu)
+      .getAllByRole('link')
+      .map((link) => link.getAttribute('href'));
+    expect(hrefs).toEqual([
+      '/exercises/grammar',
+      '/exercises/vocabulary',
+      '/dictionary/my',
+      '/dictionary/my-collections',
+      '/dictionary/recommended-word-sets',
+      '/lessons',
+    ]);
+    expect(within(menu).getByText('120')).toBeInTheDocument();
+
+    await user.click(within(menu).getByRole('link', { name: 'My dictionary' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });

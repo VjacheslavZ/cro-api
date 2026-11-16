@@ -1,30 +1,17 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DictionaryWord } from '@cro/shared';
-import {
-  GraduationCapIcon,
-  PencilIcon,
-  RefreshCwIcon,
-  Trash2Icon,
-  Volume2Icon,
-} from 'lucide-react';
-import { cn } from 'cn';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 
-import { speakWord } from '../../shared/lib/speech';
+import { WordActionButtons, WordActionsMenu, type WordActionHandlers } from './WordActions';
 
-interface WordRowProps {
+interface WordRowProps extends WordActionHandlers {
   word: DictionaryWord;
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
-  onEdit: (word: DictionaryWord) => void;
-  onDelete: (word: DictionaryWord) => void;
-  onMarkLearned: (word: DictionaryWord) => void;
-  onResetProgress: (word: DictionaryWord) => void;
 }
 
 /**
@@ -51,19 +38,24 @@ export const WordRow = memo(function WordRow({
         className="shrink-0"
       />
 
-      {/* Word + translation */}
+      {/* Word + translation; below md also the collection, whose column is hidden there */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{word.wordHr}</p>
         <p className="truncate text-xs text-muted-foreground">{word.translation}</p>
+        {word.collectionName && (
+          <p className="truncate text-[0.7rem] text-muted-foreground md:hidden">
+            {word.collectionName}
+          </p>
+        )}
       </div>
 
-      {/* Collection */}
-      <div className="w-35 shrink-0">
+      {/* Collection — from md up; below it the word column needs the room */}
+      <div className="hidden w-35 shrink-0 md:block">
         <p className="truncate text-[0.8rem] text-muted-foreground">{word.collectionName || '—'}</p>
       </div>
 
-      {/* Progress */}
-      <div className="flex w-38 shrink-0 items-center gap-2">
+      {/* Progress — below md only the percentage (the bar takes too much room); width matches the header column */}
+      <div className="flex w-18 shrink-0 items-center gap-2 md:w-38">
         {word.isLearned ? (
           <Badge variant="outline" className="border-success text-[0.7rem] text-success">
             {t('exercises.learnWords.learned')}
@@ -73,63 +65,34 @@ export const WordRow = memo(function WordRow({
             <Progress
               value={word.progressPercent}
               aria-label={t('dictionary.progress')}
-              className="flex-1 **:data-[slot=progress-indicator]:rounded-full **:data-[slot=progress-track]:h-1.5"
+              className="flex-1 **:data-[slot=progress-indicator]:rounded-full **:data-[slot=progress-track]:h-1.5 max-md:hidden"
             />
-            <span className="min-w-8 text-right text-xs text-muted-foreground tabular-nums">
+            <span className="min-w-8 text-xs text-muted-foreground tabular-nums md:text-right">
               {word.progressPercent}%
             </span>
           </>
         )}
       </div>
 
-      {/* Actions: MarkLearned → ResetProgress → Edit → Listen → Delete */}
-      <div className="flex shrink-0 items-center">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onMarkLearned(word)}
-          aria-label={t('dictionary.markLearned')}
-          title={t('dictionary.markLearned')}
-          className={cn(word.isLearned && 'invisible')}
-        >
-          <GraduationCapIcon />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onResetProgress(word)}
-          aria-label={t('dictionary.resetProgress')}
-          title={t('dictionary.resetProgress')}
-          className={cn(word.progressPercent === 0 && 'invisible')}
-        >
-          <RefreshCwIcon />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onEdit(word)}
-          aria-label={t('dictionary.editWordModal.title')}
-        >
-          <PencilIcon />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => speakWord(word.wordHr)}
-          aria-label={t('dictionary.listen')}
-        >
-          <Volume2Icon />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onDelete(word)}
-          aria-label={t('dictionary.delete')}
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2Icon />
-        </Button>
+      {/* Actions — inline from 650px; below it one "more" button opens them in a popover */}
+      <div className="hidden shrink-0 items-center actions:flex">
+        <WordActionButtons
+          word={word}
+          unavailable="invisible"
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onMarkLearned={onMarkLearned}
+          onResetProgress={onResetProgress}
+        />
       </div>
+      <WordActionsMenu
+        word={word}
+        className="actions:hidden"
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onMarkLearned={onMarkLearned}
+        onResetProgress={onResetProgress}
+      />
     </div>
   );
 });

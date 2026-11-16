@@ -68,6 +68,7 @@
     "lessons": "Lessons"
   },
   "header": {
+    "openMenu": "Open menu",
     "settings": "Settings",
     "logout": "Log out",
     "role": "Role",
@@ -237,6 +238,7 @@
     }
   },
   "dictionary": {
+    "actions": "Actions",
     "title": "My Dictionary",
     "addWord": "Add Word",
     "searchPlaceholder": "Search words...",

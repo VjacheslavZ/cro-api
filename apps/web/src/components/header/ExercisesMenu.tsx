@@ -10,22 +10,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { EXERCISES_NAV } from './navLinks';
+
 export function ExercisesMenu() {
   const { t } = useTranslation();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" />}>
-        {t('nav.exercises')}
+        {t(EXERCISES_NAV.titleKey)}
         <ChevronDownIcon data-icon="inline-end" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem render={<Link to="/exercises/grammar" />}>
-          {t('nav.grammar')}
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/exercises/vocabulary" />}>
-          {t('nav.vocabulary')}
-        </DropdownMenuItem>
+        {EXERCISES_NAV.links.map(({ to, labelKey }) => (
+          <DropdownMenuItem key={to} render={<Link to={to} />}>
+            {t(labelKey)}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
