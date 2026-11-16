@@ -1,12 +1,15 @@
-# syntax=docker/dockerfile:1
-
 # Build from the repository root:
 #   docker build -f apps/api/Dockerfile --platform linux/amd64 -t cro-api .
 
-# The official node image, pulled from its Amazon ECR Public mirror. Docker Hub
-# limits anonymous pulls per IP address, and CodeBuild shares its addresses
-# with other AWS customers, so pulls from Docker Hub fail there at random.
-FROM public.ecr.aws/docker/library/node:24-alpine AS base
+# The official node image, from Docker Hub by default. The production deploy
+# (scripts/deploy/api.sh) pulls the same image from its Amazon ECR Public mirror:
+# Docker Hub limits anonymous pulls per IP address, and CodeBuild shares its
+# addresses with other AWS customers. ECR Public does not suit every build either.
+# Outside AWS it caps anonymous downloads per IP address, and GitHub-hosted
+# runners share theirs.
+ARG NODE_IMAGE=node:24-alpine
+
+FROM ${NODE_IMAGE} AS base
 # Prisma's engines need OpenSSL. tini is used as the init process in the final image.
 RUN apk add --no-cache openssl tini
 WORKDIR /app

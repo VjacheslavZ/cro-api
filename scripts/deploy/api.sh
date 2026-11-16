@@ -55,7 +55,10 @@ if aws ecr describe-images --repository-name "$REPOSITORY" --image-ids "imageTag
 else
   aws ecr get-login-password | docker login --username AWS --password-stdin "$REGISTRY"
   # --provenance=false pushes a single image manifest without an attestation.
+  # The base image comes from ECR Public, which serves AWS compute without the
+  # per-IP limits that Docker Hub applies to CodeBuild's shared addresses.
   docker buildx build --platform linux/amd64 --provenance=false \
+    --build-arg NODE_IMAGE=public.ecr.aws/docker/library/node:24-alpine \
     -f apps/api/Dockerfile -t "$IMAGE" --push .
 fi
 
