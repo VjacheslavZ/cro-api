@@ -4,13 +4,15 @@
  * Fetches words via ['admin-collection-words', collectionId] and supports add/edit/delete.
  * Both saveMutation and deleteMutation also invalidate ['admin-dictionary-collections'] so the
  * word count chip in CollectionsTable stays accurate. Uses useTablePagination for client-side
- * pagination; Pagination component is passed as a render prop to WordsTable.
+ * pagination; Pagination component is passed as a render prop to WordsTable. WordsToolbar holds
+ * the "Add Word" toggle and the CSV import, and gets the current word list to mark words already
+ * present in the import preview.
  * @usedBy AdminRouter (/dictionary-collections/:collectionId/words)
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Typography } from '@mui/material';
-import { Add as AddIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '../../../api/client';
@@ -18,6 +20,7 @@ import { QueryState } from '../../../shared/components/QueryState';
 import { useTablePagination } from '../../../shared/hooks/useTablePagination';
 import { AddWordForm, type PredefinedWordFormData, type PredefinedWordItem } from './AddWordForm';
 import { WordsTable } from './WordsTable';
+import { WordsToolbar } from './WordsToolbar';
 
 /**
  * Renders the word list for a collection with inline add/edit form toggled by the "Add Word" button.
@@ -47,6 +50,7 @@ export function CollectionWordsPage() {
   });
 
   const { paginatedItems, Pagination } = useTablePagination(words);
+  const existingWords = useMemo(() => words?.map((w) => w.wordHr) ?? [], [words]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: PredefinedWordFormData) => {
@@ -104,17 +108,15 @@ export function CollectionWordsPage() {
         Collection Words
       </Typography>
 
-      <Button
-        startIcon={<AddIcon />}
-        variant="outlined"
-        sx={{ mb: 2 }}
-        onClick={() => {
+      <WordsToolbar
+        collectionId={collectionId}
+        existingWords={existingWords}
+        isFormOpen={showForm}
+        onToggleForm={() => {
           setEditing(null);
           setShowForm(!showForm);
         }}
-      >
-        {showForm ? 'Cancel' : 'Add Word'}
-      </Button>
+      />
 
       {serverError && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setServerError(null)}>
