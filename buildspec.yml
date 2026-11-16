@@ -1,0 +1,23 @@
+# AWS CodeBuild deploys production with this file. The cro-deploy project starts
+# a build on every push to main. Tests run in GitHub Actions before code can
+# reach main, so this file only deploys. The deploy steps live in scripts/deploy
+# so that they can also be run by hand.
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    # Git hooks are for developers; skip installing them in CI.
+    HUSKY: '0'
+  # WEB_DISTRIBUTION_ID and ADMIN_DISTRIBUTION_ID are set in the project settings.
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+    commands:
+      - npm ci
+  build:
+    commands:
+      - bash scripts/deploy/api.sh
+      - bash scripts/deploy/frontends.sh
