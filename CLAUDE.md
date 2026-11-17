@@ -207,7 +207,7 @@ OTA updates via `expo-updates` for JS changes without resubmitting to stores.
 | `expo-crypto`                                               | PKCE code verifier/challenge for OAuth              |
 | `expo-apple-authentication`                                 | native Apple Sign-In on iOS                         |
 | `expo-notifications`                                        | push notifications                                  |
-| `winston` or `pino`                                         | structured logging                                  |
+| `pino` (`nestjs-pino`)                                      | structured logging: JSON in production, pino-pretty in development |
 | `@sentry/nestjs` + `@sentry/react` + `@sentry/react-native` | error monitoring                                    |
 | `commitlint`                                                | Conventional Commits                                |
 
@@ -273,7 +273,7 @@ Copy `apps/api/.env.example` to `apps/api/.env` and fill in:
 
 ### Observability
 
-`docker compose up -d` also starts `grafana/otel-lgtm` (Grafana, Prometheus, Tempo, Loki and an OpenTelemetry Collector in one container). With the `OTEL_*` lines from `apps/api/.env.example` in `apps/api/.env`, the API sends traces (HTTP, Express, Nest, ioredis, Prisma) and metrics over OTLP to `localhost:4318` and prints the Grafana URL on startup. Without `OTEL_EXPORTER_OTLP_ENDPOINT`, telemetry is off — see `apps/api/src/telemetry/telemetry.ts`.
+`docker compose up -d` also starts `grafana/otel-lgtm` (Grafana, Prometheus, Tempo, Loki and an OpenTelemetry Collector in one container). With the `OTEL_*` lines from `apps/api/.env.example` in `apps/api/.env`, the API sends traces (HTTP, Express, Nest, ioredis, Prisma), metrics and pino logs over OTLP to `localhost:4318` and prints the Grafana URL on startup. Every log line written during a request carries its `trace_id`, so Grafana links Loki logs and Tempo traces. Production logs stay JSON on stdout with uppercase levels (`"level":"ERROR"`): the CloudWatch metric filter of the `api-error-logs` alarm matches that text — see `apps/api/src/logging/logging.module.ts`. Without `OTEL_EXPORTER_OTLP_ENDPOINT`, telemetry is off — see `apps/api/src/telemetry/telemetry.ts`.
 
 ### Turbo commands (from monorepo root)
 
