@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
 import { toNodeHandler } from 'better-auth/node';
+import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
@@ -20,7 +21,10 @@ import { trustLoadBalancer } from './common/trust-load-balancer';
 
 async function bootstrap() {
   // bodyParser: false so we can mount better-auth before any body parsing
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  // bufferLogs keeps Nest's startup messages until pino takes over, so that
+  // every line goes through the same logger.
+  const app = await NestFactory.create(AppModule, { bodyParser: false, bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   // In AWS every request comes through the ALB. Rate limiting counts requests
   // by req.ip, which must be the client's address, not the ALB's.

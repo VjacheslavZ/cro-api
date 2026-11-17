@@ -16,6 +16,7 @@ import { DictionaryModule } from './modules/dictionary/dictionary.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
 import { HealthModule } from './modules/health/health.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TelemetryModule } from './telemetry/telemetry.module';
       isGlobal: true,
       validate: (config) => envSchema.parse(config),
     }),
+    LoggingModule,
     RateLimitModule,
     PrismaModule,
     AuthModule,
