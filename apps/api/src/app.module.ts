@@ -15,6 +15,7 @@ import { ExercisesModule } from './modules/exercises/exercises.module';
 import { DictionaryModule } from './modules/dictionary/dictionary.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
 import { HealthModule } from './modules/health/health.module';
+import { TelemetryModule } from './telemetry/telemetry.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HealthModule } from './modules/health/health.module';
     DictionaryModule,
     LessonsModule,
     HealthModule,
+    TelemetryModule,
   ],
 })
 export class AppModule {}

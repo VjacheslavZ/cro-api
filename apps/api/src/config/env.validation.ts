@@ -14,6 +14,8 @@ export const envSchema = z
     API_URL: z.string().url().default('http://localhost:3000'),
     WEB_URL: z.string().url().default('http://localhost:5173'),
     ADMIN_URL: z.string().url().default('http://localhost:5174'),
+    // Grafana of the otel-lgtm container from docker-compose.yml.
+    GRAFANA_URL: z.string().url().default('http://localhost:3001'),
     PORT: z.coerce.number().default(3000),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     OLLAMA_URL: z.string().url().default('http://localhost:11434'),

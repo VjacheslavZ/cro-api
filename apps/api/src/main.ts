@@ -1,3 +1,8 @@
+// Must stay the first import: OpenTelemetry has to start before the libraries
+// it traces, so it is exempt from the usual import order.
+// eslint-disable-next-line import-x/order
+import { telemetry } from './instrumentation';
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -64,7 +69,17 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
 
-  logAddresses({ port, webUrl, adminUrl, swaggerEnabled });
+  // A link to Grafana only helps when the API is sending it data, and
+  // production telemetry goes to Grafana Cloud, not to this address.
+  const grafanaUrl =
+    telemetry && nodeEnv !== 'production'
+      ? configService.get<string>('GRAFANA_URL', 'http://localhost:3001')
+      : undefined;
+  // Printed for local development only: production logs need no infrastructure endpoints.
+  const redisUrl =
+    nodeEnv !== 'production' ? configService.getOrThrow<string>('REDIS_URL') : undefined;
+
+  logAddresses({ port, webUrl, adminUrl, swaggerEnabled, grafanaUrl, redisUrl });
 }
 
 bootstrap();

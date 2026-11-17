@@ -7,9 +7,29 @@ interface AddressLogOptions {
   webUrl: string;
   adminUrl: string;
   swaggerEnabled: boolean;
+  /**
+   * Shown under Local only: docker-compose.yml publishes Grafana on
+   * 127.0.0.1, so other devices on the network cannot open it.
+   */
+  grafanaUrl?: string;
+  /** REDIS_URL. Only its host and port are printed, never a password. */
+  redisUrl?: string;
 }
 
-export function logAddresses({ port, webUrl, adminUrl, swaggerEnabled }: AddressLogOptions): void {
+/** Host and port of a redis:// or rediss:// URL, without credentials. */
+export function redisAddress(redisUrl: string): string {
+  const { hostname, port } = new URL(redisUrl);
+  return `${hostname}:${port || '6379'}`;
+}
+
+export function logAddresses({
+  port,
+  webUrl,
+  adminUrl,
+  swaggerEnabled,
+  grafanaUrl,
+  redisUrl,
+}: AddressLogOptions): void {
   const webPort = new URL(webUrl).port;
   const adminPort = new URL(adminUrl).port;
 
@@ -22,6 +42,8 @@ export function logAddresses({ port, webUrl, adminUrl, swaggerEnabled }: Address
   if (swaggerEnabled) console.log(`    📖 Swagger: http://localhost:${port}/${SWAGGER_PATH}`);
   console.log(`    🌐 Web:     ${webUrl}`);
   console.log(`    🔧 Admin:   ${adminUrl}`);
+  if (grafanaUrl) console.log(`    📊 Grafana: ${grafanaUrl}`);
+  if (redisUrl) console.log(`    🧱 Redis:   ${redisAddress(redisUrl)}`);
 
   if (lanIp) {
     console.log('\n  Network:');

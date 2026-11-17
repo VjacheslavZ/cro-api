@@ -269,6 +269,11 @@ Copy `apps/api/.env.example` to `apps/api/.env` and fill in:
 | API Docs (Swagger) | http://localhost:3000/api/docs  |
 | Web app            | http://localhost:5173           |
 | Admin panel        | http://localhost:5174           |
+| Grafana            | http://localhost:3001           |
+
+### Observability
+
+`docker compose up -d` also starts `grafana/otel-lgtm` (Grafana, Prometheus, Tempo, Loki and an OpenTelemetry Collector in one container). With the `OTEL_*` lines from `apps/api/.env.example` in `apps/api/.env`, the API sends traces (HTTP, Express, Nest, ioredis, Prisma) and metrics over OTLP to `localhost:4318` and prints the Grafana URL on startup. Without `OTEL_EXPORTER_OTLP_ENDPOINT`, telemetry is off — see `apps/api/src/telemetry/telemetry.ts`.
 
 ### Turbo commands (from monorepo root)
 
