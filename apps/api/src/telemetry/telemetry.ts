@@ -4,11 +4,13 @@ import { parseEnv } from 'node:util';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
+import { HostMetrics } from '@opentelemetry/host-metrics';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
+import { RuntimeNodeInstrumentation } from '@opentelemetry/instrumentation-runtime-node';
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -57,7 +59,8 @@ export function sentryHost(dsn: string | undefined): string | undefined {
  * and undefined is returned: production stays unchanged until the variable is
  * added to its task definition.
  *
- * Traces, metrics and logs are sent over OTLP to that endpoint: locally to the
+ * Traces, metrics (HTTP, Node.js runtime, process CPU and memory) and logs
+ * are sent over OTLP to that endpoint: locally to the
  * grafana/otel-lgtm container, in production to Grafana Cloud. The exporters
  * read the endpoint, and headers such as an API token, from the standard
  * OTEL_EXPORTER_OTLP_* variables themselves.
@@ -104,9 +107,22 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
       // pino: adds trace_id and span_id of the current request to every log
       // line, and copies each line to the log record processor above.
       new PinoInstrumentation(),
+      // Node.js runtime metrics: event loop delay (nodejs_eventloop_delay_*)
+      // and utilization, V8 heap and garbage collection pauses. A long delay
+      // means synchronous work is blocking every other request.
+      new RuntimeNodeInstrumentation(),
     ],
   });
   sdk.start();
+
+  // CPU time and utilization and memory (RSS) of this process. Only the
+  // process groups: the system.* groups report every CPU of the host, which
+  // in a container is not ours, and each one adds series to the Grafana Cloud
+  // limit. Started after the SDK, whose meter provider it uses.
+  new HostMetrics({
+    name: DEFAULT_SERVICE_NAME,
+    metricGroups: ['process.cpu', 'process.memory'],
+  }).start();
 
   return sdk;
 }
