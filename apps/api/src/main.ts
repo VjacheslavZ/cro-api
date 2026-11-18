@@ -1,9 +1,15 @@
+// Must stay the first import: OpenTelemetry has to start before the libraries
+// it traces, so it is exempt from the usual import order.
+// eslint-disable-next-line import-x/order
+import { telemetry } from './instrumentation';
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
 import { toNodeHandler } from 'better-auth/node';
+import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
@@ -15,7 +21,10 @@ import { trustLoadBalancer } from './common/trust-load-balancer';
 
 async function bootstrap() {
   // bodyParser: false so we can mount better-auth before any body parsing
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  // bufferLogs keeps Nest's startup messages until pino takes over, so that
+  // every line goes through the same logger.
+  const app = await NestFactory.create(AppModule, { bodyParser: false, bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   // In AWS every request comes through the ALB. Rate limiting counts requests
   // by req.ip, which must be the client's address, not the ALB's.
@@ -64,7 +73,17 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
 
-  logAddresses({ port, webUrl, adminUrl, swaggerEnabled });
+  // A link to Grafana only helps when the API is sending it data, and
+  // production telemetry goes to Grafana Cloud, not to this address.
+  const grafanaUrl =
+    telemetry && nodeEnv !== 'production'
+      ? configService.get<string>('GRAFANA_URL', 'http://localhost:3001')
+      : undefined;
+  // Printed for local development only: production logs need no infrastructure endpoints.
+  const redisUrl =
+    nodeEnv !== 'production' ? configService.getOrThrow<string>('REDIS_URL') : undefined;
+
+  logAddresses({ port, webUrl, adminUrl, swaggerEnabled, grafanaUrl, redisUrl });
 }
 
 bootstrap();

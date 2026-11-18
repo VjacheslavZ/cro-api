@@ -1,0 +1,67 @@
+# Tempo config for the otel-lgtm container in docker-compose.yml, mounted over
+# the image's own /otel-lgtm/tempo-config.yaml. It is a copy of that file from
+# grafana/otel-lgtm:0.41.0 (Tempo 3.1.1) with one addition, query_frontend at
+# the end. Compare it with the new image's file when upgrading otel-lgtm.
+
+server:
+  http_listen_port: 3200
+  grpc_listen_port: 9096
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "127.0.0.1:4417"
+        http:
+          endpoint: "127.0.0.1:4418"
+
+memberlist:
+  bind_addr: [127.0.0.1]
+  bind_port: 7947
+
+querier:
+  frontend_worker:
+    frontend_address: 127.0.0.1:9096
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /data/tempo/wal
+    local:
+      path: /data/tempo/blocks
+
+metrics_generator:
+  processor:
+    span_metrics:
+      dimensions:
+        - service_name
+        - operation
+        - status_code
+  storage:
+    path: /data/tempo/generator/wal
+    remote_write:
+      - url: http://127.0.0.1:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]
+
+# The additions below make a new trace show up in Grafana's trace search
+# about 5 s after the request instead of about 30 s. The cost is that a trace
+# listed that early may still be missing spans.
+
+# Search leaves out the newest 30 s by default, so that it never lists a trace
+# whose spans are still arriving.
+query_frontend:
+  query_end_cutoff: 5s
+
+# Search sees a trace only after Tempo has moved it from memory to its write-ahead
+# log: once no new span has arrived for max_trace_idle, at the next check.
+# Both default to 5 s.
+live_store:
+  max_trace_idle: 1s
+  flush_check_period: 1s

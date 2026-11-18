@@ -26,6 +26,7 @@ import { PageContainer } from '@/components/PageContainer';
 import { Spinner } from '@/components/Spinner';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useKeyboardKeeper } from '@/shared/hooks/useKeyboardKeeper.ts';
 
 import { useAppDispatch } from '../../../store';
 import { fetchMe } from '../../../api/auth';
@@ -75,6 +76,10 @@ export function LearnWordsSessionPage() {
 
   const wordIds = state?.words.map((w) => w.id) ?? [];
   const exerciseType = EXERCISE_ORDER[step];
+
+  // Steps 2 and 3 are typed: keep the mobile keyboard open from word to word and from
+  // step 2 into step 3 (through the loading spinner). Disarming closes it before matching.
+  useKeyboardKeeper(exerciseType === 'word-to-translate' || exerciseType === 'translate-to-word');
 
   // Guard against concurrent calls (React 18 StrictMode double-effect + rapid double-clicks)
   const isStartingRef = useRef(false);

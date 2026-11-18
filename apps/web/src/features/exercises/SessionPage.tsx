@@ -14,6 +14,7 @@ import type { ExerciseItem } from '@cro/shared';
 
 import { PageContainer } from '@/components/PageContainer';
 import { ErrorAlert } from '@/components/ErrorAlert';
+import { useKeyboardKeeper } from '@/shared/hooks/useKeyboardKeeper.ts';
 
 import { useAppDispatch } from '../../store';
 import { useFinishSession } from '../../api/exercises';
@@ -56,6 +57,11 @@ export function SessionPage() {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [stopOpen, setStopOpen] = useState(false);
   const finishSession = useFinishSession();
+
+  // Typed exercises: keep the mobile keyboard open from one item to the next.
+  useKeyboardKeeper(
+    state?.exerciseType === 'TYPE_THE_ANSWER' || state?.exerciseType === 'FILL_IN_BLANK',
+  );
 
   const handleAnswer = useCallback(
     async (answer: SessionAnswer) => {

@@ -54,8 +54,9 @@ export function Footer() {
             <p className="text-sm leading-relaxed text-neutral-400">{t('footer.tagline')}</p>
           </div>
 
+          {/* Company links, Follow Us and Get the App are hidden below md (768px) */}
           {/* Company links */}
-          <div>
+          <div className="hidden md:block">
             <p className="mb-4 text-sm font-semibold text-white">{t('footer.company')}</p>
             <div className="flex flex-col gap-2">
               {companyLinks.map((link) => (
@@ -71,7 +72,7 @@ export function Footer() {
           </div>
 
           {/* Follow Us */}
-          <div>
+          <div className="hidden md:block">
             <p className="mb-4 text-sm font-semibold text-white">{t('footer.socials')}</p>
             <div className="flex gap-2">
               {socialLinks.map((s) => (
@@ -81,7 +82,7 @@ export function Footer() {
           </div>
 
           {/* Get the App */}
-          <div className="col-span-2">
+          <div className="col-span-2 hidden md:block">
             <p className="mb-4 text-sm font-semibold text-white">{t('footer.mobileApps')}</p>
             <div className="flex gap-2">
               {appLinks.map((a) => (

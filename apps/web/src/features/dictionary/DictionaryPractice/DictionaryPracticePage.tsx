@@ -7,6 +7,7 @@ import { SquareIcon } from 'lucide-react';
 import { ErrorAlert } from '@/components/ErrorAlert';
 import { PageContainer } from '@/components/PageContainer';
 import { Button } from '@/components/ui/button';
+import { useKeyboardKeeper } from '@/shared/hooks/useKeyboardKeeper.ts';
 
 import { useAppDispatch } from '../../../store';
 import { useFinishDictionaryPractice } from '../../../api/dictionary.ts';
@@ -60,6 +61,9 @@ export function DictionaryPracticePage() {
   const [answers, setAnswers] = useState<PracticeAnswer[]>([]);
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
   const finishPractice = useFinishDictionaryPractice();
+
+  // Typed directions: keep the mobile keyboard open from one word to the next.
+  useKeyboardKeeper(state?.direction !== 'letter-pick' && state?.direction !== 'matching');
 
   const handleAnswer = useCallback(
     async (answer: { itemId: string; givenAnswer: string; isCorrect: boolean }) => {
