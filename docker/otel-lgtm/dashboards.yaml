@@ -1,0 +1,13 @@
+# Loads the project's dashboards from docker/otel-lgtm/dashboards/ into the
+# local Grafana, next to the ones that ship with grafana/otel-lgtm.
+apiVersion: 1
+
+providers:
+  - name: cro-api
+    type: file
+    folder: cro-api
+    # Picks up edits to the JSON files without a container restart.
+    updateIntervalSeconds: 10
+    options:
+      path: /otel-lgtm/dashboards/cro-api
+      foldersFromFilesStructure: false

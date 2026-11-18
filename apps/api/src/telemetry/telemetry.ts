@@ -4,29 +4,33 @@ import { parseEnv } from 'node:util';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
+import { HostMetrics } from '@opentelemetry/host-metrics';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
+import { RuntimeNodeInstrumentation } from '@opentelemetry/instrumentation-runtime-node';
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 
 const DEFAULT_SERVICE_NAME = 'cro-api';
+const EARLY_VARIABLE_PREFIXES = ['OTEL_', 'SENTRY_'];
 // The OpenTelemetry default. Grafana Cloud counts metrics in samples per
 // minute, so production keeps it; local development can lower it.
 const DEFAULT_METRIC_EXPORT_INTERVAL_MS = 60_000;
 
 /**
- * Copies the OTEL_* variables from an env file into `env`, without
- * overriding variables that are already set.
+ * Copies the OTEL_* and SENTRY_* variables from an env file into `env`,
+ * without overriding variables that are already set.
  *
  * Nest's ConfigModule reads .env during bootstrap, which is too late for
- * OpenTelemetry: it has to start before the libraries it traces are loaded.
- * Only OTEL_* variables are copied, so everything else is still loaded by
- * ConfigModule, as before. The production image has no .env file.
+ * OpenTelemetry and Sentry: they have to start before the libraries they
+ * watch are loaded. Only these variables are copied, so everything else is
+ * still loaded by ConfigModule, as before. The production image has no .env
+ * file.
  */
 export function loadTelemetrySettings(path = '.env', env: NodeJS.ProcessEnv = process.env): void {
   if (!existsSync(path)) {
@@ -34,10 +38,19 @@ export function loadTelemetrySettings(path = '.env', env: NodeJS.ProcessEnv = pr
   }
   const fileVariables = parseEnv(readFileSync(path, 'utf8'));
   for (const [name, value] of Object.entries(fileVariables)) {
-    if (name.startsWith('OTEL_') && env[name] === undefined) {
+    const early = EARLY_VARIABLE_PREFIXES.some((prefix) => name.startsWith(prefix));
+    if (early && env[name] === undefined) {
       env[name] = value;
     }
   }
+}
+
+/**
+ * The host that Sentry sends errors to, taken from SENTRY_DSN, or undefined
+ * when Sentry is off or the DSN is not a URL.
+ */
+export function sentryHost(dsn: string | undefined): string | undefined {
+  return dsn && URL.canParse(dsn) ? new URL(dsn).hostname : undefined;
 }
 
 /**
@@ -46,7 +59,8 @@ export function loadTelemetrySettings(path = '.env', env: NodeJS.ProcessEnv = pr
  * and undefined is returned: production stays unchanged until the variable is
  * added to its task definition.
  *
- * Traces, metrics and logs are sent over OTLP to that endpoint: locally to the
+ * Traces, metrics (HTTP, Node.js runtime, process CPU and memory) and logs
+ * are sent over OTLP to that endpoint: locally to the
  * grafana/otel-lgtm container, in production to Grafana Cloud. The exporters
  * read the endpoint, and headers such as an API token, from the standard
  * OTEL_EXPORTER_OTLP_* variables themselves.
@@ -55,6 +69,8 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
   if (!env.OTEL_EXPORTER_OTLP_ENDPOINT) {
     return undefined;
   }
+
+  const errorReportHost = sentryHost(env.SENTRY_DSN);
 
   const sdk = new NodeSDK({
     serviceName: env.OTEL_SERVICE_NAME ?? DEFAULT_SERVICE_NAME,
@@ -75,6 +91,9 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
       // checks would bury the real requests.
       new HttpInstrumentation({
         ignoreIncomingRequestHook: (request) => request.url?.startsWith('/health') ?? false,
+        // Sending an error to Sentry is not part of the request that failed.
+        ignoreOutgoingRequestHook: (request) =>
+          errorReportHost !== undefined && request.hostname === errorReportHost,
       }),
       // Express middleware and routes, including better-auth on /api/auth/*.
       new ExpressInstrumentation(),
@@ -88,8 +107,22 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
       // pino: adds trace_id and span_id of the current request to every log
       // line, and copies each line to the log record processor above.
       new PinoInstrumentation(),
+      // Node.js runtime metrics: event loop delay (nodejs_eventloop_delay_*)
+      // and utilization, V8 heap and garbage collection pauses. A long delay
+      // means synchronous work is blocking every other request.
+      new RuntimeNodeInstrumentation(),
     ],
   });
   sdk.start();
+
+  // CPU time and utilization and memory (RSS) of this process. Only the
+  // process groups: the system.* groups report every CPU of the host, which
+  // in a container is not ours, and each one adds series to the Grafana Cloud
+  // limit. Started after the SDK, whose meter provider it uses.
+  new HostMetrics({
+    name: DEFAULT_SERVICE_NAME,
+    metricGroups: ['process.cpu', 'process.memory'],
+  }).start();
+
   return sdk;
 }
