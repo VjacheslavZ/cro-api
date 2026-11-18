@@ -275,6 +275,8 @@ Copy `apps/api/.env.example` to `apps/api/.env` and fill in:
 
 `docker compose up -d` also starts `grafana/otel-lgtm` (Grafana, Prometheus, Tempo, Loki and an OpenTelemetry Collector in one container). With the `OTEL_*` lines from `apps/api/.env.example` in `apps/api/.env`, the API sends traces (HTTP, Express, Nest, ioredis, Prisma), metrics and pino logs over OTLP to `localhost:4318` and prints the Grafana URL on startup. Every log line written during a request carries its `trace_id`, so Grafana links Loki logs and Tempo traces. Production logs stay JSON on stdout with uppercase levels (`"level":"ERROR"`): the CloudWatch metric filter of the `api-error-logs` alarm matches that text — see `apps/api/src/logging/logging.module.ts`. Without `OTEL_EXPORTER_OTLP_ENDPOINT`, telemetry is off — see `apps/api/src/telemetry/telemetry.ts`.
 
+With `SENTRY_DSN` set, unexpected API errors (not `HttpException`s) also go to Sentry, tagged with the OpenTelemetry `trace_id` of their request. Sentry gets only errors, without cookies, headers, bodies, query strings or local variables — see `apps/api/src/telemetry/sentry.ts`.
+
 ### Turbo commands (from monorepo root)
 
 ```bash

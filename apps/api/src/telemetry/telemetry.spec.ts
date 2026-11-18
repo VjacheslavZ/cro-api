@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
-import { loadTelemetrySettings, startTelemetry } from './telemetry';
+import { loadTelemetrySettings, sentryHost, startTelemetry } from './telemetry';
 
 const writeEnvFile = (content: string) => {
   const path = join(mkdtempSync(join(tmpdir(), 'cro-telemetry-')), '.env');
@@ -28,15 +28,18 @@ describe('startTelemetry', () => {
 });
 
 describe('loadTelemetrySettings', () => {
-  it('should copy only OTEL_ variables from the file', () => {
+  it('should copy only OTEL_ and SENTRY_ variables from the file', () => {
     const path = writeEnvFile(
-      'OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"\nDATABASE_URL="postgresql://x"\n',
+      'OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"\nDATABASE_URL="postgresql://x"\nSENTRY_DSN="https://key@example.ingest.sentry.io/1"\n',
     );
     const env: NodeJS.ProcessEnv = {};
 
     loadTelemetrySettings(path, env);
 
-    assert.deepEqual(env, { OTEL_EXPORTER_OTLP_ENDPOINT: 'http://localhost:4318' });
+    assert.deepEqual(env, {
+      OTEL_EXPORTER_OTLP_ENDPOINT: 'http://localhost:4318',
+      SENTRY_DSN: 'https://key@example.ingest.sentry.io/1',
+    });
   });
 
   it('should keep variables that are already set', () => {
@@ -54,5 +57,17 @@ describe('loadTelemetrySettings', () => {
     loadTelemetrySettings(join(tmpdir(), 'cro-no-such-dir', '.env'), env);
 
     assert.deepEqual(env, {});
+  });
+});
+
+describe('sentryHost', () => {
+  it('should return the host of the Sentry DSN', () => {
+    assert.equal(sentryHost('https://key@o1.ingest.de.sentry.io/42'), 'o1.ingest.de.sentry.io');
+  });
+
+  it('should return undefined without a valid DSN', () => {
+    assert.equal(sentryHost(undefined), undefined);
+    assert.equal(sentryHost(''), undefined);
+    assert.equal(sentryHost('not a url'), undefined);
   });
 });

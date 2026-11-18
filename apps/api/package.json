@@ -45,6 +45,7 @@
     "@opentelemetry/sdk-node": "^0.301.2",
     "@prisma/client": "^6.19.2",
     "@prisma/instrumentation": "^6.19.3",
+    "@sentry/nestjs": "^11.11.0",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.7.18",
     "class-transformer": "^0.5.1",

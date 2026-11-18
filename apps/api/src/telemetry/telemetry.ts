@@ -15,18 +15,20 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 
 const DEFAULT_SERVICE_NAME = 'cro-api';
+const EARLY_VARIABLE_PREFIXES = ['OTEL_', 'SENTRY_'];
 // The OpenTelemetry default. Grafana Cloud counts metrics in samples per
 // minute, so production keeps it; local development can lower it.
 const DEFAULT_METRIC_EXPORT_INTERVAL_MS = 60_000;
 
 /**
- * Copies the OTEL_* variables from an env file into `env`, without
- * overriding variables that are already set.
+ * Copies the OTEL_* and SENTRY_* variables from an env file into `env`,
+ * without overriding variables that are already set.
  *
  * Nest's ConfigModule reads .env during bootstrap, which is too late for
- * OpenTelemetry: it has to start before the libraries it traces are loaded.
- * Only OTEL_* variables are copied, so everything else is still loaded by
- * ConfigModule, as before. The production image has no .env file.
+ * OpenTelemetry and Sentry: they have to start before the libraries they
+ * watch are loaded. Only these variables are copied, so everything else is
+ * still loaded by ConfigModule, as before. The production image has no .env
+ * file.
  */
 export function loadTelemetrySettings(path = '.env', env: NodeJS.ProcessEnv = process.env): void {
   if (!existsSync(path)) {
@@ -34,10 +36,19 @@ export function loadTelemetrySettings(path = '.env', env: NodeJS.ProcessEnv = pr
   }
   const fileVariables = parseEnv(readFileSync(path, 'utf8'));
   for (const [name, value] of Object.entries(fileVariables)) {
-    if (name.startsWith('OTEL_') && env[name] === undefined) {
+    const early = EARLY_VARIABLE_PREFIXES.some((prefix) => name.startsWith(prefix));
+    if (early && env[name] === undefined) {
       env[name] = value;
     }
   }
+}
+
+/**
+ * The host that Sentry sends errors to, taken from SENTRY_DSN, or undefined
+ * when Sentry is off or the DSN is not a URL.
+ */
+export function sentryHost(dsn: string | undefined): string | undefined {
+  return dsn && URL.canParse(dsn) ? new URL(dsn).hostname : undefined;
 }
 
 /**
@@ -55,6 +66,8 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
   if (!env.OTEL_EXPORTER_OTLP_ENDPOINT) {
     return undefined;
   }
+
+  const errorReportHost = sentryHost(env.SENTRY_DSN);
 
   const sdk = new NodeSDK({
     serviceName: env.OTEL_SERVICE_NAME ?? DEFAULT_SERVICE_NAME,
@@ -75,6 +88,9 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
       // checks would bury the real requests.
       new HttpInstrumentation({
         ignoreIncomingRequestHook: (request) => request.url?.startsWith('/health') ?? false,
+        // Sending an error to Sentry is not part of the request that failed.
+        ignoreOutgoingRequestHook: (request) =>
+          errorReportHost !== undefined && request.hostname === errorReportHost,
       }),
       // Express middleware and routes, including better-auth on /api/auth/*.
       new ExpressInstrumentation(),
@@ -91,5 +107,6 @@ export function startTelemetry(env: NodeJS.ProcessEnv = process.env): NodeSDK | 
     ],
   });
   sdk.start();
+
   return sdk;
 }
