@@ -6,9 +6,20 @@
  * On correct answer: auto-advances after VITE_CORRECT_DELAY_MS (default 1000ms).
  * On incorrect: shows the error and waits for user to press "Next" or Enter.
  * Keyboard shortcut: Enter to check (when input is non-empty), Enter again to advance.
+ * Mobile keyboard: the input keeps focus after the check (it ignores typing instead of being
+ * disabled) and the buttons do not take focus, so the keyboard stays open; on unmount the input
+ * parks focus via keyboard-keeper so the next item's input keeps it open too. Keyboard
+ * suggestions, autocorrect and auto-capitalization are off — they would give the answer away.
  * @usedBy TypeTheAnswerExercise, FillInBlankExercise, LearnWordsSessionPage, DictionaryPracticePage
  */
-import { useState, useRef, useEffect, type ReactNode, useEffectEvent } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  type ReactNode,
+  useEffectEvent,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'cn';
 import { ArrowRightIcon, LightbulbIcon } from 'lucide-react';
@@ -17,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { normalizeAnswer } from '@/shared/lib/content-utils.ts';
 import { useSpeech } from '@/shared/hooks/useSpeech.ts';
+import { parkKeyboard } from '@/shared/lib/keyboard-keeper.ts';
 
 import { ExerciseProgressHeader } from '../ExerciseProgressHeader';
 import { ExerciseActionButton } from '../ui/ExerciseActionButton';
@@ -24,6 +36,9 @@ import { ExerciseCard } from '../ui/ExerciseCard';
 import { ExerciseFeedback } from '../ui/ExerciseFeedback';
 
 const CORRECT_DELAY = Number(import.meta.env.VITE_CORRECT_DELAY_MS) || 1000;
+
+/** Keeps focus (and the mobile keyboard) on the input when a button is pressed. */
+const keepInputFocus = (e: React.MouseEvent) => e.preventDefault();
 
 interface ProgressProps {
   currentIndex: number;
@@ -73,6 +88,7 @@ export function TextInputExercise({
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
   // Use a ref so handleCheck always reads the latest value synchronously
   const hintUsedRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleNext = () => {
     onAnswer({ itemId, givenAnswer: input, isCorrect });
@@ -82,6 +98,13 @@ export function TextInputExercise({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
+  }, []);
+
+  // Layout cleanup runs before React removes the input from the DOM — the last moment
+  // focus can move straight to the keeper without the keyboard closing in between.
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    return () => parkKeyboard(input);
   }, []);
 
   const handleKeyDownEnter = useEffectEvent((e: KeyboardEvent) => {
@@ -146,9 +169,8 @@ export function TextInputExercise({
     if (e.key === 'Enter') {
       if (!checked && input.trim()) {
         handleCheck();
-      } else if (checked && !isCorrect) {
-        handleNext();
       }
+      // After the check, Enter is handled by the window listener above.
     }
   };
 
@@ -166,8 +188,12 @@ export function TextInputExercise({
 
         <div className="mb-4 flex gap-3">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => {
+              // Not `disabled` after the check: a disabled input loses focus and the mobile
+              // keyboard closes. Typing is ignored instead.
+              if (checked) return;
               const value = e.target.value;
               setInput(value);
               if (!checked && normalizeAnswer(value) === normalizeAnswer(correctAnswer)) {
@@ -176,15 +202,22 @@ export function TextInputExercise({
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            disabled={checked}
+            aria-readonly={checked}
             autoFocus
-            className="h-14 flex-1 rounded-full border-transparent bg-muted px-5 text-lg shadow-none focus-visible:border-transparent focus-visible:ring-0 md:text-lg"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            className={cn(
+              'h-14 flex-1 rounded-full border-transparent bg-muted px-5 text-lg shadow-none focus-visible:border-transparent focus-visible:ring-0 md:text-lg',
+              checked && 'caret-transparent opacity-50',
+            )}
           />
           <Button
             variant="outline"
             size="icon"
             className={cn('size-14 shrink-0', checked && 'invisible')}
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={keepInputFocus}
             onClick={handleHint}
             title={t('exercises.session.hint')}
             aria-label={t('exercises.session.hint')}
@@ -198,12 +231,16 @@ export function TextInputExercise({
         </ExerciseFeedback>
 
         {!checked && (
-          <ExerciseActionButton onClick={() => handleCheck()} disabled={!input.trim()}>
+          <ExerciseActionButton
+            onMouseDown={keepInputFocus}
+            onClick={() => handleCheck()}
+            disabled={!input.trim()}
+          >
             {t('exercises.session.check')}
           </ExerciseActionButton>
         )}
         {checked && !isCorrect && (
-          <ExerciseActionButton onClick={handleNext}>
+          <ExerciseActionButton onMouseDown={keepInputFocus} onClick={handleNext}>
             {t('exercises.session.next')}
             <ArrowRightIcon data-icon="inline-end" />
           </ExerciseActionButton>

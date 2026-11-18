@@ -18,6 +18,17 @@ Each exercise type lives in a self-contained folder under `apps/web/src/features
 
 **Rule**: Never call `dispatch(fetchMe())` between exercise steps. Only call it on the **final step**, immediately before `navigate()` to the results page — at that point the component is about to unmount anyway.
 
+### Mobile keyboard in typed exercises
+
+A mobile browser closes the keyboard when the focused input is disabled or leaves the DOM, and iOS Safari reopens it only from a tap. `TextInputExercise` therefore:
+
+- never sets `disabled` after the check — it ignores typing (`aria-readonly`) so the input keeps focus; Enter after a wrong answer is handled only by the window listener;
+- keeps focus on the input when Check / Next / Hint is pressed (`onMouseDown` → `preventDefault`);
+- in a `useLayoutEffect` cleanup (before React removes the input) calls `parkKeyboard()` from `src/shared/lib/keyboard-keeper.ts`: focus moves to a hidden input, and the next input's `autoFocus` takes it over, so the keyboard stays open from word to word and through the Learn Words spinner between steps 2 and 3;
+- turns off keyboard suggestions, autocorrect and auto-capitalization (they would give the answer away).
+
+Parking works only while the page has called `useKeyboardKeeper(enabled)` (`SessionPage`, `DictionaryPracticePage`, `LearnWordsSessionPage`, each enabled only for typed exercise types). Disarming — page unmount or a switch to a non-typed step such as matching — closes a parked keyboard; an unclaimed park is released after 5 s. The keyboard cannot be opened without a tap on iOS, so the first typed item after a non-typed step (step 1 letter-pick → step 2) still needs a tap on the input there; Android Chrome opens it from `autoFocus`.
+
 ---
 
 ## Learn Words Feature

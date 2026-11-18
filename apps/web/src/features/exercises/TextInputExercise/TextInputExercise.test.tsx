@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../../test-utils/renderWithProviders';
@@ -96,5 +96,52 @@ describe('TextInputExercise', () => {
     await user.click(screen.getByTitle('Hint'));
 
     expect(screen.getByPlaceholderText('Enter answer...')).toHaveValue('č');
+  });
+
+  it('turns off keyboard suggestions, autocorrect and auto-capitalization', () => {
+    renderWithProviders(<TextInputExercise {...defaultProps} onAnswer={jest.fn()} />);
+
+    const input = screen.getByPlaceholderText('Enter answer...');
+    expect(input).toHaveAttribute('autocomplete', 'off');
+    expect(input).toHaveAttribute('autocorrect', 'off');
+    expect(input).toHaveAttribute('autocapitalize', 'none');
+    expect(input).toHaveAttribute('spellcheck', 'false');
+  });
+
+  it('keeps the input focused after a wrong answer and advances once on Enter', async () => {
+    const user = userEvent.setup();
+    const onAnswer = jest.fn();
+    renderWithProviders(<TextInputExercise {...defaultProps} onAnswer={onAnswer} />);
+
+    const input = screen.getByPlaceholderText('Enter answer...');
+    await user.type(input, 'kava{Enter}');
+
+    // Focus stays on the input so the mobile keyboard does not close; typing is ignored
+    expect(input).toHaveFocus();
+    expect(input).toBeEnabled();
+    await user.type(input, 'x');
+    expect(input).toHaveValue('kava');
+
+    // The window Enter listener is attached on the next animation frame
+    await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+    await user.keyboard('{Enter}');
+
+    expect(onAnswer).toHaveBeenCalledTimes(1);
+    expect(onAnswer).toHaveBeenCalledWith({
+      itemId: 'item1',
+      givenAnswer: 'kava',
+      isCorrect: false,
+    });
+  });
+
+  it('keeps the input focused when the Check button is pressed', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<TextInputExercise {...defaultProps} onAnswer={jest.fn()} />);
+
+    const input = screen.getByPlaceholderText('Enter answer...');
+    await user.type(input, 'kava');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+
+    expect(input).toHaveFocus();
   });
 });
